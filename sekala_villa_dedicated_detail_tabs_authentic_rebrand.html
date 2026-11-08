@@ -1,0 +1,840 @@
+<!-- ... existing code ... -->
+    <title>Sekala Villa - Katalog Villa & Experience Tawangmangu - Jogja</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            900: '#1c3029',
+                            800: '#27443a',
+                            700: '#355c4f',
+                            100: '#eef4f1',
+                        },
+                        terracotta: {
+                            500: '#c86d51',
+                            600: '#b45b40',
+                        },
+                        sand: {
+                            50: '#faf8f5',
+                            100: '#f4efe8',
+                            200: '#e8ded2',
+                            800: '#524941',
+                            900: '#2d2722',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f4efe8; }
+        ::-webkit-scrollbar-thumb { background: #355c4f; border-radius: 99px; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-sand-50 text-sand-900 font-sans antialiased selection:bg-brand-800 selection:text-white">
+
+    <!-- Promo Bar Iklan -->
+    <div class="bg-brand-900 text-amber-200 text-xs py-2 px-3 text-center font-medium flex items-center justify-center gap-2">
+        <span class="bg-terracotta-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">PROMO ADS</span>
+        <span class="truncate">Kulonuwun! Diskon Sewa Villa Up To 25% + Bonus alat BBQ siap bakar di Tawangmangu & Jogja.</span>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 bg-sand-50/90 backdrop-blur-md border-b border-sand-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xl font-serif font-bold shadow-md">
+                    S
+                </div>
+                <div>
+                    <span class="font-serif text-xl sm:text-2xl font-bold tracking-tight text-brand-900 leading-none block">SEKALA</span>
+                    <span class="text-[9px] uppercase tracking-widest text-terracotta-600 font-bold">Villa & Stays</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center space-x-7 text-xs font-bold uppercase tracking-wider text-sand-800">
+                <a href="#promo-banner" class="hover:text-brand-700 transition">Promo Iklan</a>
+                <a href="#katalog" class="hover:text-brand-700 transition">Katalog Villa</a>
+                <a href="#addons-section" class="hover:text-brand-700 transition">Detail Add-Ons</a>
+                <a href="#faq" class="hover:text-brand-700 transition">Info & FAQ</a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <a href="https://wa.me/6281381669735?text=Halo%20Admin%20Sekala%20Villa,%20mau%20tanya%20unit%20villa" target="_blank" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-sm text-emerald-300"></i> <span>Hubungi Admin</span>
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden text-sand-900 text-xl p-2">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-sand-200 bg-sand-50 px-4 py-3 space-y-2 text-xs font-bold uppercase">
+            <a href="#promo-banner" onclick="toggleMobileMenu()" class="block py-2 text-sand-800">Promo Special</a>
+            <a href="#katalog" onclick="toggleMobileMenu()" class="block py-2 text-sand-800">Katalog Villa</a>
+            <a href="#addons-section" onclick="toggleMobileMenu()" class="block py-2 text-sand-800">Detail Add-Ons (BBQ, Jeep, PS)</a>
+            <a href="#faq" onclick="toggleMobileMenu()" class="block py-2 text-sand-800">Tanya Jawab</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. HERO PROMO ADS SECTION -->
+        <section id="promo-banner" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+            <div class="relative rounded-3xl overflow-hidden bg-brand-900 text-white min-h-[360px] sm:min-h-[420px] flex items-center p-6 sm:p-12 shadow-xl">
+                <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80" class="absolute inset-0 w-full h-full object-cover opacity-35 mix-blend-overlay" alt="Villa Background">
+                
+                <div class="relative z-10 max-w-xl space-y-4">
+                    <div class="inline-flex items-center gap-2 bg-amber-400 text-slate-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                        <i class="fa-solid fa-fire text-amber-800"></i> PROMO WEEKEND SPESIAL
+                    </div>
+                    <h1 class="font-serif text-3xl sm:text-5xl font-bold text-amber-50 leading-tight">Liburan Nyaman Rasa Rumah Sendiri.</h1>
+                    <p class="text-sand-200 text-xs sm:text-sm leading-relaxed">Sewa villa private pool Tawangmangu & Jogja dengan fasilitas komplit. Bisa tambah paket BBQ siap bakar, Jeep tour Kemuning, & sewa PS5!</p>
+                    
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="filterByLocation('Tawangmangu')" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-5 py-3 rounded-xl transition shadow">
+                            Cek Unit Tawangmangu
+                        </button>
+                        <button onclick="filterByLocation('Yogyakarta')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-5 py-3 rounded-xl backdrop-blur transition border border-white/20">
+                            Villa Yogyakarta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. COMPACT SEARCH & FILTER BAR -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-lg border border-sand-200">
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-sand-100">
+                    <span class="font-bold text-brand-900 text-xs sm:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-terracotta-500"></i> Cari Villa Sesuai Kebutuhan
+                    </span>
+                    <button onclick="resetFilters()" class="text-xs text-terracotta-600 font-bold hover:underline">Reset Filter</button>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">Lokasi Destinasi</label>
+                        <select id="filter-location" onchange="applyFilters()" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold text-sand-900 focus:outline-none">
+                            <option value="all">Semua Lokasi</option>
+                            <option value="Tawangmangu">Tawangmangu</option>
+                            <option value="Yogyakarta">Yogyakarta</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">Kapasitas Tamu</label>
+                        <select id="filter-capacity" onchange="applyFilters()" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold text-sand-900 focus:outline-none">
+                            <option value="0">Semua Kapasitas</option>
+                            <option value="4">2 - 4 Pax</option>
+                            <option value="8">5 - 8 Pax</option>
+                            <option value="15">10+ Pax (Rombongan)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-span-2 lg:col-span-2">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-[10px] font-extrabold text-sand-800 uppercase">Batas Budget / Malam</label>
+                            <span id="budget-display" class="text-xs font-bold text-brand-700">Rp 5.000.000</span>
+                        </div>
+                        <input type="range" id="filter-budget" min="500000" max="5000000" step="250000" value="5000000" oninput="updateBudgetLabel(this.value); applyFilters();" class="w-full accent-brand-700 h-2 bg-sand-200 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. KATALOG VILLA -->
+        <section id="katalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <span class="text-terracotta-600 font-bold text-[10px] uppercase tracking-widest block">Rekomendasi Sekala</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-brand-900">Katalog Unit Villa</h2>
+                </div>
+                <span class="text-xs font-bold bg-sand-200 px-3 py-1 rounded-lg text-sand-800">
+                    <strong id="villa-count" class="text-brand-800">0</strong> Pilihan Unit
+                </span>
+            </div>
+
+            <div id="villa-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Injected dynamically via JS -->
+            </div>
+
+            <div id="empty-state" class="hidden text-center py-12 bg-white rounded-2xl border border-sand-200">
+                <i class="fa-solid fa-building-circle-exclamation text-3xl text-sand-400 mb-2 block"></i>
+                <h3 class="text-sm font-bold text-sand-900">Villa Tidak Ditemukan</h3>
+                <p class="text-sand-800 text-xs mb-3">Coba turunkan kriteria filter pencarian Anda.</p>
+                <button onclick="resetFilters()" class="bg-brand-900 text-white font-bold text-xs px-4 py-2 rounded-xl">Reset Filter</button>
+            </div>
+        </section>
+
+        <!-- 4. DEDICATED ADD-ONS SECTION DENGAN TAB DETAIL DEDIKASI -->
+        <section id="addons-section" class="bg-sand-100 py-12 sm:py-20 border-t border-sand-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-xl mx-auto mb-8 sm:mb-12">
+                    <span class="bg-terracotta-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-2">Layanan Ekstra Liburan</span>
+                    <h2 class="font-serif text-2xl sm:text-4xl font-bold text-brand-900">Detail Katalog Add-Ons</h2>
+                    <p class="text-sand-800 text-xs sm:text-sm mt-2">Pilih kategori dibawah untuk melihat rincian isi menu, harga, & pesanan langsung via WhatsApp.</p>
+                </div>
+
+                <!-- ADD-ON TAB BUTTONS -->
+                <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-8 pb-2 border-b border-sand-200 justify-start sm:justify-center">
+                    <button id="tab-btn-bbq" onclick="switchAddonTab('bbq')" class="addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-brand-900 text-amber-300 shadow">
+                        <i class="fa-solid fa-fire-burner"></i> Katalog BBQ
+                    </button>
+                    <button id="tab-btn-jeep" onclick="switchAddonTab('jeep')" class="addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-white text-sand-800 border border-sand-200">
+                        <i class="fa-solid fa-truck-monster"></i> Wisata Jeep
+                    </button>
+                    <button id="tab-btn-ps" onclick="switchAddonTab('ps')" class="addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-white text-sand-800 border border-sand-200">
+                        <i class="fa-solid fa-gamepad"></i> Sewa PlayStation
+                    </button>
+                    <button id="tab-btn-catering" onclick="switchAddonTab('catering')" class="addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-white text-sand-800 border border-sand-200">
+                        <i class="fa-solid fa-utensils"></i> Catering Prasmanan
+                    </button>
+                </div>
+
+                <!-- ADD-ON CONTENT PANES -->
+                <div id="addon-panes-container">
+                    <!-- Dynamic pane content injected here -->
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. FAQ SECTION -->
+        <section id="faq" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-brand-900 text-center mb-6">Informasi & Pertanyaan Umum</h2>
+            <div class="space-y-3">
+                <details class="bg-white rounded-2xl border border-sand-200 p-4 group">
+                    <summary class="font-bold text-brand-900 text-xs sm:text-sm cursor-pointer flex justify-between items-center">
+                        Bagaimana cara booking villa atau paket add-on?
+                        <i class="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
+                    </summary>
+                    <p class="text-sand-800 text-xs mt-2 leading-relaxed">Cukup klik tombol <strong>"Pesan via WA"</strong> di villa atau paket add-on yang diinginkan. Format pesan otomatis terisi, lalu admin kami akan langsung mengonfirmasi ketersediaan tanggal & DP.</p>
+                </details>
+
+                <details class="bg-white rounded-2xl border border-sand-200 p-4 group">
+                    <summary class="font-bold text-brand-900 text-xs sm:text-sm cursor-pointer flex justify-between items-center">
+                        Apakah paket BBQ atau Jeep bisa diantar ke villa mana saja?
+                        <i class="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
+                    </summary>
+                    <p class="text-sand-800 text-xs mt-2 leading-relaxed">Bisa banget! Untuk wilayah Tawangmangu, Kemuning, dan sekitarnya tim kami siap antar paket BBQ & peralatan grill lengkap. Tour Jeep juga bisa di-pick up dari area villa.</p>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-900 text-sand-200 pt-10 pb-6 border-t border-brand-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 text-xs">
+                <div>
+                    <div class="flex items-center justify-center sm:justify-start gap-2 mb-2">
+                        <div class="w-7 h-7 rounded bg-amber-400 text-brand-900 font-serif font-bold flex items-center justify-center">S</div>
+                        <span class="font-serif text-lg font-bold text-white">SEKALA VILLA</span>
+                    </div>
+                    <p class="text-sand-200/80">Layanan agen & manajemen villa terpercaya area Tawangmangu & Yogyakarta.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white uppercase mb-2">Cakupan Destinasi</h4>
+                    <p class="text-sand-200/80">Tawangmangu • Kemuning • Kaliurang • Kota Jogja</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white uppercase mb-2">Kontak Reservasi</h4>
+                    <p class="text-sand-200/80">WhatsApp CS: +62 813-8166-9735</p>
+                </div>
+            </div>
+            <div class="border-t border-brand-800 pt-4 text-center text-[10px] text-sand-200/60">
+                &copy; 2026 Sekala Villa Management. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- POP-UP PROMO SPESIAL (GAYA BROSCO.ID FOR ADS CONVERSION) -->
+    <div id="promo-popup-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-sand-50 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-sand-200 relative transform transition-transform scale-95 duration-300" id="promo-modal-card">
+            <!-- Close Button -->
+            <button onclick="closePromoModal()" class="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white flex items-center justify-center font-bold backdrop-blur transition">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+
+            <!-- Banner Gambar Header Promo -->
+            <div class="relative h-52 bg-brand-900 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80" alt="Special Promo Sekala" class="w-full h-full object-cover opacity-60">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-900 via-transparent to-transparent"></div>
+                <div class="absolute top-4 left-4">
+                    <span class="bg-amber-400 text-slate-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                        <i class="fa-solid fa-bolt me-1"></i> SPECIAL ADS PROMO
+                    </span>
+                </div>
+                <div class="absolute bottom-3 left-4 right-4">
+                    <span class="text-amber-300 text-xs font-bold uppercase tracking-widest block">Terbatas Untuk 10 Pemesan Pertama</span>
+                    <h3 class="font-serif text-2xl font-bold text-white leading-tight">Diskon Rp 150.000 + Free Alat BBQ Set!</h3>
+                </div>
+            </div>
+
+            <!-- Body Info Promo -->
+            <div class="p-6 space-y-4">
+                <p class="text-sand-800 text-xs leading-relaxed">
+                    Khusus booking minggu ini melalui website resmi Sekala Villa! Dapatkan potongan langsung sewa villa di <strong>Tawangmangu & Jogja</strong> plus gratis peminjaman set grill BBQ portable.
+                </p>
+
+                <!-- Timer Countdown Dummy / Highlight Kode -->
+                <div class="bg-amber-100/70 border border-amber-300/80 rounded-2xl p-3 flex items-center justify-between text-amber-950">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-ticket-simple text-amber-700 text-xl"></i>
+                        <div>
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-amber-800 block">Kode Promo Ads</span>
+                            <strong class="font-mono text-sm font-bold tracking-wider">SEKALAADS150</strong>
+                        </div>
+                    </div>
+                    <button onclick="copyPromoCode('SEKALAADS150')" class="bg-amber-400 hover:bg-amber-500 text-amber-950 text-[10px] font-bold px-3 py-1.5 rounded-xl transition">
+                        Salin Kode
+                    </button>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="pt-1 space-y-2">
+                    <button onclick="claimPromoWA()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Klaim Vocher Promo via WA
+                    </button>
+                    <button onclick="closePromoModal()" class="w-full text-sand-800 hover:text-sand-900 font-semibold text-xs py-1 transition text-center block">
+                        Nanti Saja, Lihat Katalog Dulu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KHUSUS UNTUK RINCIAN DETAIL MENU ADD-ON -->
+    <div id="addon-detail-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-sand-200 relative">
+            <button onclick="closeAddonDetailModal()" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-sand-200 text-sand-900 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+            <div id="modal-detail-body" class="p-6"></div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const WA_ADMIN_PHONE = "6281381669735";
+
+        // DATA KATALOG VILLA (Realistis & Menarik)
+        const villaData = [
+            {
+                id: 'sekala-1',
+                name: 'Sekala Pine Resort Villa',
+                location: 'Tawangmangu',
+                capacity: 12,
+                bedrooms: 4,
+                price: 2500000,
+                rating: 4.9,
+                badge: 'Best Seller',
+                image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+                features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater']
+            },
+            {
+                id: 'sekala-2',
+                name: 'Villa Sekala Heritage Jogja',
+                location: 'Yogyakarta',
+                capacity: 8,
+                bedrooms: 3,
+                price: 1750000,
+                rating: 4.8,
+                badge: 'Private Pool',
+                image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+                features: ['Private Pool', 'Karaoke Set', 'Garden BBQ Area', 'Wifi 100Mbps']
+            },
+            {
+                id: 'sekala-3',
+                name: 'Sekala Peak View Cottage',
+                location: 'Tawangmangu',
+                capacity: 4,
+                bedrooms: 2,
+                price: 950000,
+                rating: 4.7,
+                badge: 'Budget Friendly',
+                image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+                features: ['View Kebun Teh', 'Balkon Pegunungan', 'Dapur Ringkas']
+            },
+            {
+                id: 'sekala-4',
+                name: 'Sekala Serenity Estate',
+                location: 'Yogyakarta',
+                capacity: 15,
+                bedrooms: 5,
+                price: 3200000,
+                rating: 5.0,
+                badge: 'Gathering Size',
+                image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+                features: ['Private Pool', 'Karaoke Hall', 'View Merapi', 'Halaman Outbound']
+            }
+        ];
+
+        // DATA RINCIAN ADD-ONS TERDIRI DARI PILIHAN PAKET & MENU DETAIL
+        const addonCatalogData = {
+            bbq: {
+                title: "Katalog Paket BBQ Siap Bakar",
+                subtitle: "Termasuk kompor/alat grill portable, arang batok, bumbu marinasi, & saus khas Sekala.",
+                note: "Gratis antar ke lokasi villa area Tawangmangu/Kemuning.",
+                packages: [
+                    {
+                        id: 'bbq-1',
+                        name: 'BBQ Paket Penasaran (2-4 Pax)',
+                        price: 150000,
+                        tag: 'Cocok Pasangan / Mini Group',
+                        summary: '250g Shortplate + 250g Sosis/Ayam + Alat Grill Set',
+                        details: [
+                            '250 gram US Beef Shortplate Sliced Meat',
+                            '250 gram Chicken Sliced / Sosis Grill Premium',
+                            'Set Alat Panggangan BBQ Portable + Capit',
+                            '1 Pack Arang Batok Kelapa + Margarin',
+                            'Saus Blackpepper & Bumbu Marinasi Teriyaki'
+                        ]
+                    },
+                    {
+                        id: 'bbq-2',
+                        name: 'BBQ Paket Rame-Rame (5-8 Pax)',
+                        price: 275000,
+                        tag: 'Terfavorit Tamu',
+                        summary: '500g US Shortplate + Bakso/Sosis + Bumbu Lengkap',
+                        details: [
+                            '500 gram US Shortplate Sliced Premium',
+                            '250 gram Bakso Sapi Grill & Sosis Jumbo',
+                            '1 Set Alat Panggangan BBQ Portable Large',
+                            '2 Pack Arang Batok Kelapa + Margarin',
+                            'Saus Blackpepper, Teriyaki, & Sambal Pedas Khas Sekala'
+                        ]
+                    },
+                    {
+                        id: 'bbq-3',
+                        name: 'BBQ Paket Premium Gathering (10+ Pax)',
+                        price: 450000,
+                        tag: 'Porsi Sultan Rombongan',
+                        summary: '1 Kg Meltique Wagyu & Shortplate + Jagung + Drink',
+                        details: [
+                            '1000 gram Meltique Wagyu & Shortplate Sliced',
+                            '500 gram Sosis & Bakso Grill Complete',
+                            '4 Pcs Jagung Manis Siap Panggang',
+                            'Alat Grill Double Pan + Arang Melimpah',
+                            'Bonus Drink (1 Pitcher Teh Manis)'
+                        ]
+                    }
+                ]
+            },
+            jeep: {
+                title: "Wisata Offroad Jeep Adventure",
+                subtitle: "Jelajah kebun teh & terabas sungai. Kapasitas max 4-5 orang per unit Jeep.",
+                note: "Penjemputan siap langsung dari halaman villa.",
+                packages: [
+                    {
+                        id: 'jeep-1',
+                        name: 'Jeep Short Trip Tawangmangu',
+                        price: 350000,
+                        tag: 'Durasi ± 1.5 Jam',
+                        summary: 'Jelajah Kebun Teh, Spot Foto Panoramic, & Kebun Strawberry',
+                        details: [
+                            '1 Unit Armada Offroad Jeep 4x4 (Max 4-5 Pax)',
+                            'Driver Berpengalaman & Fuel (BBM)',
+                            'Rute: Spot Kebun Teh Kemuning & View Pegunungan',
+                            'Free Dokumentasi Foto HP oleh Driver'
+                        ]
+                    },
+                    {
+                        id: 'jeep-2',
+                        name: 'Jeep Medium Offroad River Kemuning',
+                        price: 500000,
+                        tag: 'Durasi ± 2.5 Jam',
+                        summary: 'Sensasi Terabas Sungai Kali Pucung & Telaga Madirda',
+                        details: [
+                            'Armada Jeep 4x4 Spec Offroad Basah',
+                            'Rute Extreme: Sungai Kali Pucung & Telaga Madirda',
+                            'Driver & Guide Berpengalaman',
+                            'Fasilitas Jas Hujan / Mantol saat Musim Hujan'
+                        ]
+                    },
+                    {
+                        id: 'jeep-3',
+                        name: 'Creator Dokumentasi Photo & Video Jeep',
+                        price: 200000,
+                        tag: 'Add-On Konten Reels/TikTok',
+                        summary: 'Kameramen Pribadi + File Mentah & Video Edit Siap Upload',
+                        details: [
+                            'Kameramen khusus mendampingi selama tour',
+                            'File Foto & Video mentah di-share via Google Drive',
+                            'Bonus 1-2 Video Reels/TikTok yang sudah di-edit'
+                        ]
+                    }
+                ]
+            },
+            ps: {
+                title: "Sewa PlayStation Delivery to Villa",
+                subtitle: "Diantarkan & langsung di-setting di Smart TV unit Villa Anda. Pengantaran FREE.",
+                note: "Sewa dihitung per 24 Jam.",
+                packages: [
+                    {
+                        id: 'ps-1',
+                        name: 'Sewa PlayStation 4 Pro',
+                        price: 125000,
+                        tag: 'Rental 24 Jam',
+                        summary: 'Console PS4 Pro + 2 Stik Wireless + Puluhan Game Terinstal',
+                        details: [
+                            'Unit Console PS4 Pro 1TB HDD',
+                            '2 Stik Wireless DualShock 4',
+                            'Kabel HDMI & Kabel Charger',
+                            'Game: EA FC24/PES, GTA V, Tekken 7, CTR, Naruto, Mortal Kombat'
+                        ]
+                    },
+                    {
+                        id: 'ps-2',
+                        name: 'Sewa PlayStation 5 Disc Edition',
+                        price: 250000,
+                        tag: 'Next-Gen Grafis 4K',
+                        summary: 'Console PS5 + 2 Stik DualSense Wireless + Game Terbaru',
+                        details: [
+                            'Unit Console PS5 Disc Edition',
+                            '2 Stik DualSense Wireless Controller',
+                            'Pengalaman Grafis Smooth 4K HDR',
+                            'Game: EA FC 24, Spiderman 2, Mortal Kombat 1, God of War Ragnarok'
+                        ]
+                    }
+                ]
+            },
+            catering: {
+                title: "Catering & Consumsi Rombongan",
+                subtitle: "Masakan rumahan khas Nusantara diantar hangat tepat pada jam makan Anda.",
+                note: "Minimal order 10 Porsi/Box.",
+                packages: [
+                    {
+                        id: 'cat-1',
+                        name: 'Paket Prasmanan Nusantara',
+                        price: 35000,
+                        tag: 'Harga Per Porsi',
+                        summary: 'Menu Prasmanan Lengkap: Lauk Utama + Sayur + Es Buah',
+                        details: [
+                            'Nasi Putih Pulen',
+                            'Lauk Utama: Ayam Goreng Lengkuas / Rendang Sapi / Ikan Bakar',
+                            'Lauk Pendamping: Tahu Tempe & Sayur Capcay / Sop',
+                            'Sambal, Kerupuk, Buah Potong & Es Sup Buah'
+                        ]
+                    },
+                    {
+                        id: 'cat-2',
+                        name: 'Paket Nasi Box Hemat',
+                        price: 25000,
+                        tag: 'Harga Per Box',
+                        summary: 'Nasi Box Praktis untuk Sarapan / Bekal Tour',
+                        details: [
+                            'Nasi Putih',
+                            'Ayam Bakar / Ayam Geprek Sambal Bawang',
+                            'Mie Goreng Jawa & Tumis Buncis',
+                            'Kerupuk & Air Mineral Box'
+                        ]
+                    }
+                ]
+            }
+        };
+
+        function formatRupiah(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+        }
+
+        function updateBudgetLabel(val) {
+            document.getElementById('budget-display').innerText = formatRupiah(val);
+        }
+
+        // DIRECT ORDER VIA WHATSAPP (Format Alami Khas CS)
+        function directOrderVillaWA(villaId) {
+            const villa = villaData.find(v => v.id === villaId);
+            if (!villa) return;
+            const text = `Halo Admin Sekala Villa! 🖐️\nSaya tertarik mau tanya ketersediaan unit ini:\n\n` +
+                `📌 *Villa:* ${villa.name}\n` +
+                `📍 *Lokasi:* ${villa.location}\n` +
+                `👥 *Kapasitas:* ${villa.capacity} Pax\n` +
+                `💰 *Harga:* ${formatRupiah(villa.price)} / malam\n\n` +
+                `Apakah unit ini kosong untuk rencana tanggal saya? Mohon infonya ya kak, terima kasih!`;
+            window.open(`https://wa.me/${WA_ADMIN_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function directOrderAddonWA(addonName, price) {
+            const text = `Halo Admin Sekala Villa! 🖐️\nSaya mau pesan paket layanan Add-On ini:\n\n` +
+                `🎁 *Paket:* ${addonName}\n` +
+                `💰 *Harga:* ${formatRupiah(price)}\n\n` +
+                `Boleh diinfokan alur pemesanan dan pengantarannya kak? Terima kasih!`;
+            window.open(`https://wa.me/${WA_ADMIN_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // RENDER VILLA CARDS
+        function renderVillas(list) {
+            const grid = document.getElementById('villa-grid');
+            const count = document.getElementById('villa-count');
+            const empty = document.getElementById('empty-state');
+
+            grid.innerHTML = '';
+            count.innerText = list.length;
+
+            if (list.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            } else {
+                empty.classList.add('hidden');
+            }
+
+            list.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl overflow-hidden border border-sand-200 shadow-sm hover:shadow-md transition flex flex-col";
+                card.innerHTML = `
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 left-3 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                            ${item.badge}
+                        </span>
+                        <span class="absolute top-3 right-3 bg-white/90 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <i class="fa-solid fa-star text-amber-500"></i> ${item.rating}
+                        </span>
+                        <span class="absolute bottom-2.5 left-2.5 bg-slate-950/70 text-white text-[10px] px-2 py-0.5 rounded">
+                            <i class="fa-solid fa-location-dot me-1 text-emerald-400"></i> ${item.location}
+                        </span>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 class="font-serif text-lg font-bold text-brand-900 leading-snug">${item.name}</h3>
+                            <div class="flex items-center gap-3 text-xs text-sand-800 font-medium my-2">
+                                <span><i class="fa-solid fa-users text-brand-700 me-1"></i> Max ${item.capacity} Pax</span>
+                                <span><i class="fa-solid fa-bed text-brand-700 me-1"></i> ${item.bedrooms} Kamar</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1 mt-2">
+                                ${item.features.map(f => `<span class="bg-sand-100 text-sand-800 text-[9px] font-semibold px-2 py-0.5 rounded">${f}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-sand-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
+                                <span class="text-sm font-extrabold text-brand-800">${formatRupiah(item.price)}</span>
+                            </div>
+                            <button onclick="directOrderVillaWA('${item.id}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> Pesan WA
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function applyFilters() {
+            const loc = document.getElementById('filter-location').value;
+            const cap = parseInt(document.getElementById('filter-capacity').value);
+            const budget = parseInt(document.getElementById('filter-budget').value);
+
+            const filtered = villaData.filter(v => {
+                if (loc !== 'all' && v.location !== loc) return false;
+                if (cap > 0 && v.capacity < cap) return false;
+                if (v.price > budget) return false;
+                return true;
+            });
+
+            renderVillas(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-location').value = 'all';
+            document.getElementById('filter-capacity').value = '0';
+            document.getElementById('filter-budget').value = '5000000';
+            updateBudgetLabel(5000000);
+            renderVillas(villaData);
+        }
+
+        function filterByLocation(loc) {
+            resetFilters();
+            document.getElementById('filter-location').value = loc;
+            applyFilters();
+            document.getElementById('katalog').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // SWITCH TAB KHUSUS UNTUK ADD-ONS SECTION
+        function switchAddonTab(tabKey) {
+            const tabs = ['bbq', 'jeep', 'ps', 'catering'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabKey) {
+                    btn.className = "addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-brand-900 text-amber-300 shadow";
+                } else {
+                    btn.className = "addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-white text-sand-800 border border-sand-200 hover:bg-sand-200";
+                }
+            });
+
+            renderAddonPane(tabKey);
+        }
+
+        function renderAddonPane(tabKey) {
+            const container = document.getElementById('addon-panes-container');
+            const data = addonCatalogData[tabKey];
+            if (!data) return;
+
+            let html = `
+                <div class="space-y-6">
+                    <div class="bg-white p-4 rounded-2xl border border-sand-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-sand-800">
+                        <div>
+                            <strong class="font-bold text-brand-900 text-sm block">${data.title}</strong>
+                            <span>${data.subtitle}</span>
+                        </div>
+                        <span class="bg-amber-100 text-amber-900 font-extrabold px-3 py-1 rounded-lg shrink-0">${data.note}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            `;
+
+            data.packages.forEach(pkg => {
+                html += `
+                    <div class="bg-white rounded-2xl p-5 border border-sand-200 shadow-sm flex flex-col justify-between space-y-4">
+                        <div>
+                            <span class="bg-sand-100 text-sand-900 text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase block w-fit mb-2">
+                                ${pkg.tag}
+                            </span>
+                            <h3 class="font-bold text-brand-900 text-base">${pkg.name}</h3>
+                            <p class="text-sand-800 text-xs mt-1 leading-relaxed">${pkg.summary}</p>
+                        </div>
+
+                        <div>
+                            <div class="text-brand-800 font-extrabold text-base mb-3">${formatRupiah(pkg.price)}</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="showAddonModalDetails('${tabKey}', '${pkg.id}')" class="w-full bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs py-2.5 rounded-xl transition">
+                                    Detail Isi
+                                </button>
+                                <button onclick="directOrderAddonWA('${pkg.name}', ${pkg.price})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2.5 rounded-xl transition shadow flex items-center justify-center gap-1">
+                                    <i class="fa-brands fa-whatsapp"></i> Tanya WA
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        // BUKA MODAL DETAIL ISI PAKET ADD-ON
+        function showAddonModalDetails(tabKey, packageId) {
+            const data = addonCatalogData[tabKey];
+            if (!data) return;
+            const pkg = data.packages.find(p => p.id === packageId);
+            if (!pkg) return;
+
+            const modal = document.getElementById('addon-detail-modal');
+            const body = document.getElementById('modal-detail-body');
+
+            body.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <span class="bg-terracotta-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded uppercase">Rincian Paket Add-On</span>
+                        <h3 class="font-serif text-xl font-bold text-brand-900 mt-2">${pkg.name}</h3>
+                        <p class="text-xs text-sand-800 mt-1">${pkg.summary}</p>
+                    </div>
+
+                    <div class="bg-sand-50 p-4 rounded-xl border border-sand-200 space-y-2">
+                        <h4 class="font-bold text-xs uppercase text-brand-900 tracking-wider">Item Termasuk Dalam Paket:</h4>
+                        <ul class="space-y-1.5 text-xs text-sand-800">
+                            ${pkg.details.map(d => `<li class="flex items-start gap-2"><i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i> <span>${d}</span></li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="pt-3 flex items-center justify-between border-t border-sand-100">
+                        <div>
+                            <span class="text-[9px] uppercase font-bold text-sand-800 block">Harga Total Paket</span>
+                            <span class="text-base font-extrabold text-brand-800">${formatRupiah(pkg.price)}</span>
+                        </div>
+                        <button onclick="directOrderAddonWA('${pkg.name}', ${pkg.price}); closeAddonDetailModal();" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Pesan Langsung via WA
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddonDetailModal() {
+            document.getElementById('addon-detail-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // PROMO POP-UP LOGIC (GAYA BROSCO.ID)
+        function showPromoModal() {
+            const modal = document.getElementById('promo-popup-modal');
+            const card = document.getElementById('promo-modal-card');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closePromoModal() {
+            const modal = document.getElementById('promo-popup-modal');
+            const card = document.getElementById('promo-modal-card');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function claimPromoWA() {
+            const text = `Halo Admin Sekala Villa! 🖐️\nSaya dapat info dari website dan ingin klaim *Voucher Promo ADS (Kode: SEKALAADS150)*:\n\n- Potongan Rp 150.000\n- Bonus Free Alat BBQ Set\n\nBisa dibantu informasi tanggal villa yang masih ready kak? Terima kasih!`;
+            window.open(`https://wa.me/${WA_ADMIN_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+            closePromoModal();
+        }
+
+        function copyPromoCode(code) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = code;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            alert("Kode Promo " + code + " berhasil disalin!");
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+        window.onload = function() {
+            renderVillas(villaData);
+            renderAddonPane('bbq');
+
+            // Otomatis munculkan pop-up promo setelah 1.5 detik (meniru Brosco.id)
+            setTimeout(() => {
+                showPromoModal();
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
