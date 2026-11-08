@@ -325,6 +325,16 @@
         </div>
     </div>
 
+    <!-- MODAL DETAIL VILLA -->
+    <div id="villa-detail-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-sand-200 relative">
+            <button onclick="closeVillaModal()" class="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white flex items-center justify-center font-bold backdrop-blur transition">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div id="villa-modal-body"></div>
+        </div>
+    </div>
+
     <!-- MODAL KHUSUS UNTUK RINCIAN DETAIL MENU ADD-ON -->
     <div id="addon-detail-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-sand-200 relative">
@@ -351,7 +361,14 @@
                 rating: 4.9,
                 badge: 'Best Seller',
                 image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
-                features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater']
+                images: [
+                    'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater'],
+                desc: 'Villa eksklusif dengan view pegunungan Lawu yang memukau. Cocok untuk gathering keluarga besar atau rombongan dengan fasilitas lengkap termasuk private pool, karaoke, dan water heater gratis.'
             },
             {
                 id: 'sekala-2',
@@ -363,7 +380,14 @@
                 rating: 4.8,
                 badge: 'Private Pool',
                 image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
-                features: ['Private Pool', 'Karaoke Set', 'Garden BBQ Area', 'Wifi 100Mbps']
+                images: [
+                    'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['Private Pool', 'Karaoke Set', 'Garden BBQ Area', 'Wifi 100Mbps'],
+                desc: 'Villa bergaya heritage Jawa modern di jantung Yogyakarta. Nikmati private pool, area BBQ di taman, dan koneksi WiFi super cepat 100Mbps untuk staycation yang nyaman.'
             },
             {
                 id: 'sekala-3',
@@ -375,7 +399,13 @@
                 rating: 4.7,
                 badge: 'Budget Friendly',
                 image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
-                features: ['View Kebun Teh', 'Balkon Pegunungan', 'Dapur Ringkas']
+                images: [
+                    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['View Kebun Teh', 'Balkon Pegunungan', 'Dapur Ringkas'],
+                desc: 'Cottage cozy dengan pemandangan hamparan kebun teh Kemuning langsung dari balkon. Pilihan terbaik untuk pasangan atau keluarga kecil yang ingin menikmati udara sejuk Tawangmangu.'
             },
             {
                 id: 'sekala-4',
@@ -387,7 +417,15 @@
                 rating: 5.0,
                 badge: 'Gathering Size',
                 image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-                features: ['Private Pool', 'Karaoke Hall', 'View Merapi', 'Halaman Outbound']
+                images: [
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1619292974578-ee84bbd86f7c?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['Private Pool', 'Karaoke Hall', 'View Merapi', 'Halaman Outbound'],
+                desc: 'Estate mewah berkapasitas besar dengan view Gunung Merapi yang spektakuler. Sempurna untuk gathering perusahaan, reuni, atau arisan besar dengan fasilitas karaoke hall dan area outbound.'
             }
         ];
 
@@ -602,10 +640,11 @@
 
             list.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl overflow-hidden border border-sand-200 shadow-sm hover:shadow-md transition flex flex-col";
+                card.className = "bg-white rounded-2xl overflow-hidden border border-sand-200 shadow-sm hover:shadow-md transition flex flex-col cursor-pointer group";
+                card.onclick = () => openVillaModal(item.id);
                 card.innerHTML = `
                     <div class="relative h-48 overflow-hidden">
-                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                         <span class="absolute top-3 left-3 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">
                             ${item.badge}
                         </span>
@@ -614,6 +653,9 @@
                         </span>
                         <span class="absolute bottom-2.5 left-2.5 bg-slate-950/70 text-white text-[10px] px-2 py-0.5 rounded">
                             <i class="fa-solid fa-location-dot me-1 text-emerald-400"></i> ${item.location}
+                        </span>
+                        <span class="absolute bottom-2.5 right-2.5 bg-white/80 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                            <i class="fa-solid fa-images text-brand-700"></i> ${item.images.length} Foto
                         </span>
                     </div>
 
@@ -634,9 +676,9 @@
                                 <span class="text-[9px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
                                 <span class="text-sm font-extrabold text-brand-800">${formatRupiah(item.price)}</span>
                             </div>
-                            <button onclick="directOrderVillaWA('${item.id}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
-                                <i class="fa-brands fa-whatsapp text-sm"></i> Pesan WA
-                            </button>
+                            <span class="bg-brand-100 text-brand-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5">
+                                <i class="fa-solid fa-eye text-sm"></i> Lihat Detail
+                            </span>
                         </div>
                     </div>
                 `;
@@ -782,6 +824,147 @@
             document.getElementById('addon-detail-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
+
+        // VILLA DETAIL MODAL + SWIPE GALLERY
+        let currentGalleryIndex = 0;
+        let currentGalleryImages = [];
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function openVillaModal(villaId) {
+            const villa = villaData.find(v => v.id === villaId);
+            if (!villa) return;
+
+            currentGalleryImages = villa.images;
+            currentGalleryIndex = 0;
+
+            const body = document.getElementById('villa-modal-body');
+            body.innerHTML = `
+                <!-- Gallery Slider -->
+                <div class="relative bg-brand-900 overflow-hidden select-none" style="height:260px" id="gallery-container">
+                    <div id="gallery-track" class="flex h-full transition-transform duration-300 ease-out">
+                        ${villa.images.map((img, i) => `
+                            <div class="flex-shrink-0 w-full h-full">
+                                <img src="${img}" alt="Foto ${i+1}" class="w-full h-full object-cover pointer-events-none">
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Prev / Next Arrows -->
+                    <button onclick="galleryNav(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center backdrop-blur transition z-10">
+                        <i class="fa-solid fa-chevron-left text-sm"></i>
+                    </button>
+                    <button onclick="galleryNav(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center backdrop-blur transition z-10">
+                        <i class="fa-solid fa-chevron-right text-sm"></i>
+                    </button>
+
+                    <!-- Dots -->
+                    <div id="gallery-dots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                        ${villa.images.map((_, i) => `
+                            <button onclick="galleryGoTo(${i})" class="gallery-dot w-2 h-2 rounded-full transition ${i === 0 ? 'bg-white scale-125' : 'bg-white/40'}" id="dot-${i}"></button>
+                        `).join('')}
+                    </div>
+
+                    <!-- Counter -->
+                    <span id="gallery-counter" class="absolute top-3 left-3 bg-slate-950/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur">1 / ${villa.images.length}</span>
+
+                    <!-- Badge -->
+                    <span class="absolute top-3 right-12 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">${villa.badge}</span>
+                </div>
+
+                <!-- Info -->
+                <div class="p-5 space-y-4">
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <h3 class="font-serif text-xl font-bold text-brand-900 leading-tight">${villa.name}</h3>
+                            <span class="flex items-center gap-1 text-xs font-bold text-amber-600 shrink-0">
+                                <i class="fa-solid fa-star text-amber-500"></i> ${villa.rating}
+                            </span>
+                        </div>
+                        <span class="text-xs text-sand-800 flex items-center gap-1 mt-1">
+                            <i class="fa-solid fa-location-dot text-emerald-600"></i> ${villa.location}
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-sand-800 leading-relaxed">${villa.desc}</p>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-sand-50 rounded-xl p-3 flex items-center gap-2 border border-sand-200">
+                            <i class="fa-solid fa-users text-brand-700 text-base"></i>
+                            <div><span class="text-[10px] uppercase font-bold text-sand-800 block">Kapasitas</span>${villa.capacity} Tamu</div>
+                        </div>
+                        <div class="bg-sand-50 rounded-xl p-3 flex items-center gap-2 border border-sand-200">
+                            <i class="fa-solid fa-bed text-brand-700 text-base"></i>
+                            <div><span class="text-[10px] uppercase font-bold text-sand-800 block">Kamar Tidur</span>${villa.bedrooms} Kamar</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-sand-800 block mb-2">Fasilitas Tersedia</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${villa.features.map(f => `<span class="bg-brand-100 text-brand-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-check text-brand-700"></i> ${f}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-sand-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[9px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
+                            <span class="text-lg font-extrabold text-brand-800">${formatRupiah(villa.price)}<span class="text-xs font-normal text-sand-800"> / malam</span></span>
+                        </div>
+                        <button onclick="directOrderVillaWA('${villa.id}'); closeVillaModal();" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-3 rounded-xl shadow transition flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-base"></i> Pesan via WA
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const modal = document.getElementById('villa-detail-modal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Touch/swipe support
+            const gc = document.getElementById('gallery-container');
+            gc.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+            gc.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                const diff = touchStartX - touchEndX;
+                if (Math.abs(diff) > 40) galleryNav(diff > 0 ? 1 : -1);
+            }, { passive: true });
+
+            updateGallery();
+        }
+
+        function galleryNav(dir) {
+            currentGalleryIndex = (currentGalleryIndex + dir + currentGalleryImages.length) % currentGalleryImages.length;
+            updateGallery();
+        }
+
+        function galleryGoTo(i) {
+            currentGalleryIndex = i;
+            updateGallery();
+        }
+
+        function updateGallery() {
+            const track = document.getElementById('gallery-track');
+            if (track) track.style.transform = `translateX(-${currentGalleryIndex * 100}%)`;
+
+            document.querySelectorAll('.gallery-dot').forEach((dot, i) => {
+                dot.className = `gallery-dot w-2 h-2 rounded-full transition ${i === currentGalleryIndex ? 'bg-white scale-125' : 'bg-white/40'}`;
+            });
+
+            const counter = document.getElementById('gallery-counter');
+            if (counter) counter.textContent = `${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
+        }
+
+        function closeVillaModal() {
+            document.getElementById('villa-detail-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Tutup modal saat klik backdrop
+        document.getElementById('villa-detail-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeVillaModal();
+        });
 
         function toggleMobileMenu() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
