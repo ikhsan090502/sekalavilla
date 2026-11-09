@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Sekala Villa & Experience</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            900: '#1c3029',
+                            800: '#27443a',
+                            700: '#355c4f',
+                            100: '#eef4f1',
+                        },
+                        terracotta: {
+                            500: '#c86d51',
+                            600: '#b45b40',
+                        },
+                        sand: {
+                            50: '#faf8f5',
+                            100: '#f4efe8',
+                            200: '#e8ded2',
+                            800: '#524941',
+                            900: '#2d2722',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #355c4f; border-radius: 99px; }
+    </style>
+</head>
+<body class="bg-sand-100 text-sand-900 font-sans min-h-screen">
+
+    <!-- 1. LOGIN SCREEN OVERLAY (Jika Belum Login) -->
+    <div id="login-container" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-brand-900 via-brand-800 to-sand-900">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-sand-200">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-brand-900 text-amber-300 flex items-center justify-center text-2xl font-serif font-bold mx-auto mb-3 shadow">
+                    S
+                </div>
+                <h1 class="font-serif text-2xl font-bold text-brand-900">Sekala Villa Admin</h1>
+                <p class="text-xs text-sand-800 mt-1">Masuk untuk mengelola katalog, banner iklan & template WA</p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-sand-800 text-xs"></i>
+                        <input type="text" id="username" value="admin" required class="w-full pl-9 pr-3 py-2.5 bg-sand-50 border border-sand-200 rounded-xl text-xs font-medium text-sand-900 focus:outline-none focus:ring-2 focus:ring-brand-700">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-sand-800 text-xs"></i>
+                        <input type="password" id="password" value="sekala2026" required class="w-full pl-9 pr-3 py-2.5 bg-sand-50 border border-sand-200 rounded-xl text-xs font-medium text-sand-900 focus:outline-none focus:ring-2 focus:ring-brand-700">
+                    </div>
+                    <span class="text-[10px] text-sand-800/80 mt-1 block">Default: <strong>admin</strong> / <strong>sekala2026</strong></span>
+                </div>
+
+                <div id="login-error" class="hidden p-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs font-semibold text-center border border-rose-200">
+                    Username atau password salah!
+                </div>
+
+                <button type="submit" class="w-full bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold py-3 rounded-xl transition shadow text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk Dashboard
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-sand-200 text-center">
+                <a href="/" class="text-xs text-brand-700 font-bold hover:underline">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Kembali ke Website Utama
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN DASHBOARD (Tampil Jika Sudah Login) -->
+    <div id="dashboard-container" class="hidden min-h-screen flex flex-col">
+        <!-- Top Navigation -->
+        <header class="bg-brand-900 text-white sticky top-0 z-30 shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-400 text-brand-900 flex items-center justify-center text-lg font-serif font-bold">
+                        S
+                    </div>
+                    <div>
+                        <div class="font-serif font-bold text-base sm:text-lg tracking-tight leading-none">SEKALA VILLA</div>
+                        <span class="text-[10px] text-amber-300/90 font-bold uppercase tracking-wider">Admin Control Panel</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="/" target="_blank" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 border border-white/10">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-amber-300"></i>
+                        <span class="hidden sm:inline">Lihat Web</span>
+                    </a>
+                    <button onclick="handleLogout()" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-power-off"></i>
+                        <span class="hidden sm:inline">Keluar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Switcher Navigation -->
+            <div class="bg-brand-800 border-t border-brand-700/60 overflow-x-auto custom-scrollbar">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 sm:space-x-2 py-1.5 text-xs font-bold uppercase tracking-wider">
+                    <button id="nav-btn-banners" onclick="switchAdminTab('banners')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 bg-amber-400 text-slate-950 shadow">
+                        <i class="fa-solid fa-image"></i> Banner Iklan Slider
+                    </button>
+                    <button id="nav-btn-villas" onclick="switchAdminTab('villas')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10">
+                        <i class="fa-solid fa-house-chimney"></i> Katalog Villa
+                    </button>
+                    <button id="nav-btn-whatsapp" onclick="switchAdminTab('whatsapp')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10">
+                        <i class="fa-brands fa-whatsapp text-emerald-400"></i> Custom Teks WA
+                    </button>
+                    <button id="nav-btn-api" onclick="switchAdminTab('api')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10">
+                        <i class="fa-solid fa-code"></i> Kebutuhan REST API
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+            
+            <!-- ALERT NOTIFIKASI -->
+            <div id="action-toast" class="hidden fixed top-20 right-4 z-50 bg-emerald-800 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-emerald-600 transition-all">
+                <i class="fa-solid fa-circle-check text-amber-300 text-base"></i>
+                <span id="toast-message">Data berhasil disimpan!</span>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 1: BANNER IKLAN SLIDER                 -->
+            <!-- ========================================== -->
+            <div id="tab-pane-banners" class="admin-tab-pane space-y-6">
+                <div class="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-brand-900">Kelola Banner Iklan Slider</h2>
+                        <p class="text-xs text-sand-800 mt-1">Banner di bagian atas website bisa digeser slide. Bisa berupa <strong>gambar + teks</strong> atau <strong>banner grafis murni</strong> (teks kosong).</p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button onclick="openBannerModal()" class="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Tambah Banner
+                        </button>
+                        <button onclick="resetBannersToDefault()" class="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-2.5 rounded-xl transition" title="Reset Default">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Banner Preview & List -->
+                <div id="banners-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: KATALOG VILLA                       -->
+            <!-- ========================================== -->
+            <div id="tab-pane-villas" class="admin-tab-pane hidden space-y-6">
+                <div class="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-brand-900">Kelola Katalog Villa</h2>
+                        <p class="text-xs text-sand-800 mt-1">Atur kategori tier harga (Budget / Standard / Premium), fasilitas, lokasi, dan galeri foto rasio 1:1.</p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button onclick="openVillaModalForm()" class="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Tambah Villa Baru
+                        </button>
+                        <button onclick="resetVillasToDefault()" class="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-2.5 rounded-xl transition" title="Reset Default">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Villa List Table/Cards -->
+                <div id="admin-villas-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: CUSTOM TEKS WHATSAPP & KONTAK      -->
+            <!-- ========================================== -->
+            <div id="tab-pane-whatsapp" class="admin-tab-pane hidden space-y-6">
+                <div class="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm">
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-brand-900">Kustomisasi Teks Direct WhatsApp</h2>
+                    <p class="text-xs text-sand-800 mt-1">Sesuaikan format pesan otomatis yang langsung terisi ketika pengunjung mengklik tombol pemesanan WhatsApp.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Form Pengaturan -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-sand-200 shadow-sm space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Nomor WhatsApp Admin (Dengan Kode Negara)</label>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-sand-100 px-3 py-2 rounded-xl text-xs font-bold text-sand-800 border border-sand-200">+</span>
+                                <input type="text" id="setting-wa-phone" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-sand-900 focus:outline-none focus:ring-2 focus:ring-brand-700" placeholder="6281381669735">
+                            </div>
+                            <span class="text-[10px] text-sand-800 mt-1 block">Gunakan angka saja tanpa tanda strip, contoh: 6281381669735</span>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold uppercase text-sand-800">Template Pesan Pemesanan Villa</label>
+                                <span class="text-[10px] bg-sand-200 px-2 py-0.5 rounded font-bold text-brand-900">Tag Dinamis</span>
+                            </div>
+                            <textarea id="setting-wa-villa" rows="7" class="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono text-sand-900 focus:outline-none focus:ring-2 focus:ring-brand-700 leading-relaxed"></textarea>
+                            
+                            <!-- Tombol Sisip Tag -->
+                            <div class="mt-2 flex flex-wrap gap-1.5 items-center">
+                                <span class="text-[10px] font-bold text-sand-800">Klik untuk sisip tag:</span>
+                                <button type="button" onclick="insertTag('{villa_name}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 text-[10px] font-bold px-2 py-1 rounded-lg transition">{villa_name}</button>
+                                <button type="button" onclick="insertTag('{category}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 text-[10px] font-bold px-2 py-1 rounded-lg transition">{category}</button>
+                                <button type="button" onclick="insertTag('{location}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 text-[10px] font-bold px-2 py-1 rounded-lg transition">{location}</button>
+                                <button type="button" onclick="insertTag('{capacity}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 text-[10px] font-bold px-2 py-1 rounded-lg transition">{capacity}</button>
+                                <button type="button" onclick="insertTag('{price_start}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 text-[10px] font-bold px-2 py-1 rounded-lg transition">{price_start}</button>
+                                <button type="button" onclick="insertTag('{facilities}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 text-[10px] font-bold px-2 py-1 rounded-lg transition">{facilities}</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Template Pesan Add-On (BBQ / Jeep / PS)</label>
+                            <textarea id="setting-wa-addon" rows="4" class="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono text-sand-900 focus:outline-none focus:ring-2 focus:ring-brand-700"></textarea>
+                        </div>
+
+                        <div class="pt-2 flex items-center justify-between">
+                            <button onclick="saveWhatsAppSettings()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-3 rounded-xl shadow transition flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan WA
+                            </button>
+                            <button onclick="resetWhatsAppSettings()" class="text-xs text-sand-800 font-bold hover:underline">
+                                Reset Format Awal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Preview Pesan WA -->
+                    <div class="bg-sand-50 p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 pb-3 border-b border-sand-200 mb-4">
+                                <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i>
+                                <span class="font-bold text-xs uppercase tracking-wider text-brand-900">Simulasi Tampilan WhatsApp</span>
+                            </div>
+
+                            <div class="bg-emerald-100/50 border border-emerald-200 rounded-2xl p-4 text-xs font-sans text-sand-900 whitespace-pre-line leading-relaxed shadow-inner" id="wa-preview-box">
+                                <!-- Live preview -->
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-sand-200">
+                            <button onclick="testSendWhatsApp()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+                                <i class="fa-brands fa-whatsapp text-base"></i> Uji Coba Buka WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 4: KEBUTUHAN REST API DOKUMENTASI      -->
+            <!-- ========================================== -->
+            <div id="tab-pane-api" class="admin-tab-pane hidden space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-sand-200 shadow-sm">
+                    <span class="bg-brand-100 text-brand-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-2">Backend Preparation</span>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-brand-900">Kebutuhan Endpoint REST API</h2>
+                    <p class="text-xs text-sand-800 mt-1">Saat ini sistem berjalan menggunakan <strong>LocalStorage (Mock Persistence)</strong> yang aman & instan. Untuk menghubungkan ke Database / Backend REST API Anda, siapkan endpoint di bawah ini:</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Endpoint 1: Auth -->
+                    <div class="bg-white p-5 rounded-2xl border border-sand-200 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">POST</span>
+                            <span class="text-[10px] font-bold text-sand-800 uppercase">Autentikasi</span>
+                        </div>
+                        <h4 class="font-mono text-xs font-bold text-brand-900">/api/auth/login</h4>
+                        <p class="text-xs text-sand-800">Menerima payload <code>{ username, password }</code> dan merespons dengan JWT Bearer Token.</p>
+                    </div>
+
+                    <!-- Endpoint 2: Banners -->
+                    <div class="bg-white p-5 rounded-2xl border border-sand-200 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-blue-100 text-blue-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">GET / POST / PUT / DELETE</span>
+                            <span class="text-[10px] font-bold text-sand-800 uppercase">Banner Slider</span>
+                        </div>
+                        <h4 class="font-mono text-xs font-bold text-brand-900">/api/banners</h4>
+                        <p class="text-xs text-sand-800">Menyimpan gambar URL banner (rasio wide), status ada/tidaknya teks (<code>has_text: boolean</code>), headline, subtext, dan urutan slide.</p>
+                    </div>
+
+                    <!-- Endpoint 3: Katalog Villa -->
+                    <div class="bg-white p-5 rounded-2xl border border-sand-200 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-blue-100 text-blue-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">GET / POST / PUT / DELETE</span>
+                            <span class="text-[10px] font-bold text-sand-800 uppercase">Katalog Villa</span>
+                        </div>
+                        <h4 class="font-mono text-xs font-bold text-brand-900">/api/villas</h4>
+                        <p class="text-xs text-sand-800">CRUD data unit villa: nama, tier kategori (Budget/Standard/Premium), array gambar (rasio 1:1), kapasitas tamu, dan filter fasilitas.</p>
+                    </div>
+
+                    <!-- Endpoint 4: Settings & WA -->
+                    <div class="bg-white p-5 rounded-2xl border border-sand-200 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-amber-100 text-amber-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">GET / PUT</span>
+                            <span class="text-[10px] font-bold text-sand-800 uppercase">Format Pesan WA</span>
+                        </div>
+                        <h4 class="font-mono text-xs font-bold text-brand-900">/api/settings</h4>
+                        <p class="text-xs text-sand-800">Pengaturan nomor WhatsApp CS admin dan format template pesan interaktif dengan tag variabel.</p>
+                    </div>
+                </div>
+
+                <div class="bg-brand-900 text-sand-200 p-6 rounded-3xl space-y-3">
+                    <h3 class="font-serif text-lg font-bold text-amber-300">File Spesifikasi Lengkap: API_SPECIFICATION.md</h3>
+                    <p class="text-xs text-sand-200/90 leading-relaxed">
+                        Kami telah men-generate dokumentasi spesifikasi payload request/response JSON lengkap di repository: 
+                        <code class="bg-brand-800 text-amber-200 px-2 py-1 rounded font-mono">API_SPECIFICATION.md</code>. Backend developer (Node.js, Laravel, Go, atau Python) dapat langsung mengikutinya.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL EDIT/TAMBAH BANNER -->
+    <div id="banner-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-sand-200 relative p-6">
+            <button onclick="closeBannerModal()" class="absolute top-4 right-4 text-sand-800 hover:text-sand-900 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="font-serif text-xl font-bold text-brand-900 mb-1" id="banner-modal-title">Tambah Banner Baru</h3>
+            <p class="text-xs text-sand-800 mb-4">Ukuran rekomendasi gambar: <strong>1400x500 px</strong> (rasio wide landscape).</p>
+
+            <form id="banner-form" onsubmit="handleSaveBanner(event)" class="space-y-4">
+                <input type="hidden" id="banner-id">
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-sand-800 mb-1">URL Gambar Banner *</label>
+                    <input type="url" id="banner-image-url" required class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900" placeholder="https://images.unsplash.com/...">
+                </div>
+
+                <div class="bg-sand-50 p-3 rounded-xl border border-sand-200 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-brand-900 block">Tampilkan Teks Pada Banner?</span>
+                        <span class="text-[10px] text-sand-800">Matikan jika banner sudah memiliki teks grafis sendiri.</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="banner-has-text" onchange="toggleBannerTextFields()" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-sand-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-700"></div>
+                    </label>
+                </div>
+
+                <div id="banner-text-fields" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Badge Atas (Opsional)</label>
+                        <input type="text" id="banner-badge" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900" placeholder="Contoh: PROMO WEEKEND SPESIAL">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Judul Utama / Headline</label>
+                        <input type="text" id="banner-title" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900" placeholder="Contoh: Liburan Nyaman Rasa Rumah Sendiri">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Sub-judul / Keterangan</label>
+                        <textarea id="banner-subtitle" rows="2" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900" placeholder="Keterangan singkat promo banner..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Label Tombol</label>
+                            <input type="text" id="banner-btn-text" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900" placeholder="Cek Unit">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Link Tombol</label>
+                            <input type="text" id="banner-btn-link" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900" placeholder="#katalog">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex gap-2 justify-end">
+                    <button type="button" onclick="closeBannerModal()" class="bg-sand-200 text-sand-800 font-bold text-xs px-4 py-2.5 rounded-xl">Batal</button>
+                    <button type="submit" class="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-2.5 rounded-xl shadow">Simpan Banner</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT/TAMBAH VILLA -->
+    <div id="villa-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-sand-200 relative p-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeVillaModalForm()" class="absolute top-4 right-4 text-sand-800 hover:text-sand-900 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="font-serif text-xl font-bold text-brand-900 mb-1" id="villa-modal-form-title">Tambah Villa Baru</h3>
+            <p class="text-xs text-sand-800 mb-4">Katalog unit villa dengan tampilan popup galeri 1:1.</p>
+
+            <form id="villa-form" onsubmit="handleSaveVilla(event)" class="space-y-4">
+                <input type="hidden" id="form-villa-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Nama Villa *</label>
+                        <input type="text" id="form-villa-name" required class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Kategori Kelas *</label>
+                        <select id="form-villa-category" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-sand-900">
+                            <option value="Budget">Budget</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Premium">Premium</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Lokasi *</label>
+                        <select id="form-villa-location" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900">
+                            <option value="Tawangmangu">Tawangmangu</option>
+                            <option value="Yogyakarta">Yogyakarta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Kapasitas (Pax) *</label>
+                        <input type="number" id="form-villa-capacity" min="1" required class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Kamar Tidur *</label>
+                        <input type="number" id="form-villa-bedrooms" min="1" required class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Harga Mulai (Rp) *</label>
+                        <input type="number" id="form-villa-price" step="50000" min="100000" required class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Badge (Opsional)</label>
+                        <input type="text" id="form-villa-badge" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900" placeholder="Best Seller / Private Pool">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Rating Bintang</label>
+                        <input type="number" id="form-villa-rating" step="0.1" min="1" max="5" value="4.8" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-medium text-sand-900">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Pilihan Fasilitas</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-sand-50 p-3 rounded-xl border border-sand-200 text-xs" id="form-facilities-checkboxes">
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="Private Pool" class="accent-brand-700"> Private Pool</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="View Gunung" class="accent-brand-700"> View Gunung</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="View Kebun Teh" class="accent-brand-700"> View Kebun Teh</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="Karaoke" class="accent-brand-700"> Karaoke</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="Free Water Heater" class="accent-brand-700"> Water Heater</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="Wifi 100Mbps" class="accent-brand-700"> Wifi 100Mbps</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="Garden BBQ Area" class="accent-brand-700"> Garden BBQ Area</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="Balkon Pegunungan" class="accent-brand-700"> Balkon Pegunungan</label>
+                        <label class="flex items-center gap-1.5"><input type="checkbox" value="Dapur Ringkas" class="accent-brand-700"> Dapur Ringkas</label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-sand-800 mb-1">URL Galeri Foto (1 Baris = 1 Foto URL, Rasio 1:1) *</label>
+                    <textarea id="form-villa-images" rows="3" required class="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono text-sand-900" placeholder="https://...&#10;https://..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-sand-800 mb-1">Deskripsi Lengkap *</label>
+                    <textarea id="form-villa-desc" rows="3" required class="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs text-sand-900" placeholder="Deskripsi daya tarik dan keunggulan unit villa..."></textarea>
+                </div>
+
+                <div class="pt-3 flex gap-2 justify-end">
+                    <button type="button" onclick="closeVillaModalForm()" class="bg-sand-200 text-sand-800 font-bold text-xs px-4 py-2.5 rounded-xl">Batal</button>
+                    <button type="submit" class="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-2.5 rounded-xl shadow">Simpan Villa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DASHBOARD LOGIC -->
+    <script>
+        // KUNCI LOCAL STORAGE
+        const STORAGE_KEY_AUTH = 'SEKALA_ADMIN_AUTH';
+        const STORAGE_KEY_BANNERS = 'SEKALA_BANNERS';
+        const STORAGE_KEY_VILLAS = 'SEKALA_VILLAS';
+        const STORAGE_KEY_SETTINGS = 'SEKALA_SETTINGS';
+
+        // DEFAULT DATA
+        const DEFAULT_BANNERS = [
+            {
+                id: 'ban-1',
+                imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80',
+                hasText: true,
+                badge: 'PROMO WEEKEND SPESIAL',
+                title: 'Liburan Nyaman Rasa Rumah Sendiri.',
+                subtitle: 'Sewa villa private pool Tawangmangu & Jogja dengan fasilitas komplit. Bisa tambah paket BBQ siap bakar, Jeep tour Kemuning, & sewa PS5!',
+                btnText: 'Cek Unit',
+                btnLink: '#katalog'
+            },
+            {
+                id: 'ban-2',
+                imageUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1400&q=80',
+                hasText: true,
+                badge: 'EXTRA BONUS BBQ',
+                title: 'Paket Staycation & Tour Jeep Kemuning',
+                subtitle: 'Pilihan villa estetik dingin pegunungan & suasana syahdu Jogja. Booking sekarang gratis peminjaman alat panggang BBQ portable.',
+                btnText: 'Tanya Jadwal WA',
+                btnLink: 'https://wa.me/6281381669735'
+            }
+        ];
+
+        const DEFAULT_VILLAS = [
+            {
+                id: 'sekala-1',
+                name: 'Sekala Pine Resort Villa',
+                category: 'Premium',
+                location: 'Tawangmangu',
+                capacity: 12,
+                bedrooms: 4,
+                price: 2500000,
+                rating: 4.9,
+                badge: 'Best Seller',
+                image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+                images: [
+                    'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater'],
+                desc: 'Villa eksklusif dengan view pegunungan Lawu yang memukau. Cocok untuk gathering keluarga besar atau rombongan dengan fasilitas lengkap termasuk private pool, karaoke, dan water heater gratis.'
+            },
+            {
+                id: 'sekala-2',
+                name: 'Villa Sekala Heritage Jogja',
+                category: 'Standard',
+                location: 'Yogyakarta',
+                capacity: 8,
+                bedrooms: 3,
+                price: 1750000,
+                rating: 4.8,
+                badge: 'Private Pool',
+                image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+                images: [
+                    'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
+                desc: 'Villa bergaya heritage Jawa modern di jantung Yogyakarta. Nikmati private pool, area BBQ di taman, dan koneksi WiFi super cepat 100Mbps untuk staycation yang nyaman.'
+            },
+            {
+                id: 'sekala-3',
+                name: 'Sekala Peak View Cottage',
+                category: 'Budget',
+                location: 'Tawangmangu',
+                capacity: 4,
+                bedrooms: 2,
+                price: 950000,
+                rating: 4.7,
+                badge: 'Budget Friendly',
+                image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+                images: [
+                    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['View Kebun Teh', 'Balkon Pegunungan', 'Dapur Ringkas'],
+                desc: 'Cottage cozy dengan pemandangan hamparan kebun teh Kemuning langsung dari balkon. Pilihan terbaik untuk pasangan atau keluarga kecil yang ingin menikmati udara sejuk Tawangmangu.'
+            },
+            {
+                id: 'sekala-4',
+                name: 'Sekala Serenity Estate',
+                category: 'Premium',
+                location: 'Yogyakarta',
+                capacity: 15,
+                bedrooms: 5,
+                price: 3200000,
+                rating: 5.0,
+                badge: 'Gathering Size',
+                image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+                images: [
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1619292974578-ee84bbd86f7c?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
+                ],
+                features: ['Private Pool', 'Karaoke', 'View Gunung', 'Garden BBQ Area'],
+                desc: 'Estate mewah berkapasitas besar dengan view Gunung Merapi yang spektakuler. Sempurna untuk gathering perusahaan, reuni, atau arisan besar dengan fasilitas karaoke hall dan area outbound.'
+            }
+        ];
+
+        const DEFAULT_SETTINGS = {
+            whatsappPhone: '6281381669735',
+            waTemplateVilla: `Halo Admin Sekala Villa! 🖐️\nSaya tertarik mau booking unit villa ini:\n\n📌 *Villa:* {villa_name}\n🏷️ *Kategori:* {category}\n📍 *Lokasi:* {location}\n👥 *Kapasitas:* {capacity} Pax\n💰 *Mulai Dari:* {price_start} / malam\n✨ *Fasilitas Utama:* {facilities}\n\nApakah unit ini ready untuk tanggal rencana saya kak? Mohon infonya, terima kasih!`,
+            waTemplateAddon: `Halo Admin Sekala Villa! 🖐️\nSaya mau pesan paket layanan:\n\n🎁 *Paket:* {addon_name}\n💰 *Harga:* {price}\n\nBoleh diinfokan alur pemesanan dan ketersediaannya kak? Terima kasih!`
+        };
+
+        // HELPER FORMAT RUPIAH
+        function formatRupiah(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+        }
+
+        // LOAD / SAVE STORAGE
+        function getBanners() {
+            const raw = localStorage.getItem(STORAGE_KEY_BANNERS);
+            return raw ? JSON.parse(raw) : DEFAULT_BANNERS;
+        }
+        function saveBanners(list) {
+            localStorage.setItem(STORAGE_KEY_BANNERS, JSON.stringify(list));
+        }
+
+        function getVillas() {
+            const raw = localStorage.getItem(STORAGE_KEY_VILLAS);
+            return raw ? JSON.parse(raw) : DEFAULT_VILLAS;
+        }
+        function saveVillas(list) {
+            localStorage.setItem(STORAGE_KEY_VILLAS, JSON.stringify(list));
+        }
+
+        function getSettings() {
+            const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
+            return raw ? JSON.parse(raw) : DEFAULT_SETTINGS;
+        }
+        function saveSettings(obj) {
+            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(obj));
+        }
+
+        // TOAST NOTIFIKASI
+        function showToast(msg) {
+            const t = document.getElementById('action-toast');
+            document.getElementById('toast-message').innerText = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => { t.classList.add('hidden'); }, 3000);
+        }
+
+        // AUTHENTICATION
+        function checkAuth() {
+            const isAuth = localStorage.getItem(STORAGE_KEY_AUTH);
+            if (isAuth === 'true') {
+                document.getElementById('login-container').classList.add('hidden');
+                document.getElementById('dashboard-container').classList.remove('hidden');
+                renderAdminBanners();
+                renderAdminVillas();
+                loadWhatsAppSettings();
+            } else {
+                document.getElementById('login-container').classList.remove('hidden');
+                document.getElementById('dashboard-container').classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            if (u === 'admin' && p === 'sekala2026') {
+                localStorage.setItem(STORAGE_KEY_AUTH, 'true');
+                document.getElementById('login-error').classList.add('hidden');
+                checkAuth();
+                showToast("Selamat datang di Admin Panel Sekala Villa!");
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem(STORAGE_KEY_AUTH);
+            checkAuth();
+        }
+
+        // SWITCH TAB
+        function switchAdminTab(tabKey) {
+            const tabs = ['banners', 'villas', 'whatsapp', 'api'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`nav-btn-${t}`);
+                const pane = document.getElementById(`tab-pane-${t}`);
+                if (t === tabKey) {
+                    btn.className = "admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 bg-amber-400 text-slate-950 shadow";
+                    pane.classList.remove('hidden');
+                } else {
+                    btn.className = "admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10";
+                    pane.classList.add('hidden');
+                }
+            });
+            if (tabKey === 'whatsapp') updateWAPreview();
+        }
+
+        // ==========================================
+        // TAB 1: BANNER LOGIC
+        // ==========================================
+        function renderAdminBanners() {
+            const list = getBanners();
+            const container = document.getElementById('banners-list-container');
+            container.innerHTML = '';
+
+            list.forEach((b, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl border border-sand-200 overflow-hidden shadow-sm flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-44 bg-brand-900 overflow-hidden">
+                            <img src="${b.imageUrl}" alt="${b.title || 'Banner'}" class="w-full h-full object-cover">
+                            ${b.hasText ? `
+                                <div class="absolute inset-0 bg-brand-900/60 p-4 flex flex-col justify-end text-white">
+                                    ${b.badge ? `<span class="bg-amber-400 text-slate-950 text-[9px] font-extrabold px-2 py-0.5 rounded-full w-fit mb-1">${b.badge}</span>` : ''}
+                                    <h4 class="font-serif font-bold text-sm leading-tight text-white">${b.title}</h4>
+                                    <p class="text-[10px] text-sand-200 line-clamp-2 mt-0.5">${b.subtitle || ''}</p>
+                                </div>
+                            ` : `
+                                <div class="absolute top-2 right-2 bg-slate-950/70 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    Banner Grafis Murni (Tanpa Teks)
+                                </div>
+                            `}
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs font-bold text-brand-900">
+                                <span>Slide #${idx + 1}</span>
+                                <span class="${b.hasText ? 'text-emerald-700 bg-emerald-50' : 'text-amber-800 bg-amber-50'} px-2 py-0.5 rounded text-[10px]">
+                                    ${b.hasText ? 'Teks Aktif' : 'Grafis Murni'}
+                                </span>
+                            </div>
+                            <p class="text-[10px] text-sand-800 font-mono truncate">${b.imageUrl}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 border-t border-sand-100 flex items-center justify-end gap-2">
+                        <button onclick="editBanner('${b.id}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                        </button>
+                        <button onclick="deleteBanner('${b.id}')" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-trash me-1"></i> Hapus
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openBannerModal(isEdit = false) {
+            document.getElementById('banner-modal').classList.remove('hidden');
+            if (!isEdit) {
+                document.getElementById('banner-form').reset();
+                document.getElementById('banner-id').value = '';
+                document.getElementById('banner-has-text').checked = true;
+                toggleBannerTextFields();
+                document.getElementById('banner-modal-title').innerText = "Tambah Banner Baru";
+            }
+        }
+
+        function closeBannerModal() {
+            document.getElementById('banner-modal').classList.add('hidden');
+        }
+
+        function toggleBannerTextFields() {
+            const hasText = document.getElementById('banner-has-text').checked;
+            const fields = document.getElementById('banner-text-fields');
+            if (hasText) {
+                fields.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                fields.classList.add('opacity-40', 'pointer-events-none');
+            }
+        }
+
+        function editBanner(id) {
+            const list = getBanners();
+            const b = list.find(item => item.id === id);
+            if (!b) return;
+
+            openBannerModal(true);
+            document.getElementById('banner-modal-title').innerText = "Edit Banner Slider";
+            document.getElementById('banner-id').value = b.id;
+            document.getElementById('banner-image-url').value = b.imageUrl;
+            document.getElementById('banner-has-text').checked = b.hasText !== false;
+            document.getElementById('banner-badge').value = b.badge || '';
+            document.getElementById('banner-title').value = b.title || '';
+            document.getElementById('banner-subtitle').value = b.subtitle || '';
+            document.getElementById('banner-btn-text').value = b.btnText || '';
+            document.getElementById('banner-btn-link').value = b.btnLink || '';
+            toggleBannerTextFields();
+        }
+
+        function handleSaveBanner(e) {
+            e.preventDefault();
+            const id = document.getElementById('banner-id').value;
+            const list = getBanners();
+            const hasText = document.getElementById('banner-has-text').checked;
+
+            const bannerData = {
+                id: id || ('ban-' + Date.now()),
+                imageUrl: document.getElementById('banner-image-url').value.trim(),
+                hasText: hasText,
+                badge: hasText ? document.getElementById('banner-badge').value.trim() : '',
+                title: hasText ? document.getElementById('banner-title').value.trim() : '',
+                subtitle: hasText ? document.getElementById('banner-subtitle').value.trim() : '',
+                btnText: hasText ? document.getElementById('banner-btn-text').value.trim() : '',
+                btnLink: hasText ? document.getElementById('banner-btn-link').value.trim() : ''
+            };
+
+            if (id) {
+                const idx = list.findIndex(b => b.id === id);
+                if (idx !== -1) list[idx] = bannerData;
+            } else {
+                list.push(bannerData);
+            }
+
+            saveBanners(list);
+            closeBannerModal();
+            renderAdminBanners();
+            showToast("Banner iklan berhasil disimpan!");
+        }
+
+        function deleteBanner(id) {
+            if (!confirm("Hapus banner ini dari slider?")) return;
+            let list = getBanners();
+            list = list.filter(b => b.id !== id);
+            saveBanners(list);
+            renderAdminBanners();
+            showToast("Banner telah dihapus.");
+        }
+
+        function resetBannersToDefault() {
+            if (!confirm("Kembalikan banner ke susunan bawaan default?")) return;
+            saveBanners(DEFAULT_BANNERS);
+            renderAdminBanners();
+            showToast("Banner dikembalikan ke default!");
+        }
+
+        // ==========================================
+        // TAB 2: KATALOG VILLA LOGIC
+        // ==========================================
+        function renderAdminVillas() {
+            const list = getVillas();
+            const container = document.getElementById('admin-villas-container');
+            container.innerHTML = '';
+
+            list.forEach(v => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl border border-sand-200 overflow-hidden shadow-sm flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative aspect-square bg-sand-200 overflow-hidden">
+                            <img src="${v.image || (v.images && v.images[0])}" alt="${v.name}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 left-3 bg-brand-900 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                                ${v.category || 'Standard'}
+                            </span>
+                            <span class="absolute top-3 right-3 bg-white/90 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-star text-amber-500"></i> ${v.rating}
+                            </span>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h3 class="font-serif font-bold text-base text-brand-900 leading-snug">${v.name}</h3>
+                            <div class="flex items-center gap-3 text-xs text-sand-800">
+                                <span><i class="fa-solid fa-location-dot text-emerald-600 me-1"></i> ${v.location}</span>
+                                <span><i class="fa-solid fa-users text-brand-700 me-1"></i> ${v.capacity} Pax</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1 pt-1">
+                                ${(v.features || []).slice(0, 3).map(f => `<span class="bg-sand-100 text-sand-800 text-[9px] font-medium px-2 py-0.5 rounded">${f}</span>`).join('')}
+                                ${(v.features || []).length > 3 ? `<span class="text-[9px] text-sand-800 font-bold">+${(v.features || []).length - 3}</span>` : ''}
+                            </div>
+                            <div class="pt-2 text-xs">
+                                <span class="text-[10px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
+                                <strong class="text-sm font-extrabold text-brand-800">${formatRupiah(v.price)}</strong> / malam
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 border-t border-sand-100 flex items-center justify-end gap-2">
+                        <button onclick="editVilla('${v.id}')" class="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                        </button>
+                        <button onclick="deleteVilla('${v.id}')" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-trash me-1"></i> Hapus
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openVillaModalForm(isEdit = false) {
+            document.getElementById('villa-modal').classList.remove('hidden');
+            if (!isEdit) {
+                document.getElementById('villa-form').reset();
+                document.getElementById('form-villa-id').value = '';
+                document.getElementById('villa-modal-form-title').innerText = "Tambah Villa Baru";
+            }
+        }
+
+        function closeVillaModalForm() {
+            document.getElementById('villa-modal').classList.add('hidden');
+        }
+
+        function editVilla(id) {
+            const list = getVillas();
+            const v = list.find(item => item.id === id);
+            if (!v) return;
+
+            openVillaModalForm(true);
+            document.getElementById('villa-modal-form-title').innerText = "Edit Katalog Villa";
+            document.getElementById('form-villa-id').value = v.id;
+            document.getElementById('form-villa-name').value = v.name;
+            document.getElementById('form-villa-category').value = v.category || 'Standard';
+            document.getElementById('form-villa-location').value = v.location;
+            document.getElementById('form-villa-capacity').value = v.capacity;
+            document.getElementById('form-villa-bedrooms').value = v.bedrooms;
+            document.getElementById('form-villa-price').value = v.price;
+            document.getElementById('form-villa-badge').value = v.badge || '';
+            document.getElementById('form-villa-rating').value = v.rating || 4.8;
+            document.getElementById('form-villa-images').value = (v.images || [v.image]).join('\n');
+            document.getElementById('form-villa-desc').value = v.desc || '';
+
+            // Check checkboxes
+            const cbs = document.querySelectorAll('#form-facilities-checkboxes input[type="checkbox"]');
+            cbs.forEach(cb => {
+                cb.checked = (v.features || []).includes(cb.value);
+            });
+        }
+
+        function handleSaveVilla(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-villa-id').value;
+            const list = getVillas();
+
+            const rawImages = document.getElementById('form-villa-images').value.trim().split('\n').map(s => s.trim()).filter(Boolean);
+            const selectedFeatures = [];
+            document.querySelectorAll('#form-facilities-checkboxes input[type="checkbox"]:checked').forEach(cb => {
+                selectedFeatures.push(cb.value);
+            });
+
+            const villaData = {
+                id: id || ('sekala-' + Date.now()),
+                name: document.getElementById('form-villa-name').value.trim(),
+                category: document.getElementById('form-villa-category').value,
+                location: document.getElementById('form-villa-location').value,
+                capacity: parseInt(document.getElementById('form-villa-capacity').value),
+                bedrooms: parseInt(document.getElementById('form-villa-bedrooms').value),
+                price: parseInt(document.getElementById('form-villa-price').value),
+                rating: parseFloat(document.getElementById('form-villa-rating').value) || 4.8,
+                badge: document.getElementById('form-villa-badge').value.trim() || 'Rekomendasi',
+                image: rawImages[0] || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+                images: rawImages.length ? rawImages : ['https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80'],
+                features: selectedFeatures,
+                desc: document.getElementById('form-villa-desc').value.trim()
+            };
+
+            if (id) {
+                const idx = list.findIndex(v => v.id === id);
+                if (idx !== -1) list[idx] = villaData;
+            } else {
+                list.push(villaData);
+            }
+
+            saveVillas(list);
+            closeVillaModalForm();
+            renderAdminVillas();
+            showToast("Katalog Villa berhasil diperbarui!");
+        }
+
+        function deleteVilla(id) {
+            if (!confirm("Hapus villa ini dari katalog?")) return;
+            let list = getVillas();
+            list = list.filter(v => v.id !== id);
+            saveVillas(list);
+            renderAdminVillas();
+            showToast("Villa telah dihapus.");
+        }
+
+        function resetVillasToDefault() {
+            if (!confirm("Kembalikan katalog villa ke data default awal?")) return;
+            saveVillas(DEFAULT_VILLAS);
+            renderAdminVillas();
+            showToast("Katalog villa dikembalikan ke default!");
+        }
+
+        // ==========================================
+        // TAB 3: WHATSAPP SETTINGS LOGIC
+        // ==========================================
+        function loadWhatsAppSettings() {
+            const s = getSettings();
+            document.getElementById('setting-wa-phone').value = s.whatsappPhone;
+            document.getElementById('setting-wa-villa').value = s.waTemplateVilla;
+            document.getElementById('setting-wa-addon').value = s.waTemplateAddon;
+            updateWAPreview();
+        }
+
+        function insertTag(tag) {
+            const textarea = document.getElementById('setting-wa-villa');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + tag + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+            textarea.focus();
+            updateWAPreview();
+        }
+
+        function updateWAPreview() {
+            const rawTemplate = document.getElementById('setting-wa-villa').value;
+            const sampleVilla = getVillas()[0] || DEFAULT_VILLAS[0];
+
+            let preview = rawTemplate
+                .replace(/{villa_name}/g, sampleVilla.name)
+                .replace(/{category}/g, sampleVilla.category || 'Premium')
+                .replace(/{location}/g, sampleVilla.location)
+                .replace(/{capacity}/g, sampleVilla.capacity)
+                .replace(/{price_start}/g, formatRupiah(sampleVilla.price))
+                .replace(/{facilities}/g, (sampleVilla.features || []).join(', '));
+
+            document.getElementById('wa-preview-box').innerText = preview;
+        }
+
+        document.getElementById('setting-wa-villa').addEventListener('input', updateWAPreview);
+
+        function saveWhatsAppSettings() {
+            const s = {
+                whatsappPhone: document.getElementById('setting-wa-phone').value.trim().replace(/\D/g, ''),
+                waTemplateVilla: document.getElementById('setting-wa-villa').value,
+                waTemplateAddon: document.getElementById('setting-wa-addon').value
+            };
+            saveSettings(s);
+            showToast("Pengaturan pesan WhatsApp berhasil disimpan!");
+        }
+
+        function resetWhatsAppSettings() {
+            if (!confirm("Kembalikan template pesan WA ke default?")) return;
+            saveSettings(DEFAULT_SETTINGS);
+            loadWhatsAppSettings();
+            showToast("Template pesan WA dikembalikan ke default!");
+        }
+
+        function testSendWhatsApp() {
+            const s = getSettings();
+            const text = document.getElementById('wa-preview-box').innerText;
+            const phone = s.whatsappPhone || '6281381669735';
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // INIT ON LOAD
+        window.onload = function() {
+            checkAuth();
+        };
+    </script>
+</body>
+</html>

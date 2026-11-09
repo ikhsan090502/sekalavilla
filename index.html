@@ -125,7 +125,10 @@
             </nav>
 
             <div class="flex items-center gap-2">
-                <a href="https://wa.me/6281381669735?text=Halo%20Admin%20Sekala%20Villa,%20mau%20tanya%20unit%20villa" target="_blank" class="hidden sm:flex bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition items-center gap-2">
+                <a href="/admin" class="text-sand-800 hover:text-brand-900 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 border border-sand-200 bg-sand-100 hover:bg-sand-200">
+                    <i class="fa-solid fa-lock text-[11px] text-amber-700"></i> <span class="hidden sm:inline">Admin</span>
+                </a>
+                <a href="https://wa.me/6281381669735?text=Halo%20Admin%20Sekala%20Villa,%20mau%20tanya%20unit%20villa" target="_blank" class="hidden sm:flex bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition items-center gap-2" id="header-wa-btn">
                     <i class="fa-brands fa-whatsapp text-sm text-emerald-300"></i> <span>Hubungi Admin</span>
                 </a>
                 <button id="mobile-menu-btn" class="md:hidden text-sand-900 text-xl p-2">
@@ -144,40 +147,42 @@
     </header>
 
     <main>
-        <!-- 1. HERO PROMO ADS SECTION -->
+        <!-- 1. HERO PROMO ADS SLIDER SECTION (Bisa Digeser & Dikontrol Admin) -->
         <section id="promo-banner" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-            <div class="relative rounded-3xl overflow-hidden bg-brand-900 text-white min-h-[360px] sm:min-h-[420px] flex items-center p-6 sm:p-12 shadow-xl">
-                <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80" class="absolute inset-0 w-full h-full object-cover opacity-35 mix-blend-overlay" alt="Villa Background">
-                
-                <div class="relative z-10 max-w-xl space-y-4">
-                    <div class="inline-flex items-center gap-2 bg-amber-400 text-slate-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
-                        <i class="fa-solid fa-fire text-amber-800"></i> PROMO WEEKEND SPESIAL
-                    </div>
-                    <h1 class="font-serif text-3xl sm:text-5xl font-bold text-amber-50 leading-tight">Liburan Nyaman Rasa Rumah Sendiri.</h1>
-                    <p class="text-sand-200 text-xs sm:text-sm leading-relaxed">Sewa villa private pool Tawangmangu & Jogja dengan fasilitas komplit. Bisa tambah paket BBQ siap bakar, Jeep tour Kemuning, & sewa PS5!</p>
-                    
-                    <div class="pt-2 flex flex-wrap gap-3">
-                        <button onclick="filterByLocation('Tawangmangu')" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-5 py-3 rounded-xl transition shadow">
-                            Cek Unit Tawangmangu
-                        </button>
-                        <button onclick="filterByLocation('Yogyakarta')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-5 py-3 rounded-xl backdrop-blur transition border border-white/20">
-                            Villa Yogyakarta
-                        </button>
-                    </div>
+            <div class="relative rounded-3xl overflow-hidden bg-brand-900 text-white min-h-[360px] sm:min-h-[440px] shadow-2xl select-none" id="hero-slider-container">
+                <!-- Slider Track (diinjeksi dinamis dari localStorage / API) -->
+                <div id="hero-slider-track" class="flex h-full min-h-[360px] sm:min-h-[440px] transition-transform duration-500 ease-out">
+                    <!-- Slides injected via JS -->
+                </div>
+
+                <!-- Navigasi Panah Slider (Desktop) -->
+                <button onclick="prevHeroSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center backdrop-blur transition z-20 shadow-md">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                </button>
+                <button onclick="nextHeroSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center backdrop-blur transition z-20 shadow-md">
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                </button>
+
+                <!-- Indicator Dots -->
+                <div id="hero-slider-dots" class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+                    <!-- Dots injected via JS -->
                 </div>
             </div>
         </section>
 
-        <!-- 2. COMPACT SEARCH & FILTER BAR -->
+        <!-- 2. COMPACT SEARCH & FILTER BAR (Dengan Filter Fasilitas & Kategori) -->
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
-            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-lg border border-sand-200">
-                <div class="flex items-center justify-between mb-3 pb-2 border-b border-sand-100">
+            <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-sand-100">
                     <span class="font-bold text-brand-900 text-xs sm:text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-terracotta-500"></i> Cari Villa Sesuai Kebutuhan
+                        <i class="fa-solid fa-sliders text-terracotta-500 text-base"></i> Filter Pencarian Villa
                     </span>
-                    <button onclick="resetFilters()" class="text-xs text-terracotta-600 font-bold hover:underline">Reset Filter</button>
+                    <button onclick="resetFilters()" class="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left text-[11px]"></i> Reset Filter
+                    </button>
                 </div>
 
+                <!-- Baris 1: Filter Utama -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <div>
                         <label class="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">Lokasi Destinasi</label>
@@ -185,6 +190,16 @@
                             <option value="all">Semua Lokasi</option>
                             <option value="Tawangmangu">Tawangmangu</option>
                             <option value="Yogyakarta">Yogyakarta</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">Kategori Kelas</label>
+                        <select id="filter-category" onchange="applyFilters()" class="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold text-sand-900 focus:outline-none">
+                            <option value="all">Semua Kategori</option>
+                            <option value="Budget">Budget Friendly</option>
+                            <option value="Standard">Standard Pool</option>
+                            <option value="Premium">Premium / Gathering</option>
                         </select>
                     </div>
 
@@ -198,12 +213,40 @@
                         </select>
                     </div>
 
-                    <div class="col-span-2 lg:col-span-2">
+                    <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-[10px] font-extrabold text-sand-800 uppercase">Batas Budget / Malam</label>
                             <span id="budget-display" class="text-xs font-bold text-brand-700">Rp 5.000.000</span>
                         </div>
                         <input type="range" id="filter-budget" min="500000" max="5000000" step="250000" value="5000000" oninput="updateBudgetLabel(this.value); applyFilters();" class="w-full accent-brand-700 h-2 bg-sand-200 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Baris 2: Filter Fasilitas (Pills Interaktif) -->
+                <div class="pt-2 border-t border-sand-100">
+                    <span class="block text-[10px] font-extrabold text-sand-800 uppercase mb-2">Filter Berdasarkan Fasilitas Unggulan:</span>
+                    <div class="flex overflow-x-auto hide-scrollbar gap-2 pb-1" id="facility-filter-chips">
+                        <button type="button" onclick="toggleFacilityFilter('all')" class="fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-brand-900 text-amber-300 shadow-sm" data-facility="all">
+                            Semua Fasilitas
+                        </button>
+                        <button type="button" onclick="toggleFacilityFilter('Private Pool')" class="fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-sand-100 text-sand-800 border border-sand-200 hover:bg-sand-200" data-facility="Private Pool">
+                            <i class="fa-solid fa-water-ladder me-1 text-emerald-600"></i> Private Pool
+                        </button>
+                        <button type="button" onclick="toggleFacilityFilter('View Gunung')" class="fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-sand-100 text-sand-800 border border-sand-200 hover:bg-sand-200" data-facility="View Gunung">
+                            <i class="fa-solid fa-mountain-sun me-1 text-emerald-600"></i> View Gunung
+                        </button>
+                        <button type="button" onclick="toggleFacilityFilter('View Kebun Teh')" class="fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-sand-100 text-sand-800 border border-sand-200 hover:bg-sand-200" data-facility="View Kebun Teh">
+                            <i class="fa-solid fa-leaf me-1 text-emerald-600"></i> View Kebun Teh
+                        </button>
+                        <button type="button" onclick="toggleFacilityFilter('Karaoke')" class="fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-sand-100 text-sand-800 border border-sand-200 hover:bg-sand-200" data-facility="Karaoke">
+                            <i class="fa-solid fa-microphone me-1 text-emerald-600"></i> Karaoke
+                        </button>
+                        <button type="button" onclick="toggleFacilityFilter('Free Water Heater')" class="fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-sand-100 text-sand-800 border border-sand-200 hover:bg-sand-200" data-facility="Free Water Heater">
+                            <i class="fa-solid fa-temperature-arrow-up me-1 text-emerald-600"></i> Water Heater
+                        </button>
+                        <button type="button" onclick="toggleFacilityFilter('Wifi 100Mbps')" class="fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-sand-100 text-sand-800 border border-sand-200 hover:bg-sand-200" data-facility="Wifi 100Mbps">
+                            <i class="fa-solid fa-wifi me-1 text-emerald-600"></i> Wifi 100Mbps
+                        </button>
                     </div>
                 </div>
             </div>
@@ -310,8 +353,11 @@
                     <p class="text-sand-200/80">WhatsApp CS: +62 813-8166-9735</p>
                 </div>
             </div>
-            <div class="border-t border-brand-800 pt-4 text-center text-[10px] text-sand-200/60">
-                &copy; 2026 Sekala Villa Management. All rights reserved.
+            <div class="border-t border-brand-800 pt-4 flex flex-col sm:flex-row items-center justify-between text-[10px] text-sand-200/60 gap-2">
+                <span>&copy; 2026 Sekala Villa Management. All rights reserved.</span>
+                <a href="/admin" class="text-amber-400 hover:underline flex items-center gap-1 font-bold">
+                    <i class="fa-solid fa-lock text-[9px]"></i> Dashboard Admin & Banner Iklan
+                </a>
             </div>
         </div>
     </footer>
@@ -420,13 +466,40 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const WA_ADMIN_PHONE = "6281381669735";
+        // KUNCI STORAGE (SINKRON DENGAN ADMIN DASHBOARD)
+        const STORAGE_KEY_BANNERS = 'SEKALA_BANNERS';
+        const STORAGE_KEY_VILLAS = 'SEKALA_VILLAS';
+        const STORAGE_KEY_SETTINGS = 'SEKALA_SETTINGS';
+
+        const DEFAULT_BANNERS = [
+            {
+                id: 'ban-1',
+                imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80',
+                hasText: true,
+                badge: 'PROMO WEEKEND SPESIAL',
+                title: 'Liburan Nyaman Rasa Rumah Sendiri.',
+                subtitle: 'Sewa villa private pool Tawangmangu & Jogja dengan fasilitas komplit. Bisa tambah paket BBQ siap bakar, Jeep tour Kemuning, & sewa PS5!',
+                btnText: 'Cek Unit Tawangmangu',
+                btnLink: '#katalog'
+            },
+            {
+                id: 'ban-2',
+                imageUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1400&q=80',
+                hasText: true,
+                badge: 'EXTRA BONUS BBQ',
+                title: 'Paket Staycation & Tour Jeep Kemuning',
+                subtitle: 'Pilihan villa estetik dingin pegunungan & suasana syahdu Jogja. Booking sekarang gratis peminjaman alat panggang BBQ portable.',
+                btnText: 'Tanya Jadwal WA',
+                btnLink: 'https://wa.me/6281381669735'
+            }
+        ];
 
         // DATA KATALOG VILLA (Realistis & Menarik)
-        const villaData = [
+        const DEFAULT_VILLAS = [
             {
                 id: 'sekala-1',
                 name: 'Sekala Pine Resort Villa',
+                category: 'Premium',
                 location: 'Tawangmangu',
                 capacity: 12,
                 bedrooms: 4,
@@ -446,6 +519,7 @@
             {
                 id: 'sekala-2',
                 name: 'Villa Sekala Heritage Jogja',
+                category: 'Standard',
                 location: 'Yogyakarta',
                 capacity: 8,
                 bedrooms: 3,
@@ -459,12 +533,13 @@
                     'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
                     'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?auto=format&fit=crop&w=800&q=80',
                 ],
-                features: ['Private Pool', 'Karaoke Set', 'Garden BBQ Area', 'Wifi 100Mbps'],
+                features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
                 desc: 'Villa bergaya heritage Jawa modern di jantung Yogyakarta. Nikmati private pool, area BBQ di taman, dan koneksi WiFi super cepat 100Mbps untuk staycation yang nyaman.'
             },
             {
                 id: 'sekala-3',
                 name: 'Sekala Peak View Cottage',
+                category: 'Budget',
                 location: 'Tawangmangu',
                 capacity: 4,
                 bedrooms: 2,
@@ -483,6 +558,7 @@
             {
                 id: 'sekala-4',
                 name: 'Sekala Serenity Estate',
+                category: 'Premium',
                 location: 'Yogyakarta',
                 capacity: 15,
                 bedrooms: 5,
@@ -497,12 +573,34 @@
                     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
                     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
                 ],
-                features: ['Private Pool', 'Karaoke Hall', 'View Merapi', 'Halaman Outbound'],
+                features: ['Private Pool', 'Karaoke', 'View Gunung', 'Garden BBQ Area'],
                 desc: 'Estate mewah berkapasitas besar dengan view Gunung Merapi yang spektakuler. Sempurna untuk gathering perusahaan, reuni, atau arisan besar dengan fasilitas karaoke hall dan area outbound.'
             }
         ];
 
-        // DATA RINCIAN ADD-ONS TERDIRI DARI PILIHAN PAKET & MENU DETAIL
+        const DEFAULT_SETTINGS = {
+            whatsappPhone: '6281381669735',
+            waTemplateVilla: `Halo Admin Sekala Villa! 🖐️\nSaya tertarik mau booking unit villa ini:\n\n📌 *Villa:* {villa_name}\n🏷️ *Kategori:* {category}\n📍 *Lokasi:* {location}\n👥 *Kapasitas:* {capacity} Pax\n💰 *Mulai Dari:* {price_start} / malam\n✨ *Fasilitas Utama:* {facilities}\n\nApakah unit ini ready untuk tanggal rencana saya kak? Mohon infonya, terima kasih!`,
+            waTemplateAddon: `Halo Admin Sekala Villa! 🖐️\nSaya mau pesan paket layanan:\n\n🎁 *Paket:* {addon_name}\n💰 *Harga:* {price}\n\nBoleh diinfokan alur pemesanan dan ketersediaannya kak? Terima kasih!`
+        };
+
+        // HELPER STORAGE
+        function getStoredBanners() {
+            const raw = localStorage.getItem(STORAGE_KEY_BANNERS);
+            return raw ? JSON.parse(raw) : DEFAULT_BANNERS;
+        }
+
+        function getStoredVillas() {
+            const raw = localStorage.getItem(STORAGE_KEY_VILLAS);
+            return raw ? JSON.parse(raw) : DEFAULT_VILLAS;
+        }
+
+        function getStoredSettings() {
+            const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
+            return raw ? JSON.parse(raw) : DEFAULT_SETTINGS;
+        }
+
+        // DATA RINCIAN ADD-ONS
         const addonCatalogData = {
             bbq: {
                 title: "Katalog Paket BBQ Siap Bakar",
@@ -674,28 +772,228 @@
             document.getElementById('budget-display').innerText = formatRupiah(val);
         }
 
-        // DIRECT ORDER VIA WHATSAPP (Format Alami Khas CS)
+        // ==========================================
+        // 1. HERO BANNER SLIDER DENGAN GESER SLIDE
+        // ==========================================
+        let heroCurrentSlide = 0;
+        let heroBanners = [];
+        let heroSlideTimer = null;
+        let heroTouchStartX = 0;
+        let heroTouchEndX = 0;
+
+        function renderHeroSlider() {
+            heroBanners = getStoredBanners();
+            if (!heroBanners.length) heroBanners = DEFAULT_BANNERS;
+
+            const track = document.getElementById('hero-slider-track');
+            const dotsContainer = document.getElementById('hero-slider-dots');
+            track.innerHTML = '';
+            dotsContainer.innerHTML = '';
+
+            heroBanners.forEach((b, i) => {
+                const slide = document.createElement('div');
+                slide.className = "flex-shrink-0 w-full h-full min-h-[360px] sm:min-h-[440px] relative overflow-hidden flex items-center p-6 sm:p-12";
+                
+                if (b.hasText) {
+                    slide.innerHTML = `
+                        <img src="${b.imageUrl}" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" alt="${b.title || 'Banner'}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-brand-900/90 via-brand-900/50 to-transparent"></div>
+                        <div class="relative z-10 max-w-xl space-y-4">
+                            ${b.badge ? `
+                                <div class="inline-flex items-center gap-2 bg-amber-400 text-slate-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                                    <i class="fa-solid fa-fire text-amber-800"></i> ${b.badge}
+                                </div>
+                            ` : ''}
+                            <h1 class="font-serif text-2xl sm:text-4xl lg:text-5xl font-bold text-amber-50 leading-tight">${b.title || ''}</h1>
+                            <p class="text-sand-200 text-xs sm:text-sm leading-relaxed">${b.subtitle || ''}</p>
+                            
+                            <div class="pt-2 flex flex-wrap gap-3">
+                                ${b.btnText ? `
+                                    <a href="${b.btnLink || '#katalog'}" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-5 py-3 rounded-xl transition shadow flex items-center gap-2">
+                                        <span>${b.btnText}</span> <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                                    </a>
+                                ` : ''}
+                                <button onclick="filterByLocation('Tawangmangu')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-3 rounded-xl backdrop-blur transition border border-white/20">
+                                    Tawangmangu
+                                </button>
+                                <button onclick="filterByLocation('Yogyakarta')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-3 rounded-xl backdrop-blur transition border border-white/20">
+                                    Jogja
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // BANNER GRAFIS MURNI (TANPA TEKS OVERLAY)
+                    slide.className = "flex-shrink-0 w-full h-full min-h-[360px] sm:min-h-[440px] relative overflow-hidden";
+                    slide.innerHTML = `
+                        <img src="${b.imageUrl}" class="w-full h-full object-cover" alt="Promo Banner">
+                    `;
+                }
+
+                track.appendChild(slide);
+
+                // Dot button
+                const dot = document.createElement('button');
+                dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === 0 ? 'bg-amber-400 w-7' : 'bg-white/40'}`;
+                dot.onclick = () => goToHeroSlide(i);
+                dotsContainer.appendChild(dot);
+            });
+
+            // Touch Swipe Support di HP
+            const container = document.getElementById('hero-slider-container');
+            container.addEventListener('touchstart', e => { heroTouchStartX = e.changedTouches[0].screenX; }, { passive: true });
+            container.addEventListener('touchend', e => {
+                heroTouchEndX = e.changedTouches[0].screenX;
+                const diff = heroTouchStartX - heroTouchEndX;
+                if (Math.abs(diff) > 40) {
+                    if (diff > 0) nextHeroSlide();
+                    else prevHeroSlide();
+                }
+            }, { passive: true });
+
+            updateHeroSlidePosition();
+            startHeroAutoSlide();
+        }
+
+        function updateHeroSlidePosition() {
+            const track = document.getElementById('hero-slider-track');
+            if (track) track.style.transform = `translateX(-${heroCurrentSlide * 100}%)`;
+
+            const dots = document.querySelectorAll('#hero-slider-dots button');
+            dots.forEach((dot, i) => {
+                if (i === heroCurrentSlide) {
+                    dot.className = "w-7 h-2.5 rounded-full bg-amber-400 transition-all duration-300";
+                } else {
+                    dot.className = "w-2.5 h-2.5 rounded-full bg-white/40 transition-all duration-300";
+                }
+            });
+        }
+
+        function nextHeroSlide() {
+            if (!heroBanners.length) return;
+            heroCurrentSlide = (heroCurrentSlide + 1) % heroBanners.length;
+            updateHeroSlidePosition();
+            resetHeroAutoSlide();
+        }
+
+        function prevHeroSlide() {
+            if (!heroBanners.length) return;
+            heroCurrentSlide = (heroCurrentSlide - 1 + heroBanners.length) % heroBanners.length;
+            updateHeroSlidePosition();
+            resetHeroAutoSlide();
+        }
+
+        function goToHeroSlide(idx) {
+            heroCurrentSlide = idx;
+            updateHeroSlidePosition();
+            resetHeroAutoSlide();
+        }
+
+        function startHeroAutoSlide() {
+            clearInterval(heroSlideTimer);
+            heroSlideTimer = setInterval(() => {
+                if (heroBanners.length > 1) {
+                    heroCurrentSlide = (heroCurrentSlide + 1) % heroBanners.length;
+                    updateHeroSlidePosition();
+                }
+            }, 6000);
+        }
+
+        function resetHeroAutoSlide() {
+            clearInterval(heroSlideTimer);
+            startHeroAutoSlide();
+        }
+
+        // ==========================================
+        // 2. FILTER FASILITAS & PENCARIAN KATALOG
+        // ==========================================
+        let activeFacilityFilter = 'all';
+
+        function toggleFacilityFilter(fac) {
+            activeFacilityFilter = fac;
+            document.querySelectorAll('.fac-filter-chip').forEach(btn => {
+                if (btn.getAttribute('data-facility') === fac) {
+                    btn.className = "fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-brand-900 text-amber-300 shadow-sm";
+                } else {
+                    btn.className = "fac-filter-chip px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition bg-sand-100 text-sand-800 border border-sand-200 hover:bg-sand-200";
+                }
+            });
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const loc = document.getElementById('filter-location').value;
+            const cat = document.getElementById('filter-category').value;
+            const cap = parseInt(document.getElementById('filter-capacity').value);
+            const budget = parseInt(document.getElementById('filter-budget').value);
+
+            const allVillas = getStoredVillas();
+            const filtered = allVillas.filter(v => {
+                if (loc !== 'all' && v.location !== loc) return false;
+                if (cat !== 'all' && (v.category || 'Standard') !== cat) return false;
+                if (cap > 0 && v.capacity < cap) return false;
+                if (v.price > budget) return false;
+                if (activeFacilityFilter !== 'all') {
+                    const hasFac = (v.features || []).some(f => f.toLowerCase().includes(activeFacilityFilter.toLowerCase()));
+                    if (!hasFac) return false;
+                }
+                return true;
+            });
+
+            renderVillas(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-location').value = 'all';
+            document.getElementById('filter-category').value = 'all';
+            document.getElementById('filter-capacity').value = '0';
+            document.getElementById('filter-budget').value = '5000000';
+            updateBudgetLabel(5000000);
+            toggleFacilityFilter('all');
+        }
+
+        function filterByLocation(loc) {
+            resetFilters();
+            document.getElementById('filter-location').value = loc;
+            applyFilters();
+            document.getElementById('katalog').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // 3. DIRECT ORDER VIA WHATSAPP (CUSTOM TEMPLATE)
+        // ==========================================
         function directOrderVillaWA(villaId) {
-            const villa = villaData.find(v => v.id === villaId);
+            const s = getStoredSettings();
+            const villa = getStoredVillas().find(v => v.id === villaId);
             if (!villa) return;
-            const text = `Halo Admin Sekala Villa! 🖐️\nSaya tertarik mau tanya ketersediaan unit ini:\n\n` +
-                `📌 *Villa:* ${villa.name}\n` +
-                `📍 *Lokasi:* ${villa.location}\n` +
-                `👥 *Kapasitas:* ${villa.capacity} Pax\n` +
-                `💰 *Harga:* ${formatRupiah(villa.price)} / malam\n\n` +
-                `Apakah unit ini kosong untuk rencana tanggal saya? Mohon infonya ya kak, terima kasih!`;
-            window.open(`https://wa.me/${WA_ADMIN_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+
+            const template = s.waTemplateVilla || DEFAULT_SETTINGS.waTemplateVilla;
+            const text = template
+                .replace(/{villa_name}/g, villa.name)
+                .replace(/{category}/g, villa.category || 'Standard')
+                .replace(/{location}/g, villa.location)
+                .replace(/{capacity}/g, villa.capacity)
+                .replace(/{price_start}/g, formatRupiah(villa.price))
+                .replace(/{facilities}/g, (villa.features || []).join(', '));
+
+            const phone = s.whatsappPhone || '6281381669735';
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
         function directOrderAddonWA(addonName, price) {
-            const text = `Halo Admin Sekala Villa! 🖐️\nSaya mau pesan paket layanan Add-On ini:\n\n` +
-                `🎁 *Paket:* ${addonName}\n` +
-                `💰 *Harga:* ${formatRupiah(price)}\n\n` +
-                `Boleh diinfokan alur pemesanan dan pengantarannya kak? Terima kasih!`;
-            window.open(`https://wa.me/${WA_ADMIN_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+            const s = getStoredSettings();
+            const template = s.waTemplateAddon || DEFAULT_SETTINGS.waTemplateAddon;
+            const text = template
+                .replace(/{addon_name}/g, addonName)
+                .replace(/{price}/g, formatRupiah(price));
+
+            const phone = s.whatsappPhone || '6281381669735';
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // RENDER VILLA CARDS
+        // ==========================================
+        // 4. RENDER VILLA CARDS (HARGA LEBIH SEDERHANA)
+        // ==========================================
         function renderVillas(list) {
             const grid = document.getElementById('villa-grid');
             const count = document.getElementById('villa-count');
@@ -713,44 +1011,56 @@
 
             list.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl overflow-hidden border border-sand-200 shadow-sm hover:shadow-md transition flex flex-col cursor-pointer group";
+                card.className = "bg-white rounded-3xl overflow-hidden border border-sand-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer group";
                 card.onclick = () => openVillaModal(item.id);
+
+                const categoryBadge = item.category || 'Standard';
+                const catColor = categoryBadge === 'Budget' ? 'bg-amber-500 text-slate-950' : (categoryBadge === 'Premium' ? 'bg-brand-900 text-amber-300' : 'bg-emerald-700 text-white');
+
                 card.innerHTML = `
-                    <div class="relative h-48 overflow-hidden">
-                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                        <span class="absolute top-3 left-3 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">
-                            ${item.badge}
-                        </span>
-                        <span class="absolute top-3 right-3 bg-white/90 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <div class="relative h-52 overflow-hidden bg-sand-200">
+                        <img src="${item.image || (item.images && item.images[0])}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        
+                        <div class="absolute top-3 left-3 flex items-center gap-1.5">
+                            <span class="${catColor} text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+                                ${categoryBadge}
+                            </span>
+                            ${item.badge ? `<span class="bg-black/60 backdrop-blur text-white text-[9px] font-semibold px-2 py-0.5 rounded-full">${item.badge}</span>` : ''}
+                        </div>
+
+                        <span class="absolute top-3 right-3 bg-white/95 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
                             <i class="fa-solid fa-star text-amber-500"></i> ${item.rating}
                         </span>
-                        <span class="absolute bottom-2.5 left-2.5 bg-slate-950/70 text-white text-[10px] px-2 py-0.5 rounded">
+
+                        <span class="absolute bottom-2.5 left-2.5 bg-slate-950/75 backdrop-blur text-white text-[10px] px-2.5 py-0.5 rounded-lg">
                             <i class="fa-solid fa-location-dot me-1 text-emerald-400"></i> ${item.location}
                         </span>
-                        <span class="absolute bottom-2.5 right-2.5 bg-white/80 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                            <i class="fa-solid fa-images text-brand-700"></i> ${item.images.length} Foto
+
+                        <span class="absolute bottom-2.5 right-2.5 bg-white/90 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow">
+                            <i class="fa-solid fa-images text-brand-700"></i> ${(item.images || []).length} Foto
                         </span>
                     </div>
 
                     <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
                         <div>
-                            <h3 class="font-serif text-lg font-bold text-brand-900 leading-snug">${item.name}</h3>
+                            <h3 class="font-serif text-lg font-bold text-brand-900 leading-snug group-hover:text-brand-700 transition">${item.name}</h3>
                             <div class="flex items-center gap-3 text-xs text-sand-800 font-medium my-2">
                                 <span><i class="fa-solid fa-users text-brand-700 me-1"></i> Max ${item.capacity} Pax</span>
                                 <span><i class="fa-solid fa-bed text-brand-700 me-1"></i> ${item.bedrooms} Kamar</span>
                             </div>
                             <div class="flex flex-wrap gap-1 mt-2">
-                                ${item.features.map(f => `<span class="bg-sand-100 text-sand-800 text-[9px] font-semibold px-2 py-0.5 rounded">${f}</span>`).join('')}
+                                ${(item.features || []).slice(0, 3).map(f => `<span class="bg-sand-100 text-sand-800 text-[9px] font-semibold px-2 py-0.5 rounded">${f}</span>`).join('')}
+                                ${(item.features || []).length > 3 ? `<span class="text-[9px] text-sand-800 font-bold px-1">+${(item.features || []).length - 3}</span>` : ''}
                             </div>
                         </div>
 
                         <div class="pt-3 border-t border-sand-100 flex items-center justify-between">
                             <div>
                                 <span class="text-[9px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
-                                <span class="text-sm font-extrabold text-brand-800">${formatRupiah(item.price)}</span>
+                                <span class="text-base font-extrabold text-brand-800">${formatRupiah(item.price)}<span class="text-xs font-normal text-sand-800">/malam</span></span>
                             </div>
-                            <span class="bg-brand-100 text-brand-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5">
-                                <i class="fa-solid fa-eye text-sm"></i> Lihat Detail
+                            <span class="bg-brand-100 group-hover:bg-brand-900 group-hover:text-amber-300 text-brand-800 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-eye text-xs"></i> Detail
                             </span>
                         </div>
                     </div>
@@ -759,203 +1069,66 @@
             });
         }
 
-        function applyFilters() {
-            const loc = document.getElementById('filter-location').value;
-            const cap = parseInt(document.getElementById('filter-capacity').value);
-            const budget = parseInt(document.getElementById('filter-budget').value);
-
-            const filtered = villaData.filter(v => {
-                if (loc !== 'all' && v.location !== loc) return false;
-                if (cap > 0 && v.capacity < cap) return false;
-                if (v.price > budget) return false;
-                return true;
-            });
-
-            renderVillas(filtered);
-        }
-
-        function resetFilters() {
-            document.getElementById('filter-location').value = 'all';
-            document.getElementById('filter-capacity').value = '0';
-            document.getElementById('filter-budget').value = '5000000';
-            updateBudgetLabel(5000000);
-            renderVillas(villaData);
-        }
-
-        function filterByLocation(loc) {
-            resetFilters();
-            document.getElementById('filter-location').value = loc;
-            applyFilters();
-            document.getElementById('katalog').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // SWITCH TAB KHUSUS UNTUK ADD-ONS SECTION
-        function switchAddonTab(tabKey) {
-            const tabs = ['bbq', 'jeep', 'ps', 'catering'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-btn-${t}`);
-                if (t === tabKey) {
-                    btn.className = "addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-brand-900 text-amber-300 shadow";
-                } else {
-                    btn.className = "addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-white text-sand-800 border border-sand-200 hover:bg-sand-200";
-                }
-            });
-
-            renderAddonPane(tabKey);
-        }
-
-        function renderAddonPane(tabKey) {
-            const container = document.getElementById('addon-panes-container');
-            const data = addonCatalogData[tabKey];
-            if (!data) return;
-
-            let html = `
-                <div class="space-y-6">
-                    <div class="bg-white p-4 rounded-2xl border border-sand-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-sand-800">
-                        <div>
-                            <strong class="font-bold text-brand-900 text-sm block">${data.title}</strong>
-                            <span>${data.subtitle}</span>
-                        </div>
-                        <span class="bg-amber-100 text-amber-900 font-extrabold px-3 py-1 rounded-lg shrink-0">${data.note}</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            `;
-
-            data.packages.forEach(pkg => {
-                html += `
-                    <div class="bg-white rounded-2xl p-5 border border-sand-200 shadow-sm flex flex-col justify-between space-y-4">
-                        <div>
-                            <span class="bg-sand-100 text-sand-900 text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase block w-fit mb-2">
-                                ${pkg.tag}
-                            </span>
-                            <h3 class="font-bold text-brand-900 text-base">${pkg.name}</h3>
-                            <p class="text-sand-800 text-xs mt-1 leading-relaxed">${pkg.summary}</p>
-                        </div>
-
-                        <div>
-                            <div class="text-brand-800 font-extrabold text-base mb-3">${formatRupiah(pkg.price)}</div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="showAddonModalDetails('${tabKey}', '${pkg.id}')" class="w-full bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs py-2.5 rounded-xl transition">
-                                    Detail Isi
-                                </button>
-                                <button onclick="directOrderAddonWA('${pkg.name}', ${pkg.price})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2.5 rounded-xl transition shadow flex items-center justify-center gap-1">
-                                    <i class="fa-brands fa-whatsapp"></i> Tanya WA
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += `</div></div>`;
-            container.innerHTML = html;
-        }
-
-        // BUKA MODAL DETAIL ISI PAKET ADD-ON
-        function showAddonModalDetails(tabKey, packageId) {
-            const data = addonCatalogData[tabKey];
-            if (!data) return;
-            const pkg = data.packages.find(p => p.id === packageId);
-            if (!pkg) return;
-
-            const modal = document.getElementById('addon-detail-modal');
-            const body = document.getElementById('modal-detail-body');
-
-            body.innerHTML = `
-                <div class="space-y-4">
-                    <div>
-                        <span class="bg-terracotta-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded uppercase">Rincian Paket Add-On</span>
-                        <h3 class="font-serif text-xl font-bold text-brand-900 mt-2">${pkg.name}</h3>
-                        <p class="text-xs text-sand-800 mt-1">${pkg.summary}</p>
-                    </div>
-
-                    <div class="bg-sand-50 p-4 rounded-xl border border-sand-200 space-y-2">
-                        <h4 class="font-bold text-xs uppercase text-brand-900 tracking-wider">Item Termasuk Dalam Paket:</h4>
-                        <ul class="space-y-1.5 text-xs text-sand-800">
-                            ${pkg.details.map(d => `<li class="flex items-start gap-2"><i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i> <span>${d}</span></li>`).join('')}
-                        </ul>
-                    </div>
-
-                    <div class="pt-3 flex items-center justify-between border-t border-sand-100">
-                        <div>
-                            <span class="text-[9px] uppercase font-bold text-sand-800 block">Harga Total Paket</span>
-                            <span class="text-base font-extrabold text-brand-800">${formatRupiah(pkg.price)}</span>
-                        </div>
-                        <button onclick="directOrderAddonWA('${pkg.name}', ${pkg.price}); closeAddonDetailModal();" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Pesan Langsung via WA
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeAddonDetailModal() {
-            document.getElementById('addon-detail-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        // VILLA DETAIL MODAL + SWIPE GALLERY
+        // ==========================================
+        // 5. MODAL POPUP VILLA 1 BANDING 1 (1:1 ASPECT RATIO)
+        // ==========================================
         let currentGalleryIndex = 0;
         let currentGalleryImages = [];
         let touchStartX = 0;
         let touchEndX = 0;
 
         function openVillaModal(villaId) {
-            const villa = villaData.find(v => v.id === villaId);
+            const villa = getStoredVillas().find(v => v.id === villaId);
             if (!villa) return;
 
-            currentGalleryImages = villa.images;
+            currentGalleryImages = villa.images && villa.images.length ? villa.images : [villa.image];
             currentGalleryIndex = 0;
 
             const body = document.getElementById('villa-modal-body');
             body.innerHTML = `
-                <!-- Gallery Slider -->
-                <div class="relative bg-brand-900 overflow-hidden select-none" id="gallery-container" style="height:clamp(220px,50vw,280px)">
-                    <div id="gallery-track" class="flex h-full transition-transform duration-300 ease-out">
-                        ${villa.images.map((img, i) => `
-                            <div class="flex-shrink-0 w-full h-full">
+                <!-- Gallery Slider Rasio 1:1 (Kotak Sempurna 1:1) -->
+                <div class="relative bg-brand-900 overflow-hidden select-none w-full aspect-square" id="gallery-container">
+                    <div id="gallery-track" class="flex h-full w-full transition-transform duration-300 ease-out">
+                        ${currentGalleryImages.map((img, i) => `
+                            <div class="flex-shrink-0 w-full h-full aspect-square">
                                 <img src="${img}" alt="Foto ${i+1}" class="w-full h-full object-cover pointer-events-none">
                             </div>
                         `).join('')}
                     </div>
 
-                    <!-- Prev / Next Arrows (desktop only) -->
-                    <button onclick="galleryNav(-1)" class="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white items-center justify-center backdrop-blur transition z-10">
+                    <!-- Prev / Next Arrows -->
+                    <button onclick="galleryNav(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white flex items-center justify-center backdrop-blur transition z-20">
                         <i class="fa-solid fa-chevron-left text-sm"></i>
                     </button>
-                    <button onclick="galleryNav(1)" class="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white items-center justify-center backdrop-blur transition z-10">
+                    <button onclick="galleryNav(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white flex items-center justify-center backdrop-blur transition z-20">
                         <i class="fa-solid fa-chevron-right text-sm"></i>
                     </button>
 
                     <!-- Swipe hint (mobile only) -->
-                    <div class="sm:hidden absolute bottom-10 left-0 right-0 flex justify-center pointer-events-none">
+                    <div class="sm:hidden absolute bottom-10 left-0 right-0 flex justify-center pointer-events-none z-10">
                         <span class="bg-slate-950/50 text-white text-[9px] font-bold px-2.5 py-1 rounded-full backdrop-blur flex items-center gap-1 opacity-80">
                             <i class="fa-solid fa-left-right text-[10px]"></i> Geser foto
                         </span>
                     </div>
 
                     <!-- Dots -->
-                    <div id="gallery-dots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
-                        ${villa.images.map((_, i) => `
+                    <div id="gallery-dots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+                        ${currentGalleryImages.map((_, i) => `
                             <button onclick="galleryGoTo(${i})" class="gallery-dot w-2 h-2 rounded-full transition ${i === 0 ? 'bg-white scale-125' : 'bg-white/40'}" id="dot-${i}"></button>
                         `).join('')}
                     </div>
 
                     <!-- Counter -->
-                    <span id="gallery-counter" class="absolute top-3 left-3 bg-slate-950/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur">1 / ${villa.images.length}</span>
-                    <span class="absolute top-3 right-14 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">${villa.badge}</span>
+                    <span id="gallery-counter" class="absolute top-3 left-3 bg-slate-950/70 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur z-20">1 / ${currentGalleryImages.length}</span>
+                    <span class="absolute top-3 right-14 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full z-20">${villa.category || 'Standard'}</span>
                 </div>
 
-                <!-- Info -->
-                <div class="p-4 sm:p-5 space-y-3 sm:space-y-4" style="padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px))">
+                <!-- Info Villa -->
+                <div class="p-4 sm:p-6 space-y-4" style="padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px))">
                     <div>
                         <div class="flex items-start justify-between gap-2">
-                            <h3 class="font-serif text-lg sm:text-xl font-bold text-brand-900 leading-tight">${villa.name}</h3>
-                            <span class="flex items-center gap-1 text-xs font-bold text-amber-600 shrink-0 bg-amber-50 px-2 py-1 rounded-lg">
+                            <h3 class="font-serif text-lg sm:text-2xl font-bold text-brand-900 leading-tight">${villa.name}</h3>
+                            <span class="flex items-center gap-1 text-xs font-bold text-amber-700 shrink-0 bg-amber-100 px-2.5 py-1 rounded-xl">
                                 <i class="fa-solid fa-star text-amber-500"></i> ${villa.rating}
                             </span>
                         </div>
@@ -964,46 +1137,46 @@
                         </span>
                     </div>
 
-                    <p class="text-xs text-sand-800 leading-relaxed">${villa.desc}</p>
+                    <p class="text-xs sm:text-sm text-sand-800 leading-relaxed">${villa.desc}</p>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div class="bg-sand-50 rounded-xl p-3 flex items-center gap-2 border border-sand-200">
-                            <i class="fa-solid fa-users text-brand-700 text-base"></i>
+                        <div class="bg-sand-50 rounded-2xl p-3 flex items-center gap-2 border border-sand-200">
+                            <i class="fa-solid fa-users text-brand-700 text-lg"></i>
                             <div><span class="text-[10px] uppercase font-bold text-sand-800 block">Kapasitas</span>${villa.capacity} Tamu</div>
                         </div>
-                        <div class="bg-sand-50 rounded-xl p-3 flex items-center gap-2 border border-sand-200">
-                            <i class="fa-solid fa-bed text-brand-700 text-base"></i>
+                        <div class="bg-sand-50 rounded-2xl p-3 flex items-center gap-2 border border-sand-200">
+                            <i class="fa-solid fa-bed text-brand-700 text-lg"></i>
                             <div><span class="text-[10px] uppercase font-bold text-sand-800 block">Kamar Tidur</span>${villa.bedrooms} Kamar</div>
                         </div>
                     </div>
 
                     <div>
-                        <span class="text-[10px] uppercase font-bold text-sand-800 block mb-2">Fasilitas Tersedia</span>
+                        <span class="text-[10px] uppercase font-bold text-sand-800 block mb-2">Fasilitas Tersedia:</span>
                         <div class="flex flex-wrap gap-1.5">
-                            ${villa.features.map(f => `<span class="bg-brand-100 text-brand-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-check text-brand-700 text-[8px]"></i> ${f}</span>`).join('')}
+                            ${(villa.features || []).map(f => `<span class="bg-brand-100 text-brand-800 text-[10px] font-bold px-3 py-1 rounded-xl flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-[10px]"></i> ${f}</span>`).join('')}
                         </div>
                     </div>
 
                     <!-- Desktop booking row -->
-                    <div class="hidden sm:flex pt-3 border-t border-sand-100 items-center justify-between">
+                    <div class="hidden sm:flex pt-4 border-t border-sand-200 items-center justify-between">
                         <div>
-                            <span class="text-[9px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
-                            <span class="text-lg font-extrabold text-brand-800">${formatRupiah(villa.price)}<span class="text-xs font-normal text-sand-800"> / malam</span></span>
+                            <span class="text-[10px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
+                            <span class="text-xl font-extrabold text-brand-800">${formatRupiah(villa.price)}<span class="text-xs font-normal text-sand-800"> / malam</span></span>
                         </div>
-                        <button onclick="directOrderVillaWA('${villa.id}'); closeVillaModal();" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-3 rounded-xl shadow transition flex items-center gap-2">
-                            <i class="fa-brands fa-whatsapp text-base"></i> Pesan via WA
+                        <button onclick="directOrderVillaWA('${villa.id}'); closeVillaModal();" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-6 py-3.5 rounded-2xl shadow transition flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> Pesan Langsung via WA
                         </button>
                     </div>
                 </div>
 
                 <!-- STICKY BOOKING BAR (mobile only) -->
-                <div class="sm:hidden sticky bottom-0 left-0 right-0 bg-white border-t border-sand-200 shadow-xl px-4 py-3 flex items-center gap-3">
+                <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-sand-200 shadow-2xl px-4 py-3 flex items-center gap-3 z-50">
                     <div class="flex-1 min-w-0">
                         <span class="text-[9px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
-                        <span class="text-sm font-extrabold text-brand-800 truncate block">${formatRupiah(villa.price)}<span class="text-xs font-normal text-sand-800"> /malam</span></span>
+                        <span class="text-base font-extrabold text-brand-800 truncate block">${formatRupiah(villa.price)}<span class="text-xs font-normal text-sand-800"> /malam</span></span>
                     </div>
-                    <button onclick="directOrderVillaWA('${villa.id}'); closeVillaModal();" class="shrink-0 bg-emerald-700 active:bg-emerald-900 text-white font-bold text-sm px-5 py-3.5 rounded-2xl shadow-lg transition flex items-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-base"></i> Pesan WA
+                    <button onclick="directOrderVillaWA('${villa.id}'); closeVillaModal();" class="shrink-0 bg-emerald-700 active:bg-emerald-900 text-white font-bold text-sm px-5 py-3 rounded-2xl shadow-lg transition flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Pesan WA
                     </button>
                 </div>
             `;
@@ -1072,16 +1245,125 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Tutup modal saat klik backdrop
         document.getElementById('villa-detail-modal').addEventListener('click', function(e) {
             if (e.target === this) closeVillaModal();
         });
+
+        // ==========================================
+        // 6. ADD-ONS & LAINNYA
+        // ==========================================
+        function switchAddonTab(tabKey) {
+            const tabs = ['bbq', 'jeep', 'ps', 'catering'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabKey) {
+                    btn.className = "addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-brand-900 text-amber-300 shadow";
+                } else {
+                    btn.className = "addon-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-white text-sand-800 border border-sand-200 hover:bg-sand-200";
+                }
+            });
+
+            renderAddonPane(tabKey);
+        }
+
+        function renderAddonPane(tabKey) {
+            const container = document.getElementById('addon-panes-container');
+            const data = addonCatalogData[tabKey];
+            if (!data) return;
+
+            let html = `
+                <div class="space-y-6">
+                    <div class="bg-white p-4 rounded-2xl border border-sand-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-sand-800">
+                        <div>
+                            <strong class="font-bold text-brand-900 text-sm block">${data.title}</strong>
+                            <span>${data.subtitle}</span>
+                        </div>
+                        <span class="bg-amber-100 text-amber-900 font-extrabold px-3 py-1 rounded-lg shrink-0">${data.note}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            `;
+
+            data.packages.forEach(pkg => {
+                html += `
+                    <div class="bg-white rounded-3xl p-5 border border-sand-200 shadow-sm flex flex-col justify-between space-y-4">
+                        <div>
+                            <span class="bg-sand-100 text-sand-900 text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase block w-fit mb-2">
+                                ${pkg.tag}
+                            </span>
+                            <h3 class="font-bold text-brand-900 text-base">${pkg.name}</h3>
+                            <p class="text-sand-800 text-xs mt-1 leading-relaxed">${pkg.summary}</p>
+                        </div>
+
+                        <div>
+                            <div class="text-brand-800 font-extrabold text-base mb-3">${formatRupiah(pkg.price)}</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="showAddonModalDetails('${tabKey}', '${pkg.id}')" class="w-full bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs py-2.5 rounded-xl transition">
+                                    Detail Isi
+                                </button>
+                                <button onclick="directOrderAddonWA('${pkg.name}', ${pkg.price})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2.5 rounded-xl transition shadow flex items-center justify-center gap-1">
+                                    <i class="fa-brands fa-whatsapp"></i> Tanya WA
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        function showAddonModalDetails(tabKey, packageId) {
+            const data = addonCatalogData[tabKey];
+            if (!data) return;
+            const pkg = data.packages.find(p => p.id === packageId);
+            if (!pkg) return;
+
+            const modal = document.getElementById('addon-detail-modal');
+            const body = document.getElementById('modal-detail-body');
+
+            body.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <span class="bg-terracotta-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded uppercase">Rincian Paket Add-On</span>
+                        <h3 class="font-serif text-xl font-bold text-brand-900 mt-2">${pkg.name}</h3>
+                        <p class="text-xs text-sand-800 mt-1">${pkg.summary}</p>
+                    </div>
+
+                    <div class="bg-sand-50 p-4 rounded-2xl border border-sand-200 space-y-2">
+                        <h4 class="font-bold text-xs uppercase text-brand-900 tracking-wider">Item Termasuk Dalam Paket:</h4>
+                        <ul class="space-y-1.5 text-xs text-sand-800">
+                            ${pkg.details.map(d => `<li class="flex items-start gap-2"><i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i> <span>${d}</span></li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="pt-3 flex items-center justify-between border-t border-sand-100">
+                        <div>
+                            <span class="text-[9px] uppercase font-bold text-sand-800 block">Harga Total Paket</span>
+                            <span class="text-base font-extrabold text-brand-800">${formatRupiah(pkg.price)}</span>
+                        </div>
+                        <button onclick="directOrderAddonWA('${pkg.name}', ${pkg.price}); closeAddonDetailModal();" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Pesan via WA
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddonDetailModal() {
+            document.getElementById('addon-detail-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
 
         function toggleMobileMenu() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
         }
 
-        // PROMO POP-UP LOGIC (GAYA BROSCO.ID)
+        // PROMO POP-UP
         function showPromoModal() {
             const modal = document.getElementById('promo-popup-modal');
             const card = document.getElementById('promo-modal-card');
@@ -1103,8 +1385,10 @@
         }
 
         function claimPromoWA() {
+            const s = getStoredSettings();
+            const phone = s.whatsappPhone || '6281381669735';
             const text = `Halo Admin Sekala Villa! 🖐️\nSaya dapat info dari website dan ingin klaim *Voucher Promo ADS (Kode: SEKALAADS150)*:\n\n- Potongan Rp 150.000\n- Bonus Free Alat BBQ Set\n\nBisa dibantu informasi tanggal villa yang masih ready kak? Terima kasih!`;
-            window.open(`https://wa.me/${WA_ADMIN_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
             closePromoModal();
         }
 
@@ -1120,11 +1404,20 @@
 
         document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
 
+        // INITIALIZE ON LOAD
         window.onload = function() {
-            renderVillas(villaData);
+            renderHeroSlider();
+            renderVillas(getStoredVillas());
             renderAddonPane('bbq');
 
-            // Otomatis munculkan pop-up promo setelah 1.5 detik (meniru Brosco.id)
+            // Sesuaikan nomor WA di tombol header
+            const s = getStoredSettings();
+            const headerWABtn = document.getElementById('header-wa-btn');
+            if (headerWABtn && s.whatsappPhone) {
+                headerWABtn.href = `https://wa.me/${s.whatsappPhone}?text=Halo%20Admin%20Sekala%20Villa`;
+            }
+
+            // Popup promo setelah 1.5 detik
             setTimeout(() => {
                 showPromoModal();
             }, 1500);
