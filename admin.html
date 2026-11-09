@@ -97,54 +97,115 @@
         </div>
     </div>
 
-    <!-- 2. MAIN DASHBOARD (Tampil Jika Sudah Login) -->
-    <div id="dashboard-container" class="hidden min-h-screen flex flex-col">
-        <!-- Top Navigation -->
-        <header class="bg-brand-900 text-white sticky top-0 z-30 shadow-md">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-amber-400 text-brand-900 flex items-center justify-center text-lg font-serif font-bold">
-                        S
+    <!-- 2. MAIN DASHBOARD SIDEBAR LAYOUT (Tampil Jika Sudah Login) -->
+    <div id="dashboard-container" class="hidden min-h-screen flex bg-sand-100 text-sand-900">
+        
+        <!-- SIDEBAR BACKDROP (Mobile) -->
+        <div id="sidebar-backdrop" onclick="toggleAdminSidebar()" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm hidden lg:hidden transition-opacity"></div>
+
+        <!-- SIDEBAR NAVIGASI KIRI -->
+        <aside id="admin-sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-brand-900 text-white flex flex-col justify-between shadow-2xl transition-transform duration-300 -translate-x-full lg:translate-x-0 shrink-0">
+            <div>
+                <!-- Brand Header -->
+                <div class="p-6 border-b border-brand-800 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-400 text-brand-900 flex items-center justify-center text-xl font-serif font-bold shadow">
+                            S
+                        </div>
+                        <div>
+                            <div class="font-serif font-bold text-lg tracking-tight leading-none text-white">SEKALA VILLA</div>
+                            <span class="text-[10px] text-amber-300 font-bold uppercase tracking-wider block mt-1">Admin Control Panel</span>
+                        </div>
                     </div>
-                    <div>
-                        <div class="font-serif font-bold text-base sm:text-lg tracking-tight leading-none">SEKALA VILLA</div>
-                        <span class="text-[10px] text-amber-300/90 font-bold uppercase tracking-wider">Admin Control Panel</span>
+                    <!-- Close button on mobile -->
+                    <button onclick="toggleAdminSidebar()" class="lg:hidden text-sand-200 hover:text-white text-lg p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Admin Profile Card Info -->
+                <div class="p-4 mx-4 mt-4 bg-brand-800/70 border border-brand-700/60 rounded-2xl flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center text-sm font-bold">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="text-xs font-bold text-white block truncate">Administrator</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Online
+                        </span>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <a href="/" target="_blank" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 border border-white/10">
-                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-amber-300"></i>
-                        <span class="hidden sm:inline">Lihat Web</span>
+                <!-- Navigation Menu Links -->
+                <nav class="p-4 space-y-1.5 mt-2">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-sand-200/50 px-3 py-1">Menu Utama</div>
+                    
+                    <button id="nav-btn-banners" onclick="switchAdminTab('banners'); closeMobileSidebar();" class="admin-nav-btn w-full px-4 py-3 rounded-2xl transition flex items-center gap-3 text-xs font-bold bg-amber-400 text-slate-950 shadow-md">
+                        <i class="fa-solid fa-image text-sm w-5"></i>
+                        <span>Banner Iklan Slider</span>
+                    </button>
+                    
+                    <button id="nav-btn-villas" onclick="switchAdminTab('villas'); closeMobileSidebar();" class="admin-nav-btn w-full px-4 py-3 rounded-2xl transition flex items-center gap-3 text-xs font-bold text-sand-200 hover:bg-white/10">
+                        <i class="fa-solid fa-house-chimney text-sm w-5"></i>
+                        <span>Katalog Villa</span>
+                    </button>
+                    
+                    <button id="nav-btn-whatsapp" onclick="switchAdminTab('whatsapp'); closeMobileSidebar();" class="admin-nav-btn w-full px-4 py-3 rounded-2xl transition flex items-center gap-3 text-xs font-bold text-sand-200 hover:bg-white/10">
+                        <i class="fa-brands fa-whatsapp text-emerald-400 text-base w-5"></i>
+                        <span>Custom Teks WA</span>
+                    </button>
+
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-sand-200/50 px-3 pt-4 py-1">Developer</div>
+                    
+                    <button id="nav-btn-api" onclick="switchAdminTab('api'); closeMobileSidebar();" class="admin-nav-btn w-full px-4 py-3 rounded-2xl transition flex items-center gap-3 text-xs font-bold text-sand-200 hover:bg-white/10">
+                        <i class="fa-solid fa-code text-sm w-5"></i>
+                        <span>Kebutuhan REST API</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="p-4 border-t border-brand-800 space-y-2">
+                <a href="/" target="_blank" class="w-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-3 rounded-2xl transition flex items-center justify-between border border-white/10">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-amber-300"></i>
+                        <span>Buka Website</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-sand-200/60"></i>
+                </a>
+                
+                <button onclick="handleLogout()" class="w-full bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold px-4 py-3 rounded-2xl transition flex items-center gap-2 justify-center shadow">
+                    <i class="fa-solid fa-power-off"></i>
+                    <span>Keluar (Logout)</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+            
+            <!-- Top Mobile Bar -->
+            <header class="bg-white border-b border-sand-200 sticky top-0 z-30 px-4 sm:px-8 py-3.5 flex items-center justify-between lg:justify-end shadow-sm">
+                <div class="flex items-center gap-3 lg:hidden">
+                    <button onclick="toggleAdminSidebar()" class="p-2 text-brand-900 text-xl rounded-xl hover:bg-sand-100 transition">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                    <span class="font-serif font-bold text-brand-900 text-sm">Sekala Admin</span>
+                </div>
+
+                <div class="flex items-center gap-3 text-xs font-semibold text-sand-800">
+                    <span id="current-tab-label" class="bg-sand-100 text-brand-900 px-3 py-1.5 rounded-xl font-bold hidden sm:inline-block border border-sand-200">
+                        <i class="fa-solid fa-image me-1 text-terracotta-500"></i> Banner Iklan Slider
+                    </span>
+                    <a href="/" target="_blank" class="text-brand-800 hover:text-brand-900 font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-globe text-emerald-600"></i>
+                        <span class="hidden sm:inline">Pratinjau Web</span>
                     </a>
-                    <button onclick="handleLogout()" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-power-off"></i>
-                        <span class="hidden sm:inline">Keluar</span>
-                    </button>
                 </div>
-            </div>
+            </header>
 
-            <!-- Tab Switcher Navigation -->
-            <div class="bg-brand-800 border-t border-brand-700/60 overflow-x-auto custom-scrollbar">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 sm:space-x-2 py-1.5 text-xs font-bold uppercase tracking-wider">
-                    <button id="nav-btn-banners" onclick="switchAdminTab('banners')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 bg-amber-400 text-slate-950 shadow">
-                        <i class="fa-solid fa-image"></i> Banner Iklan Slider
-                    </button>
-                    <button id="nav-btn-villas" onclick="switchAdminTab('villas')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10">
-                        <i class="fa-solid fa-house-chimney"></i> Katalog Villa
-                    </button>
-                    <button id="nav-btn-whatsapp" onclick="switchAdminTab('whatsapp')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10">
-                        <i class="fa-brands fa-whatsapp text-emerald-400"></i> Custom Teks WA
-                    </button>
-                    <button id="nav-btn-api" onclick="switchAdminTab('api')" class="admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10">
-                        <i class="fa-solid fa-code"></i> Kebutuhan REST API
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content Area -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+            <!-- Main Content Area -->
+            <main class="max-w-6xl w-full mx-auto px-4 sm:px-8 py-6 space-y-6 flex-1">
             
             <!-- ALERT NOTIFIKASI -->
             <div id="action-toast" class="hidden fixed top-20 right-4 z-50 bg-emerald-800 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-emerald-600 transition-all">
@@ -340,7 +401,8 @@
                 </div>
             </div>
 
-        </main>
+            </main>
+        </div>
     </div>
 
     <!-- MODAL EDIT/TAMBAH BANNER -->
@@ -692,20 +754,56 @@
             checkAuth();
         }
 
-        // SWITCH TAB
+        // SIDEBAR TOGGLE (MOBILE)
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+            if (backdrop) backdrop.classList.add('hidden');
+        }
+
+        // SWITCH TAB (SIDEBAR)
         function switchAdminTab(tabKey) {
             const tabs = ['banners', 'villas', 'whatsapp', 'api'];
+            const labels = {
+                banners: '<i class="fa-solid fa-image me-1 text-terracotta-500"></i> Banner Iklan Slider',
+                villas: '<i class="fa-solid fa-house-chimney me-1 text-terracotta-500"></i> Katalog Villa',
+                whatsapp: '<i class="fa-brands fa-whatsapp me-1 text-emerald-500"></i> Custom Teks WA',
+                api: '<i class="fa-solid fa-code me-1 text-amber-500"></i> Kebutuhan REST API'
+            };
+
             tabs.forEach(t => {
                 const btn = document.getElementById(`nav-btn-${t}`);
                 const pane = document.getElementById(`tab-pane-${t}`);
                 if (t === tabKey) {
-                    btn.className = "admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 bg-amber-400 text-slate-950 shadow";
+                    btn.className = "admin-nav-btn w-full px-4 py-3 rounded-2xl transition flex items-center gap-3 text-xs font-bold bg-amber-400 text-slate-950 shadow-md";
                     pane.classList.remove('hidden');
                 } else {
-                    btn.className = "admin-nav-btn px-4 py-2 rounded-xl transition flex items-center gap-2 text-sand-200 hover:bg-white/10";
+                    btn.className = "admin-nav-btn w-full px-4 py-3 rounded-2xl transition flex items-center gap-3 text-xs font-bold text-sand-200 hover:bg-white/10";
                     pane.classList.add('hidden');
                 }
             });
+
+            const headerLabel = document.getElementById('current-tab-label');
+            if (headerLabel && labels[tabKey]) {
+                headerLabel.innerHTML = labels[tabKey];
+            }
+
             if (tabKey === 'whatsapp') updateWAPreview();
         }
 
