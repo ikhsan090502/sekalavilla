@@ -12,7 +12,15 @@ import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
 
 export default function App() {
-  const [view, setView] = useState('site'); // 'site' | 'admin'
+  const checkIsAdminURL = () => {
+    return (
+      window.location.hash === '#admin' ||
+      window.location.search.includes('admin') ||
+      window.location.pathname.endsWith('/admin')
+    );
+  };
+
+  const [view, setView] = useState(checkIsAdminURL() ? 'admin' : 'site');
   const [banners, setBanners] = useState(storage.getBanners());
   const [villas, setVillas] = useState(storage.getVillas());
   const [settings, setSettings] = useState(storage.getSettings());
@@ -27,6 +35,18 @@ export default function App() {
     budget: 5000000,
     facility: 'all'
   });
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      setView(checkIsAdminURL() ? 'admin' : 'site');
+    };
+    window.addEventListener('hashchange', handleUrlChange);
+    window.addEventListener('popstate', handleUrlChange);
+    return () => {
+      window.removeEventListener('hashchange', handleUrlChange);
+      window.removeEventListener('popstate', handleUrlChange);
+    };
+  }, []);
 
   const reloadData = () => {
     setBanners(storage.getBanners());
@@ -57,6 +77,15 @@ export default function App() {
     document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleBackToSite = () => {
+    if (window.location.hash === '#admin') {
+      window.location.hash = '';
+    } else if (window.location.search.includes('admin')) {
+      window.history.pushState(null, '', window.location.pathname);
+    }
+    setView('site');
+  };
+
   // Filter Villa
   const filteredVillas = villas.filter(v => {
     if (filters.location !== 'all' && v.location !== filters.location) return false;
@@ -70,11 +99,11 @@ export default function App() {
     return true;
   });
 
-  // Jika membuka tampilan Admin
+  // Jika membuka URL admin
   if (view === 'admin') {
     return (
       <AdminDashboard 
-        onBackToSite={() => setView('site')} 
+        onBackToSite={handleBackToSite} 
         onDataChanged={reloadData}
       />
     );
@@ -82,11 +111,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-sand-50 text-sand-900 font-sans">
-      {/* Header */}
-      <Header 
-        settings={settings} 
-        onOpenAdmin={() => setView('admin')} 
-      />
+      {/* Header tanpa tombol admin publik */}
+      <Header settings={settings} />
 
       <main>
         {/* Banner Slider */}
@@ -169,8 +195,8 @@ export default function App() {
         </section>
       </main>
 
-      {/* Footer */}
-      <Footer onOpenAdmin={() => setView('admin')} />
+      {/* Footer tanpa link admin publik */}
+      <Footer />
 
       {/* Mobile Nav */}
       <MobileBottomNav settings={settings} />

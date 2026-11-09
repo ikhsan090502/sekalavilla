@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Footer({ onOpenAdmin }) {
+export default function Footer() {
   return (
     <footer className="bg-brand-900 text-sand-200 pt-10 pb-6 border-t border-brand-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
@@ -13,23 +13,17 @@ export default function Footer({ onOpenAdmin }) {
             <p className="text-sand-200/80">Layanan agen & manajemen villa terpercaya area Tawangmangu & Yogyakarta.</p>
           </div>
           <div>
-            <h4 class="font-bold text-white uppercase mb-2">Cakupan Destinasi</h4>
+            <h4 className="font-bold text-white uppercase mb-2">Cakupan Destinasi</h4>
             <p className="text-sand-200/80">Tawangmangu • Kemuning • Kaliurang • Kota Jogja</p>
           </div>
           <div>
-            <h4 class="font-bold text-white uppercase mb-2">Kontak Reservasi</h4>
+            <h4 className="font-bold text-white uppercase mb-2">Kontak Reservasi</h4>
             <p className="text-sand-200/80">WhatsApp CS: +62 813-8166-9735</p>
           </div>
         </div>
 
-        <div className="border-t border-brand-800 pt-4 flex flex-col sm:flex-row items-center justify-between text-[10px] text-sand-200/60 gap-2">
-          <span>&copy; 2026 Sekala Villa Management. All rights reserved.</span>
-          <button 
-            onClick={onOpenAdmin}
-            className="text-amber-400 hover:underline flex items-center gap-1 font-bold"
-          >
-            <i className="fa-solid fa-lock text-[9px]"></i> Dashboard Admin & Banner Iklan
-          </button>
+        <div className="border-t border-brand-800 pt-4 text-center text-[10px] text-sand-200/60">
+          &copy; 2026 Sekala Villa Management. All rights reserved.
         </div>
       </div>
     </footer>

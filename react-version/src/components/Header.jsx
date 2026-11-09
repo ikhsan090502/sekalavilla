@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ settings, onOpenAdmin }) {
+export default function Header({ settings }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const waPhone = settings?.whatsappPhone || '6281381669735';
 
@@ -33,13 +33,6 @@ export default function Header({ settings, onOpenAdmin }) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={onOpenAdmin}
-              className="text-sand-800 hover:text-brand-900 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 border border-sand-200 bg-sand-100 hover:bg-sand-200"
-            >
-              <i className="fa-solid fa-lock text-[11px] text-amber-700"></i>
-              <span className="hidden sm:inline">Admin</span>
-            </button>
             <a
               href={`https://wa.me/${waPhone}?text=Halo%20Admin%20Sekala%20Villa,%20mau%20tanya%20unit%20villa`}
               target="_blank"
@@ -64,7 +57,6 @@ export default function Header({ settings, onOpenAdmin }) {
             <a href="#katalog" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sand-800">Katalog Villa</a>
             <a href="#addons-section" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sand-800">Detail Add-Ons</a>
             <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sand-800">Tanya Jawab</a>
-            <button onClick={() => { setMobileMenuOpen(false); onOpenAdmin(); }} className="block py-2 text-amber-800 text-left font-bold w-full">Dashboard Admin</button>
           </div>
         )}
       </header>
