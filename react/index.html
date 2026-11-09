@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Sekala Villa - React Edition</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              900: '#1c3029',
+              800: '#27443a',
+              700: '#355c4f',
+              100: '#eef4f1',
+            },
+            terracotta: {
+              500: '#c86d51',
+              600: '#b45b40',
+            },
+            sand: {
+              50: '#faf8f5',
+              100: '#f4efe8',
+              200: '#e8ded2',
+              800: '#524941',
+              900: '#2d2722',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f4efe8; }
+    ::-webkit-scrollbar-thumb { background: #355c4f; border-radius: 99px; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @media (max-width: 639px) {
+      body { padding-bottom: 68px; }
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/index-zw8eNw4l.js"></script>
+</head>
+<body class="bg-sand-50 text-sand-900 font-sans antialiased selection:bg-brand-800 selection:text-white">
+  <div id="root"></div>
+</body>
+</html>

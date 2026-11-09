@@ -1,0 +1,47 @@
+import { DEFAULT_BANNERS, DEFAULT_VILLAS, DEFAULT_SETTINGS } from '../data/initialData';
+
+const KEY_BANNERS = 'SEKALA_BANNERS';
+const KEY_VILLAS = 'SEKALA_VILLAS';
+const KEY_SETTINGS = 'SEKALA_SETTINGS';
+const KEY_AUTH = 'SEKALA_ADMIN_AUTH';
+
+export const storage = {
+  getBanners: () => {
+    try {
+      const raw = localStorage.getItem(KEY_BANNERS);
+      return raw ? JSON.parse(raw) : DEFAULT_BANNERS;
+    } catch {
+      return DEFAULT_BANNERS;
+    }
+  },
+  saveBanners: (data) => {
+    localStorage.setItem(KEY_BANNERS, JSON.stringify(data));
+  },
+
+  getVillas: () => {
+    try {
+      const raw = localStorage.getItem(KEY_VILLAS);
+      return raw ? JSON.parse(raw) : DEFAULT_VILLAS;
+    } catch {
+      return DEFAULT_VILLAS;
+    }
+  },
+  saveVillas: (data) => {
+    localStorage.setItem(KEY_VILLAS, JSON.stringify(data));
+  },
+
+  getSettings: () => {
+    try {
+      const raw = localStorage.getItem(KEY_SETTINGS);
+      return raw ? JSON.parse(raw) : DEFAULT_SETTINGS;
+    } catch {
+      return DEFAULT_SETTINGS;
+    }
+  },
+  saveSettings: (data) => {
+    localStorage.setItem(KEY_SETTINGS, JSON.stringify(data));
+  },
+
+  isAuth: () => localStorage.getItem(KEY_AUTH) === 'true',
+  setAuth: (val) => localStorage.setItem(KEY_AUTH, val ? 'true' : 'false')
+};
