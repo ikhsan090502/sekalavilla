@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { villaApi } from './services/api';
 import { storage } from './services/storage';
 import Header from './components/Header';
 import BannerSlider from './components/BannerSlider';
@@ -22,14 +23,15 @@ export default function App() {
 
   const [view, setView] = useState(checkIsAdminURL() ? 'admin' : 'site');
   const [banners, setBanners] = useState(storage.getBanners());
-  const [villas, setVillas] = useState(storage.getVillas());
+  const [villas, setVillas] = useState([]);
+  const [loadingVillas, setLoadingVillas] = useState(true);
   const [settings, setSettings] = useState(storage.getSettings());
 
   const [selectedVilla, setSelectedVilla] = useState(null);
   const [promoOpen, setPromoOpen] = useState(false);
 
   const [filters, setFilters] = useState({
-    propertyType: 'all',
+    propertyType: 'all', // 'villa' | 'glamping' | 'homestay'
     location: 'all',
     category: 'all',
     capacity: 0,
@@ -37,6 +39,7 @@ export default function App() {
     facility: 'all'
   });
 
+  // Listener URL Routing (#admin atau /admin)
   useEffect(() => {
     const handleUrlChange = () => {
       setView(checkIsAdminURL() ? 'admin' : 'site');
@@ -49,13 +52,52 @@ export default function App() {
     };
   }, []);
 
-  const reloadData = () => {
+  // Fetch Banners & Settings di awal
+  useEffect(() => {
+    async function loadMeta() {
+      try {
+        const [b, s] = await Promise.all([
+          villaApi.getBanners(),
+          villaApi.getSettings()
+        ]);
+        if (b && b.length) setBanners(b);
+        if (s) setSettings(s);
+      } catch (err) {
+        console.error('Error loading meta:', err);
+      }
+    }
+    loadMeta();
+  }, []);
+
+  // Fetch Data Unit (Villa, Glamping, Homestay) setiap kali Filter berubah
+  useEffect(() => {
+    let isMounted = true;
+    async function loadVillas() {
+      setLoadingVillas(true);
+      try {
+        const data = await villaApi.getVillas(filters);
+        if (isMounted) setVillas(data);
+      } catch (err) {
+        console.error('Error loading villas from API:', err);
+      } finally {
+        if (isMounted) setLoadingVillas(false);
+      }
+    }
+
+    loadVillas();
+    return () => { isMounted = false; };
+  }, [filters]);
+
+  const reloadData = async () => {
+    setLoadingVillas(true);
+    const data = await villaApi.getVillas(filters);
+    setVillas(data);
     setBanners(storage.getBanners());
-    setVillas(storage.getVillas());
     setSettings(storage.getSettings());
+    setLoadingVillas(false);
   };
 
-  // Popup promo hanya muncul jika diizinkan di settings
+  // Popup promo muncul otomatis jika diaktifkan di settings
   useEffect(() => {
     const s = storage.getSettings();
     if (s.promoEnabled !== false) {
@@ -92,29 +134,6 @@ export default function App() {
     setView('site');
   };
 
-  // Filter Unit Akomodasi
-  const filteredVillas = villas.filter(v => {
-    // 1. Filter Tipe Properti (Villa / Glamping / Homestay)
-    if (filters.propertyType !== 'all') {
-      const pType = v.propertyType || 'villa';
-      if (pType !== filters.propertyType) return false;
-    }
-    // 2. Lokasi
-    if (filters.location !== 'all' && v.location !== filters.location) return false;
-    // 3. Kategori Kelas
-    if (filters.category !== 'all' && (v.category || 'Standard') !== filters.category) return false;
-    // 4. Kapasitas
-    if (filters.capacity > 0 && v.capacity < filters.capacity) return false;
-    // 5. Budget Max
-    if (v.price > filters.budget) return false;
-    // 6. Fasilitas
-    if (filters.facility !== 'all') {
-      const hasFac = (v.features || []).some(f => f.toLowerCase().includes(filters.facility.toLowerCase()));
-      if (!hasFac) return false;
-    }
-    return true;
-  });
-
   // Judul dinamis katalog sesuai tipe yang dipilih
   const getCatalogHeading = () => {
     switch(filters.propertyType) {
@@ -137,7 +156,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-sand-50 text-sand-900 font-sans">
-      {/* Header tanpa tombol admin publik */}
+      {/* Header */}
       <Header settings={settings} />
 
       <main>
@@ -165,12 +184,26 @@ export default function App() {
                 {getCatalogHeading()}
               </h2>
             </div>
-            <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800 self-start sm:self-auto">
-              Menampilkan <strong className="text-brand-900 font-extrabold">{filteredVillas.length}</strong> Unit
-            </span>
+            
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              {villaApi.isConfigured() && (
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded-md flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> REST API Aktif
+                </span>
+              )}
+              <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800">
+                Menampilkan <strong className="text-brand-900 font-extrabold">{villas.length}</strong> Unit
+              </span>
+            </div>
           </div>
 
-          {filteredVillas.length === 0 ? (
+          {/* Kondisi Loading vs Konten */}
+          {loadingVillas ? (
+            <div className="text-center py-16 bg-white rounded-3xl border border-sand-200 p-8 shadow-sm">
+              <i className="fa-solid fa-spinner fa-spin text-3xl text-brand-800 mb-3 block"></i>
+              <p className="text-xs font-bold text-sand-800">Memuat data unit akomodasi...</p>
+            </div>
+          ) : villas.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-3xl border border-sand-200 p-6">
               <i className="fa-solid fa-building-circle-exclamation text-4xl text-sand-400 mb-3 block"></i>
               <h3 className="text-base font-bold text-sand-900">Unit Tidak Ditemukan</h3>
@@ -186,7 +219,7 @@ export default function App() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredVillas.map(item => (
+              {villas.map(item => (
                 <VillaCard 
                   key={item.id} 
                   villa={item} 
@@ -212,9 +245,9 @@ export default function App() {
                 <i className="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
               </summary>
               <p className="text-sand-800 text-xs mt-2 leading-relaxed">
-                <strong>Villa:</strong> Hunian eksklusif berfasilitas kolam renang privat (private pool) dan karaoke untuk privasi penuh.<br/>
-                <strong>Glamping:</strong> Pengalaman kemah mewah di tengah kebun teh dengan kasur hotel empuk dan udara dingin Lawu.<br/>
-                <strong>Homestay:</strong> Rumah nyaman berkapasitas besar dengan harga hemat, cocok untuk rombongan keluarga besar.
+                <strong>Villa:</strong> Hunian privat eksklusif dengan kolam renang pribadi dan karaoke.<br/>
+                <strong>Glamping:</strong> Pengalaman berkemah mewah di tengah kebun teh dengan kasur empuk dan view Lawu.<br/>
+                <strong>Homestay:</strong> Rumah nyaman berkapasitas besar dengan harga hemat untuk keluarga & rombongan.
               </p>
             </details>
 
@@ -224,17 +257,7 @@ export default function App() {
                 <i className="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
               </summary>
               <p className="text-sand-800 text-xs mt-2 leading-relaxed">
-                Cukup klik tombol <strong>"Pesan via WA"</strong> di unit atau paket yang Anda pilih. Format pesan WhatsApp akan otomatis terisi lengkap dengan rincian unit. Admin CS kami siap melayani ketersediaan tanggal dan proses booking.
-              </p>
-            </details>
-
-            <details className="bg-white rounded-2xl border border-sand-200 p-4 group">
-              <summary className="font-bold text-brand-900 text-xs sm:text-sm cursor-pointer flex justify-between items-center">
-                Apakah paket BBQ atau Jeep bisa diantar ke glamping/homestay?
-                <i className="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
-              </summary>
-              <p className="text-sand-800 text-xs mt-2 leading-relaxed">
-                Tentu saja! Untuk seluruh wilayah Tawangmangu, Kemuning, dan sekitarnya, tim Sekala siap mengantarkan paket BBQ lengkap dengan alat grill. Driver Jeep kami juga bisa langsung menjemput Anda di lokasi menginap.
+                Klik tombol <strong>"Pesan via WA"</strong> di unit atau paket yang Anda pilih. Format pesan WhatsApp akan otomatis terisi lengkap dengan rincian unit. Admin CS siap membantu ketersediaan tanggal dan booking.
               </p>
             </details>
           </div>
