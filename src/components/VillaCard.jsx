@@ -7,6 +7,10 @@ export default function VillaCard({ villa, onClick }) {
     ? 'bg-amber-500 text-slate-950' 
     : (categoryBadge === 'Premium' ? 'bg-brand-900 text-amber-300' : 'bg-emerald-700 text-white');
 
+  const pType = villa.propertyType || 'villa';
+  const typeLabel = pType === 'glamping' ? 'Glamping' : (pType === 'homestay' ? 'Homestay' : 'Villa');
+  const typeIcon = pType === 'glamping' ? 'fa-campground' : (pType === 'homestay' ? 'fa-people-roof' : 'fa-house-chimney-window');
+
   return (
     <div 
       onClick={onClick}
@@ -19,15 +23,13 @@ export default function VillaCard({ villa, onClick }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
         />
         
-        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
+          <span className="bg-slate-950/80 backdrop-blur text-amber-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow flex items-center gap-1">
+            <i className={`fa-solid ${typeIcon}`}></i> {typeLabel}
+          </span>
           <span className={`${catColor} text-[10px] font-bold px-2.5 py-1 rounded-full shadow`}>
             {categoryBadge}
           </span>
-          {villa.badge && (
-            <span className="bg-black/60 backdrop-blur text-white text-[9px] font-semibold px-2 py-0.5 rounded-full">
-              {villa.badge}
-            </span>
-          )}
         </div>
 
         <span className="absolute top-3 right-3 bg-white/95 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow">

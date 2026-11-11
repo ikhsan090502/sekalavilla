@@ -1,0 +1,1160 @@
+import React, { useState } from 'react';
+import { storage } from '../services/storage';
+import { formatRupiah, DEFAULT_BANNERS, DEFAULT_VILLAS, DEFAULT_SETTINGS } from '../data/initialData';
+
+export default function AdminDashboard({ onBackToSite, onDataChanged }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(storage.isAuth());
+  const [username, setUsername] = useState('admin');
+  const [password, setPassword] = useState('sekala2026');
+  const [loginError, setLoginError] = useState(false);
+  const [activeTab, setActiveTab] = useState('villas');
+  const [toastMsg, setToastMsg] = useState('');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Storage States
+  const [banners, setBanners] = useState(storage.getBanners());
+  const [villas, setVillas] = useState(storage.getVillas());
+  const [settings, setSettings] = useState(storage.getSettings());
+
+  // Banner Modal
+  const [bannerModalOpen, setBannerModalOpen] = useState(false);
+  const [editingBanner, setEditingBanner] = useState(null);
+  const [bannerForm, setBannerForm] = useState({
+    imageUrl: '',
+    hasText: true,
+    badge: '',
+    title: '',
+    subtitle: '',
+    btnText: '',
+    btnLink: ''
+  });
+
+  // Villa / Accommodation Modal
+  const [villaModalOpen, setVillaModalOpen] = useState(false);
+  const [editingVilla, setEditingVilla] = useState(null);
+  const [villaForm, setVillaForm] = useState({
+    name: '',
+    propertyType: 'villa', // villa | glamping | homestay
+    category: 'Standard',  // Budget | Standard | Premium
+    location: 'Tawangmangu',
+    capacity: 8,
+    bedrooms: 3,
+    price: 1500000,
+    rating: 4.8,
+    badge: '',
+    imagesText: '',
+    features: ['Private Pool'],
+    desc: ''
+  });
+
+  // Promo Form State
+  const [promoForm, setPromoForm] = useState({
+    promoEnabled: settings.promoEnabled !== false,
+    promoTitle: settings.promoTitle || 'Diskon Rp 150.000 + Free Alat BBQ Set!',
+    promoSubtitle: settings.promoSubtitle || 'Khusus booking minggu ini melalui website resmi Sekala Villa!',
+    promoCode: settings.promoCode || 'SEKALAADS150',
+    promoDiscount: settings.promoDiscount || 'Rp 150.000 + Bonus Free Alat BBQ Set',
+    promoImageUrl: settings.promoImageUrl || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80'
+  });
+
+  // WA Settings Form State
+  const [waPhone, setWaPhone] = useState(settings.whatsappPhone || '6281381669735');
+  const [waTemplateVilla, setWaTemplateVilla] = useState(settings.waTemplateVilla || '');
+  const [waTemplateAddon, setWaTemplateAddon] = useState(settings.waTemplateAddon || '');
+
+  const triggerToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(''), 3000);
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (username === 'admin' && password === 'sekala2026') {
+      storage.setAuth(true);
+      setIsLoggedIn(true);
+      setLoginError(false);
+      triggerToast('Selamat datang di Dashboard Admin Sekala Villa!');
+    } else {
+      setLoginError(true);
+    }
+  };
+
+  const handleLogout = () => {
+    storage.setAuth(false);
+    setIsLoggedIn(false);
+  };
+
+  // BANNER HANDLERS
+  const openAddBanner = () => {
+    setEditingBanner(null);
+    setBannerForm({
+      imageUrl: '',
+      hasText: true,
+      badge: 'PROMO WEEKEND SPESIAL',
+      title: '',
+      subtitle: '',
+      btnText: 'Cek Unit',
+      btnLink: '#katalog'
+    });
+    setBannerModalOpen(true);
+  };
+
+  const openEditBanner = (b) => {
+    setEditingBanner(b);
+    setBannerForm({ ...b });
+    setBannerModalOpen(true);
+  };
+
+  const handleBannerFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setBannerForm(prev => ({ ...prev, imageUrl: event.target.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveBanner = (e) => {
+    e.preventDefault();
+    if (!bannerForm.imageUrl) {
+      alert('Pilih gambar atau masukkan URL gambar banner!');
+      return;
+    }
+    let updated;
+    if (editingBanner) {
+      updated = banners.map(b => b.id === editingBanner.id ? { ...bannerForm, id: editingBanner.id } : b);
+    } else {
+      updated = [...banners, { ...bannerForm, id: 'ban-' + Date.now() }];
+    }
+    setBanners(updated);
+    storage.saveBanners(updated);
+    onDataChanged();
+    setBannerModalOpen(false);
+    triggerToast('Banner berhasil disimpan!');
+  };
+
+  const deleteBanner = (id) => {
+    if (!confirm('Hapus banner ini?')) return;
+    const updated = banners.filter(b => b.id !== id);
+    setBanners(updated);
+    storage.saveBanners(updated);
+    onDataChanged();
+    triggerToast('Banner berhasil dihapus.');
+  };
+
+  // VILLA / UNIT HANDLERS
+  const openAddVilla = () => {
+    setEditingVilla(null);
+    setVillaForm({
+      name: '',
+      propertyType: 'villa',
+      category: 'Standard',
+      location: 'Tawangmangu',
+      capacity: 8,
+      bedrooms: 3,
+      price: 1500000,
+      rating: 4.8,
+      badge: '',
+      imagesText: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+      features: ['Private Pool', 'View Gunung', 'Karaoke'],
+      desc: ''
+    });
+    setVillaModalOpen(true);
+  };
+
+  const openEditVilla = (v) => {
+    setEditingVilla(v);
+    setVillaForm({
+      name: v.name,
+      propertyType: v.propertyType || 'villa',
+      category: v.category || 'Standard',
+      location: v.location,
+      capacity: v.capacity,
+      bedrooms: v.bedrooms,
+      price: v.price,
+      rating: v.rating,
+      badge: v.badge || '',
+      imagesText: (v.images || [v.image]).join('\n'),
+      features: v.features || [],
+      desc: v.desc || ''
+    });
+    setVillaModalOpen(true);
+  };
+
+  const toggleFeature = (feat) => {
+    setVillaForm(prev => {
+      const exists = prev.features.includes(feat);
+      return {
+        ...prev,
+        features: exists ? prev.features.filter(f => f !== feat) : [...prev.features, feat]
+      };
+    });
+  };
+
+  const handleSaveVilla = (e) => {
+    e.preventDefault();
+    const imgs = villaForm.imagesText.trim().split('\n').map(s => s.trim()).filter(Boolean);
+    const mainImg = imgs[0] || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80';
+
+    const itemData = {
+      id: editingVilla ? editingVilla.id : ('sekala-' + Date.now()),
+      name: villaForm.name.trim(),
+      propertyType: villaForm.propertyType,
+      category: villaForm.category,
+      location: villaForm.location,
+      capacity: parseInt(villaForm.capacity) || 2,
+      bedrooms: parseInt(villaForm.bedrooms) || 1,
+      price: parseInt(villaForm.price) || 500000,
+      rating: parseFloat(villaForm.rating) || 4.8,
+      badge: villaForm.badge.trim(),
+      image: mainImg,
+      images: imgs.length ? imgs : [mainImg],
+      features: villaForm.features,
+      desc: villaForm.desc.trim()
+    };
+
+    let updated;
+    if (editingVilla) {
+      updated = villas.map(v => v.id === editingVilla.id ? itemData : v);
+    } else {
+      updated = [itemData, ...villas];
+    }
+
+    setVillas(updated);
+    storage.saveVillas(updated);
+    onDataChanged();
+    setVillaModalOpen(false);
+    triggerToast('Data unit berhasil disimpan!');
+  };
+
+  const deleteVilla = (id) => {
+    if (!confirm('Yakin ingin menghapus unit ini?')) return;
+    const updated = villas.filter(v => v.id !== id);
+    setVillas(updated);
+    storage.saveVillas(updated);
+    onDataChanged();
+    triggerToast('Unit berhasil dihapus.');
+  };
+
+  // PROMO SETTINGS HANDLER
+  const handleSavePromo = (e) => {
+    e.preventDefault();
+    const updated = {
+      ...settings,
+      promoEnabled: promoForm.promoEnabled,
+      promoTitle: promoForm.promoTitle,
+      promoSubtitle: promoForm.promoSubtitle,
+      promoCode: promoForm.promoCode,
+      promoDiscount: promoForm.promoDiscount,
+      promoImageUrl: promoForm.promoImageUrl
+    };
+    setSettings(updated);
+    storage.saveSettings(updated);
+    onDataChanged();
+    triggerToast('Pengaturan popup promo berhasil disimpan!');
+  };
+
+  // WA SETTINGS HANDLER
+  const handleSaveWA = (e) => {
+    e.preventDefault();
+    const updated = {
+      ...settings,
+      whatsappPhone: waPhone.trim(),
+      waTemplateVilla,
+      waTemplateAddon
+    };
+    setSettings(updated);
+    storage.saveSettings(updated);
+    onDataChanged();
+    triggerToast('Pengaturan WhatsApp berhasil disimpan!');
+  };
+
+  // LOGIN SCREEN
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-brand-900 flex items-center justify-center p-4">
+        <div className="bg-sand-50 rounded-3xl max-w-sm w-full p-8 shadow-2xl border border-sand-200">
+          <div className="text-center mb-6">
+            <span className="w-12 h-12 bg-amber-400 text-brand-900 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold shadow-md mb-3">
+              <i className="fa-solid fa-lock"></i>
+            </span>
+            <h1 className="font-serif text-2xl font-bold text-brand-900">Admin Sekala Villa</h1>
+            <p className="text-xs text-sand-800 mt-1">Dashboard Pengelolaan Sistem</p>
+          </div>
+
+          {loginError && (
+            <div className="bg-rose-100 border border-rose-300 text-rose-800 text-xs p-3 rounded-xl mb-4 font-semibold">
+              Username atau password salah!
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs py-3 rounded-xl shadow transition"
+            >
+              Masuk Dashboard
+            </button>
+          </form>
+
+          <button
+            onClick={onBackToSite}
+            className="w-full text-center text-xs text-sand-800 hover:text-brand-900 font-bold mt-4 block"
+          >
+            ← Kembali ke Website
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // TABS CONFIGURATION
+  const tabs = [
+    { id: 'villas', label: 'Katalog Villa, Glamping & Homestay', icon: 'fa-house-chimney-window' },
+    { id: 'banners', label: 'Banner Iklan Slider', icon: 'fa-image' },
+    { id: 'promo', label: 'Pengaturan Popup Promo', icon: 'fa-tags' },
+    { id: 'whatsapp', label: 'Template WhatsApp', icon: 'fa-whatsapp', brand: true },
+    { id: 'api', label: 'Koneksi REST API VPS', icon: 'fa-code' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-sand-100 flex flex-col md:flex-row">
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="fixed top-5 right-5 z-50 bg-emerald-800 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-emerald-600 animate-in fade-in slide-in-from-top-2">
+          <i className="fa-solid fa-circle-check text-amber-300"></i>
+          <span>{toastMsg}</span>
+        </div>
+      )}
+
+      {/* SIDEBAR DESKTOP */}
+      <aside className="w-64 bg-brand-900 text-white p-5 hidden md:flex flex-col justify-between shrink-0 shadow-xl">
+        <div>
+          <div className="flex items-center gap-3 pb-6 border-b border-brand-800 mb-6">
+            <span className="w-10 h-10 rounded-2xl bg-amber-400 text-brand-900 flex items-center justify-center font-bold text-lg shadow">
+              <i className="fa-solid fa-shield-halved"></i>
+            </span>
+            <div>
+              <h2 className="font-serif font-bold text-base text-amber-50">Sekala Admin</h2>
+              <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> React Single Page
+              </span>
+            </div>
+          </div>
+
+          <nav className="space-y-1.5">
+            {tabs.map(t => {
+              const active = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTab(t.id)}
+                  className={`w-full px-4 py-3 rounded-2xl font-bold text-xs transition flex items-center gap-3 text-left ${
+                    active
+                      ? 'bg-amber-400 text-slate-950 shadow-md font-extrabold'
+                      : 'text-sand-200 hover:bg-white/10'
+                  }`}
+                >
+                  <i className={`fa-${t.brand ? 'brands' : 'solid'} ${t.icon} text-sm w-4 ${active ? 'text-slate-950' : 'text-amber-400'}`}></i>
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="pt-6 border-t border-brand-800 space-y-2">
+          <button
+            onClick={onBackToSite}
+            className="w-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-2"
+          >
+            <i className="fa-solid fa-arrow-up-right-from-square"></i> Lihat Website
+          </button>
+          <button
+            onClick={handleLogout}
+            className="w-full bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-2"
+          >
+            <i className="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* TOPBAR MOBILE */}
+      <div className="md:hidden bg-brand-900 text-white p-4 flex items-center justify-between sticky top-0 z-40 shadow-md">
+        <span className="font-serif font-bold text-base text-amber-50 flex items-center gap-2">
+          <i className="fa-solid fa-shield-halved text-amber-400"></i> Sekala Admin
+        </span>
+        <button
+          onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+          className="text-white p-2 rounded-lg bg-white/10"
+        >
+          <i className="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
+
+      {/* MOBILE DRAWER */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden flex">
+          <div className="w-64 bg-brand-900 text-white p-5 flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-brand-800 mb-4">
+                <span className="font-serif font-bold text-base text-amber-50">Menu Navigasi</span>
+                <button onClick={() => setMobileSidebarOpen(false)} className="text-white">
+                  <i className="fa-solid fa-xmark text-lg"></i>
+                </button>
+              </div>
+              <nav className="space-y-1">
+                {tabs.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => { setActiveTab(t.id); setMobileSidebarOpen(false); }}
+                    className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left ${
+                      activeTab === t.id ? 'bg-amber-400 text-slate-950' : 'text-sand-200'
+                    }`}
+                  >
+                    <i className={`fa-${t.brand ? 'brands' : 'solid'} ${t.icon} w-4`}></i>
+                    <span>{t.label}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+            <div className="space-y-2">
+              <button onClick={onBackToSite} className="w-full bg-white/10 text-white text-xs font-bold py-2 rounded-xl">
+                Lihat Website
+              </button>
+              <button onClick={handleLogout} className="w-full bg-rose-900 text-rose-300 text-xs font-bold py-2 rounded-xl">
+                Logout
+              </button>
+            </div>
+          </div>
+          <div className="flex-1" onClick={() => setMobileSidebarOpen(false)}></div>
+        </div>
+      )}
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 p-4 sm:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+        
+        {/* ========================================================= */}
+        {/* TAB 1: KATALOG VILLA / GLAMPING / HOMESTAY                */}
+        {/* ========================================================= */}
+        {activeTab === 'villas' && (
+          <div className="space-y-6">
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="bg-brand-100 text-brand-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
+                  Katalog Unit
+                </span>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+                  Kelola Villa, Glamping & Homestay
+                </h2>
+                <p className="text-xs text-sand-800 mt-1">
+                  Atur tipe unit akomodasi, harga per malam, fasilitas utama, dan foto galeri 1:1.
+                </p>
+              </div>
+              <button
+                onClick={openAddVilla}
+                className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-3 rounded-2xl shadow transition flex items-center gap-2 shrink-0"
+              >
+                <i className="fa-solid fa-plus"></i> Tambah Unit Baru
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {villas.map(v => {
+                const pType = v.propertyType || 'villa';
+                const typeLabel = pType === 'glamping' ? 'Glamping' : (pType === 'homestay' ? 'Homestay' : 'Villa');
+                const typeIcon = pType === 'glamping' ? 'fa-campground' : (pType === 'homestay' ? 'fa-people-roof' : 'fa-house-chimney-window');
+
+                return (
+                  <div key={v.id} className="bg-white rounded-3xl border border-sand-200 overflow-hidden shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="relative aspect-square bg-sand-200 overflow-hidden">
+                        <img src={v.image || (v.images && v.images[0])} alt={v.name} className="w-full h-full object-cover" />
+                        
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
+                          <span className="bg-brand-900 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full shadow flex items-center gap-1">
+                            <i className={`fa-solid ${typeIcon}`}></i> {typeLabel}
+                          </span>
+                          <span className="bg-white/90 text-sand-900 text-[10px] font-bold px-2 py-1 rounded-full shadow">
+                            {v.category || 'Standard'}
+                          </span>
+                        </div>
+
+                        <span className="absolute top-3 right-3 bg-white/95 text-sand-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                          <i className="fa-solid fa-star text-amber-500"></i> {v.rating}
+                        </span>
+
+                        <span className="absolute bottom-2.5 left-2.5 bg-slate-950/75 backdrop-blur text-white text-[10px] px-2.5 py-0.5 rounded-lg">
+                          <i className="fa-solid fa-location-dot me-1 text-emerald-400"></i> {v.location}
+                        </span>
+                      </div>
+
+                      <div className="p-4 space-y-2">
+                        <h3 className="font-serif font-bold text-base text-brand-900 leading-snug">{v.name}</h3>
+                        <div className="flex items-center gap-3 text-xs text-sand-800">
+                          <span><i className="fa-solid fa-users text-brand-700 me-1"></i> {v.capacity} Pax</span>
+                          <span><i className="fa-solid fa-bed text-brand-700 me-1"></i> {v.bedrooms} Kamar</span>
+                        </div>
+                        <div className="pt-2 text-xs">
+                          <span className="text-[10px] uppercase font-bold text-sand-800 block">Mulai Dari</span>
+                          <strong className="text-sm font-extrabold text-brand-800">{formatRupiah(v.price)}</strong> / malam
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 pt-0 border-t border-sand-100 flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => openEditVilla(v)}
+                        className="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-1.5 rounded-xl transition"
+                      >
+                        <i className="fa-solid fa-pen-to-square me-1"></i> Edit
+                      </button>
+                      <button
+                        onClick={() => deleteVilla(v.id)}
+                        className="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs px-3 py-1.5 rounded-xl transition"
+                      >
+                        <i className="fa-solid fa-trash me-1"></i> Hapus
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 2: BANNER IKLAN SLIDER                                */}
+        {/* ========================================================= */}
+        {activeTab === 'banners' && (
+          <div className="space-y-6">
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
+                  Hero Header
+                </span>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+                  Banner Iklan Slider
+                </h2>
+                <p className="text-xs text-sand-800 mt-1">
+                  Slide banner promo di bagian atas website. Mendukung upload gambar langsung atau input URL.
+                </p>
+              </div>
+              <button
+                onClick={openAddBanner}
+                className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-3 rounded-2xl shadow transition flex items-center gap-2 shrink-0"
+              >
+                <i className="fa-solid fa-plus"></i> Tambah Banner Baru
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {banners.map((b, i) => (
+                <div key={b.id || i} className="bg-white rounded-3xl border border-sand-200 overflow-hidden shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="relative h-44 bg-sand-200 overflow-hidden">
+                      <img src={b.imageUrl} alt={b.title || 'Banner'} className="w-full h-full object-cover" />
+                      {b.badge && (
+                        <span className="absolute top-3 left-3 bg-amber-400 text-slate-950 text-[10px] font-extrabold px-3 py-1 rounded-full shadow">
+                          {b.badge}
+                        </span>
+                      )}
+                      <span className="absolute top-3 right-3 bg-slate-950/70 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                        {b.hasText ? 'Mode Gambar + Teks' : 'Banner Grafis Murni'}
+                      </span>
+                    </div>
+
+                    <div className="p-5 space-y-2">
+                      <h3 className="font-serif font-bold text-lg text-brand-900">
+                        {b.title || <span className="italic text-sand-400 text-sm">Tanpa Teks Headline</span>}
+                      </h3>
+                      {b.subtitle && <p className="text-xs text-sand-700 line-clamp-2">{b.subtitle}</p>}
+                    </div>
+                  </div>
+
+                  <div className="p-4 border-t border-sand-100 flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => openEditBanner(b)}
+                      className="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-1.5 rounded-xl transition"
+                    >
+                      <i className="fa-solid fa-pen-to-square me-1"></i> Edit
+                    </button>
+                    <button
+                      onClick={() => deleteBanner(b.id)}
+                      className="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs px-3 py-1.5 rounded-xl transition"
+                    >
+                      <i className="fa-solid fa-trash me-1"></i> Hapus
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 3: PENGATURAN POPUP PROMO                            */}
+        {/* ========================================================= */}
+        {activeTab === 'promo' && (
+          <div className="max-w-3xl space-y-6">
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm">
+              <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
+                Ads Pop-Up
+              </span>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+                Pengaturan Popup Promo
+              </h2>
+              <p className="text-xs text-sand-800 mt-1">
+                Atur isi popup diskon yang otomatis muncul saat calon tamu membuka website pertama kali.
+              </p>
+            </div>
+
+            <form onSubmit={handleSavePromo} className="bg-white p-6 rounded-3xl border border-sand-200 shadow-sm space-y-4">
+              {/* Toggle ON/OFF */}
+              <div className="flex items-center justify-between p-4 bg-sand-50 rounded-2xl border border-sand-200">
+                <div>
+                  <h4 className="font-bold text-sm text-brand-900">Aktifkan Popup Promo</h4>
+                  <p className="text-xs text-sand-700">Muncul setelah 1.5 detik halaman utama dimuat</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={promoForm.promoEnabled}
+                    onChange={e => setPromoForm({ ...promoForm, promoEnabled: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-sand-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-sand-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-400"></div>
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Judul Headline Promo *</label>
+                <input
+                  type="text"
+                  required
+                  value={promoForm.promoTitle}
+                  onChange={e => setPromoForm({ ...promoForm, promoTitle: e.target.value })}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Deskripsi Singkat *</label>
+                <textarea
+                  rows="3"
+                  required
+                  value={promoForm.promoSubtitle}
+                  onChange={e => setPromoForm({ ...promoForm, promoSubtitle: e.target.value })}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Kode Voucher Promo *</label>
+                  <input
+                    type="text"
+                    required
+                    value={promoForm.promoCode}
+                    onChange={e => setPromoForm({ ...promoForm, promoCode: e.target.value.toUpperCase() })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-mono font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Teks Diskon / Bonus *</label>
+                  <input
+                    type="text"
+                    required
+                    value={promoForm.promoDiscount}
+                    onChange={e => setPromoForm({ ...promoForm, promoDiscount: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">URL Gambar Header Modal</label>
+                <input
+                  type="url"
+                  value={promoForm.promoImageUrl}
+                  onChange={e => setPromoForm({ ...promoForm, promoImageUrl: e.target.value })}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+              </div>
+
+              {promoForm.promoImageUrl && (
+                <div className="h-32 rounded-2xl overflow-hidden border border-sand-200">
+                  <img src={promoForm.promoImageUrl} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-6 py-3 rounded-xl shadow transition"
+                >
+                  Simpan Pengaturan Promo
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 4: WHATSAPP SETTINGS                                 */}
+        {/* ========================================================= */}
+        {activeTab === 'whatsapp' && (
+          <div className="max-w-3xl space-y-6">
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm">
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
+                WhatsApp Booking
+              </span>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+                Format Pesan WhatsApp CS
+              </h2>
+              <p className="text-xs text-sand-800 mt-1">
+                Atur nomor CS admin dan template pesan otomatis saat calon tamu menekan tombol booking di website.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveWA} className="bg-white p-6 rounded-3xl border border-sand-200 shadow-sm space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Nomor WhatsApp Admin (Format 62xxx) *</label>
+                <input
+                  type="text"
+                  required
+                  value={waPhone}
+                  onChange={e => setWaPhone(e.target.value)}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Template Booking Unit *</label>
+                <p className="text-[10px] text-sand-600 mb-2">Tag yang bisa dipakai: <code>{'{villa_name}'}</code>, <code>{'{property_type}'}</code>, <code>{'{location}'}</code>, <code>{'{capacity}'}</code>, <code>{'{price_start}'}</code>, <code>{'{facilities}'}</code></p>
+                <textarea
+                  rows="6"
+                  required
+                  value={waTemplateVilla}
+                  onChange={e => setWaTemplateVilla(e.target.value)}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Template Pesan Add-On (BBQ / Jeep / PS) *</label>
+                <p className="text-[10px] text-sand-600 mb-2">Tag yang bisa dipakai: <code>{'{addon_name}'}</code>, <code>{'{price}'}</code></p>
+                <textarea
+                  rows="4"
+                  required
+                  value={waTemplateAddon}
+                  onChange={e => setWaTemplateAddon(e.target.value)}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-6 py-3 rounded-xl shadow transition"
+                >
+                  Simpan Format Pesan WA
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 5: REST API VPS INTEGRATION INFO                     */}
+        {/* ========================================================= */}
+        {activeTab === 'api' && (
+          <div className="space-y-6">
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm">
+              <span className="bg-brand-100 text-brand-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
+                Integrasi Backend VPS
+              </span>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+                Koneksi REST API ke VPS
+              </h2>
+              <p className="text-xs text-sand-800 mt-1">
+                Karena website ini 100% menggunakan React JS di frontend, menghubungkan ke server VPS sangat praktis via JSON REST API (tanpa PHP).
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="bg-white p-5 rounded-3xl border border-sand-200 shadow-sm space-y-2">
+                <span className="bg-blue-100 text-blue-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">GET /api/villas</span>
+                <h4 className="font-bold text-sm text-brand-900">Mengambil Data Katalog Unit</h4>
+                <p className="text-xs text-sand-700 leading-relaxed">
+                  Endpoint di VPS yang merespon daftar unit dengan field <code>propertyType: 'villa' | 'glamping' | 'homestay'</code>, <code>price</code>, <code>location</code>, dan array <code>images</code>.
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-sand-200 shadow-sm space-y-2">
+                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">GET /api/banners</span>
+                <h4 className="font-bold text-sm text-brand-900">Mengambil Slider Hero</h4>
+                <p className="text-xs text-sand-700 leading-relaxed">
+                  Endpoint untuk gambar banner iklan aktif, badge teks, dan link aksi tujuan.
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-sand-200 shadow-sm space-y-2">
+                <span className="bg-amber-100 text-amber-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">GET /api/settings</span>
+                <h4 className="font-bold text-sm text-brand-900">Pengaturan Promo & WA</h4>
+                <p className="text-xs text-sand-700 leading-relaxed">
+                  Endpoint untuk status popup promo (ON/OFF), kode promo, dan nomor WhatsApp CS.
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-sand-200 shadow-sm space-y-2">
+                <span className="bg-purple-100 text-purple-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded">CORS Allowed</span>
+                <h4 className="font-bold text-sm text-brand-900">Izin Akses Domain</h4>
+                <p className="text-xs text-sand-700 leading-relaxed">
+                  Pastikan server VPS mengizinkan header <code>Access-Control-Allow-Origin: *</code> agar React dapat mengambil data tanpa diblokir browser.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* ========================================================= */}
+      {/* MODAL FORM VILLA / GLAMPING / HOMESTAY                    */}
+      {/* ========================================================= */}
+      {villaModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-sand-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-sand-100">
+              <h3 className="font-serif font-bold text-lg text-brand-900">
+                {editingVilla ? 'Edit Unit Akomodasi' : 'Tambah Unit Akomodasi Baru'}
+              </h3>
+              <button onClick={() => setVillaModalOpen(false)} className="text-sand-400 hover:text-sand-900">
+                <i className="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveVilla} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Nama Unit *</label>
+                <input
+                  type="text"
+                  required
+                  value={villaForm.name}
+                  onChange={e => setVillaForm({ ...villaForm, name: e.target.value })}
+                  placeholder="Contoh: Sekala Pine Resort Villa"
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* TIPE AKOMODASI */}
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Tipe Akomodasi *</label>
+                  <select
+                    value={villaForm.propertyType}
+                    onChange={e => setVillaForm({ ...villaForm, propertyType: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  >
+                    <option value="villa">🏰 Villa Private Pool</option>
+                    <option value="glamping">🏕️ Glamping & Camp</option>
+                    <option value="homestay">🏠 Homestay Rombongan</option>
+                  </select>
+                </div>
+
+                {/* KELAS HARGA */}
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Kategori Kelas *</label>
+                  <select
+                    value={villaForm.category}
+                    onChange={e => setVillaForm({ ...villaForm, category: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  >
+                    <option value="Budget">Budget Friendly</option>
+                    <option value="Standard">Standard Pool</option>
+                    <option value="Premium">Premium / Gathering</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Lokasi *</label>
+                  <select
+                    value={villaForm.location}
+                    onChange={e => setVillaForm({ ...villaForm, location: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold"
+                  >
+                    <option value="Tawangmangu">Tawangmangu</option>
+                    <option value="Yogyakarta">Yogyakarta</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Kapasitas Pax *</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={villaForm.capacity}
+                    onChange={e => setVillaForm({ ...villaForm, capacity: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Jml Kamar</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={villaForm.bedrooms}
+                    onChange={e => setVillaForm({ ...villaForm, bedrooms: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Harga / Malam *</label>
+                  <input
+                    type="number"
+                    required
+                    min="100000"
+                    step="50000"
+                    value={villaForm.price}
+                    onChange={e => setVillaForm({ ...villaForm, price: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-brand-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Badge Tag Promo (Opsional)</label>
+                <input
+                  type="text"
+                  value={villaForm.badge}
+                  onChange={e => setVillaForm({ ...villaForm, badge: e.target.value })}
+                  placeholder="Contoh: Best Seller / View Kebun Teh / Free BBQ"
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs"
+                />
+              </div>
+
+              {/* Checklist Fasilitas */}
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-2">Pilih Fasilitas</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {['Private Pool', 'View Gunung', 'View Kebun Teh', 'Karaoke', 'Free Water Heater', 'Wifi 100Mbps', 'Garden BBQ Area', 'Dapur Ringkas', 'Parkir Luas'].map(f => {
+                    const checked = villaForm.features.includes(f);
+                    return (
+                      <label key={f} className="flex items-center gap-2 p-2 rounded-xl bg-sand-50 border border-sand-200 text-xs font-medium cursor-pointer hover:bg-sand-100">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleFeature(f)}
+                          className="rounded text-brand-900"
+                        />
+                        <span>{f}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">URL Galeri Foto (1 Baris = 1 URL, Rasio 1:1) *</label>
+                <textarea
+                  rows="3"
+                  required
+                  value={villaForm.imagesText}
+                  onChange={e => setVillaForm({ ...villaForm, imagesText: e.target.value })}
+                  placeholder="https://images.unsplash.com/...&#10;https://images.unsplash.com/..."
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Deskripsi Singkat *</label>
+                <textarea
+                  rows="3"
+                  required
+                  value={villaForm.desc}
+                  onChange={e => setVillaForm({ ...villaForm, desc: e.target.value })}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs leading-relaxed"
+                />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-2 border-t border-sand-100">
+                <button
+                  type="button"
+                  onClick={() => setVillaModalOpen(false)}
+                  className="bg-sand-200 text-sand-800 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-sand-300 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-6 py-2.5 rounded-xl shadow transition"
+                >
+                  Simpan Unit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* MODAL FORM BANNER SLIDER                                  */}
+      {/* ========================================================= */}
+      {bannerModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-sand-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-sand-100">
+              <h3 className="font-serif font-bold text-lg text-brand-900">
+                {editingBanner ? 'Edit Banner Slider' : 'Tambah Banner Slider'}
+              </h3>
+              <button onClick={() => setBannerModalOpen(false)} className="text-sand-400 hover:text-sand-900">
+                <i className="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBanner} className="space-y-4">
+              {/* Gambar: Upload File atau Masukkan URL */}
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Pilih File Gambar Banner</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerFileUpload}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-2 text-xs"
+                />
+                <p className="text-[10px] text-sand-500 mt-1">Atau masukkan URL gambar langsung di bawah ini:</p>
+                <input
+                  type="url"
+                  value={bannerForm.imageUrl}
+                  onChange={e => setBannerForm({ ...bannerForm, imageUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs mt-1"
+                />
+              </div>
+
+              {bannerForm.imageUrl && (
+                <div className="h-32 rounded-2xl overflow-hidden border border-sand-200 bg-sand-100">
+                  <img src={bannerForm.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              {/* Mode Teks */}
+              <div className="flex items-center gap-2 p-3 bg-sand-50 rounded-xl border border-sand-200">
+                <input
+                  type="checkbox"
+                  id="bannerHasText"
+                  checked={bannerForm.hasText}
+                  onChange={e => setBannerForm({ ...bannerForm, hasText: e.target.checked })}
+                  className="rounded text-brand-900"
+                />
+                <label htmlFor="bannerHasText" className="text-xs font-bold text-brand-900 cursor-pointer">
+                  Tampilkan Teks Judul & Tombol di Atas Banner
+                </label>
+              </div>
+
+              {bannerForm.hasText && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Badge Teks (Opsional)</label>
+                    <input
+                      type="text"
+                      value={bannerForm.badge}
+                      onChange={e => setBannerForm({ ...bannerForm, badge: e.target.value })}
+                      placeholder="PROMO WEEKEND SPESIAL"
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Headline Utama</label>
+                    <input
+                      type="text"
+                      value={bannerForm.title}
+                      onChange={e => setBannerForm({ ...bannerForm, title: e.target.value })}
+                      placeholder="Liburan Nyaman Rasa Rumah Sendiri."
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Subteks Deskripsi</label>
+                    <textarea
+                      rows="2"
+                      value={bannerForm.subtitle}
+                      onChange={e => setBannerForm({ ...bannerForm, subtitle: e.target.value })}
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Teks Tombol</label>
+                      <input
+                        type="text"
+                        value={bannerForm.btnText}
+                        onChange={e => setBannerForm({ ...bannerForm, btnText: e.target.value })}
+                        placeholder="Cek Unit"
+                        className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Link Tombol</label>
+                      <input
+                        type="text"
+                        value={bannerForm.btnLink}
+                        onChange={e => setBannerForm({ ...bannerForm, btnLink: e.target.value })}
+                        placeholder="#katalog"
+                        className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className="flex gap-2 justify-end pt-2 border-t border-sand-100">
+                <button
+                  type="button"
+                  onClick={() => setBannerModalOpen(false)}
+                  className="bg-sand-200 text-sand-800 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-sand-300 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-6 py-2.5 rounded-xl shadow transition"
+                >
+                  Simpan Banner
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

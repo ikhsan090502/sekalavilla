@@ -41,19 +41,19 @@ export default function BannerSlider({ banners = [], onFilterLocation }) {
   return (
     <section id="promo-banner" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
       <div 
-        className="relative rounded-3xl overflow-hidden bg-brand-900 text-white min-h-[360px] sm:min-h-[440px] shadow-2xl select-none"
+        className="relative rounded-3xl overflow-hidden bg-brand-900 text-white min-h-[360px] sm:min-h-[420px] shadow-2xl select-none"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         {/* Slider Track */}
         <div 
-          className="flex h-full min-h-[360px] sm:min-h-[440px] transition-transform duration-500 ease-out"
+          className="flex h-full min-h-[360px] sm:min-h-[420px] transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
           {banners.map((b, idx) => (
             <div 
               key={b.id || idx}
-              className={`flex-shrink-0 w-full h-full min-h-[360px] sm:min-h-[440px] relative overflow-hidden ${b.hasText ? 'flex items-center p-6 sm:p-12' : ''}`}
+              className={`flex-shrink-0 w-full h-full min-h-[360px] sm:min-h-[420px] relative overflow-hidden ${b.hasText ? 'flex items-center p-6 sm:p-12' : ''}`}
             >
               {b.hasText ? (
                 <>

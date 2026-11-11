@@ -29,6 +29,7 @@ export default function App() {
   const [promoOpen, setPromoOpen] = useState(false);
 
   const [filters, setFilters] = useState({
+    propertyType: 'all',
     location: 'all',
     category: 'all',
     capacity: 0,
@@ -54,15 +55,20 @@ export default function App() {
     setSettings(storage.getSettings());
   };
 
+  // Popup promo hanya muncul jika diizinkan di settings
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setPromoOpen(true);
-    }, 1500);
-    return () => clearTimeout(timer);
+    const s = storage.getSettings();
+    if (s.promoEnabled !== false) {
+      const timer = setTimeout(() => {
+        setPromoOpen(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const handleResetFilters = () => {
     setFilters({
+      propertyType: 'all',
       location: 'all',
       category: 'all',
       capacity: 0,
@@ -86,18 +92,38 @@ export default function App() {
     setView('site');
   };
 
-  // Filter Villa
+  // Filter Unit Akomodasi
   const filteredVillas = villas.filter(v => {
+    // 1. Filter Tipe Properti (Villa / Glamping / Homestay)
+    if (filters.propertyType !== 'all') {
+      const pType = v.propertyType || 'villa';
+      if (pType !== filters.propertyType) return false;
+    }
+    // 2. Lokasi
     if (filters.location !== 'all' && v.location !== filters.location) return false;
+    // 3. Kategori Kelas
     if (filters.category !== 'all' && (v.category || 'Standard') !== filters.category) return false;
+    // 4. Kapasitas
     if (filters.capacity > 0 && v.capacity < filters.capacity) return false;
+    // 5. Budget Max
     if (v.price > filters.budget) return false;
+    // 6. Fasilitas
     if (filters.facility !== 'all') {
       const hasFac = (v.features || []).some(f => f.toLowerCase().includes(filters.facility.toLowerCase()));
       if (!hasFac) return false;
     }
     return true;
   });
+
+  // Judul dinamis katalog sesuai tipe yang dipilih
+  const getCatalogHeading = () => {
+    switch(filters.propertyType) {
+      case 'villa': return 'Katalog Unit Villa Private Pool';
+      case 'glamping': return 'Katalog Glamping & Camp Pegunungan';
+      case 'homestay': return 'Katalog Homestay Rombongan';
+      default: return 'Katalog Unit Pilihan Sekala';
+    }
+  };
 
   // Jika membuka URL admin
   if (view === 'admin') {
@@ -121,7 +147,7 @@ export default function App() {
           onFilterLocation={handleFilterLocation}
         />
 
-        {/* Filter Pencarian & Fasilitas */}
+        {/* Filter Pencarian, Tipe (Villa/Glamping/Homestay) & Fasilitas */}
         <SearchFilter 
           filters={filters} 
           setFilters={setFilters} 
@@ -130,26 +156,32 @@ export default function App() {
 
         {/* Katalog Villa */}
         <section id="katalog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-          <div className="flex justify-between items-end mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
             <div>
-              <span className="text-terracotta-600 font-bold text-[10px] uppercase tracking-widest block">Rekomendasi Sekala</span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900">Katalog Unit Villa</h2>
+              <span className="text-terracotta-600 font-bold text-[10px] uppercase tracking-widest block">
+                Rekomendasi Terbaik
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900">
+                {getCatalogHeading()}
+              </h2>
             </div>
-            <span className="text-xs font-bold bg-sand-200 px-3 py-1 rounded-lg text-sand-800">
-              <strong className="text-brand-800">{filteredVillas.length}</strong> Pilihan Unit
+            <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800 self-start sm:self-auto">
+              Menampilkan <strong className="text-brand-900 font-extrabold">{filteredVillas.length}</strong> Unit
             </span>
           </div>
 
           {filteredVillas.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-3xl border border-sand-200">
-              <i className="fa-solid fa-building-circle-exclamation text-3xl text-sand-400 mb-2 block"></i>
-              <h3 className="text-sm font-bold text-sand-900">Villa Tidak Ditemukan</h3>
-              <p className="text-sand-800 text-xs mb-3">Coba turunkan kriteria filter pencarian Anda.</p>
+            <div className="text-center py-12 bg-white rounded-3xl border border-sand-200 p-6">
+              <i className="fa-solid fa-building-circle-exclamation text-4xl text-sand-400 mb-3 block"></i>
+              <h3 className="text-base font-bold text-sand-900">Unit Tidak Ditemukan</h3>
+              <p className="text-sand-800 text-xs mb-4 max-w-md mx-auto">
+                Tidak ada unit yang cocok dengan kombinasi filter yang Anda pilih. Silakan reset filter untuk melihat semua opsi.
+              </p>
               <button 
                 onClick={handleResetFilters}
-                className="bg-brand-900 text-white font-bold text-xs px-4 py-2 rounded-xl"
+                className="bg-brand-900 hover:bg-brand-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition"
               >
-                Reset Filter
+                Reset Semua Filter
               </button>
             </div>
           ) : (
@@ -170,32 +202,46 @@ export default function App() {
 
         {/* FAQ Section */}
         <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900 text-center mb-6">Informasi & Pertanyaan Umum</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900 text-center mb-6">
+            Informasi & Pertanyaan Umum
+          </h2>
           <div className="space-y-3">
             <details className="bg-white rounded-2xl border border-sand-200 p-4 group">
               <summary className="font-bold text-brand-900 text-xs sm:text-sm cursor-pointer flex justify-between items-center">
-                Bagaimana cara booking villa atau paket add-on?
+                Apa perbedaan Villa, Glamping, dan Homestay di Sekala?
                 <i className="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
               </summary>
               <p className="text-sand-800 text-xs mt-2 leading-relaxed">
-                Cukup klik tombol <strong>"Pesan via WA"</strong> di villa atau paket add-on yang diinginkan. Format pesan otomatis terisi, lalu admin kami akan langsung mengonfirmasi ketersediaan tanggal & DP.
+                <strong>Villa:</strong> Hunian eksklusif berfasilitas kolam renang privat (private pool) dan karaoke untuk privasi penuh.<br/>
+                <strong>Glamping:</strong> Pengalaman kemah mewah di tengah kebun teh dengan kasur hotel empuk dan udara dingin Lawu.<br/>
+                <strong>Homestay:</strong> Rumah nyaman berkapasitas besar dengan harga hemat, cocok untuk rombongan keluarga besar.
               </p>
             </details>
 
             <details className="bg-white rounded-2xl border border-sand-200 p-4 group">
               <summary className="font-bold text-brand-900 text-xs sm:text-sm cursor-pointer flex justify-between items-center">
-                Apakah paket BBQ atau Jeep bisa diantar ke villa mana saja?
+                Bagaimana alur booking unit atau paket add-on?
                 <i className="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
               </summary>
               <p className="text-sand-800 text-xs mt-2 leading-relaxed">
-                Bisa banget! Untuk wilayah Tawangmangu, Kemuning, dan sekitarnya tim kami siap antar paket BBQ & peralatan grill lengkap. Tour Jeep juga bisa di-pick up dari area villa.
+                Cukup klik tombol <strong>"Pesan via WA"</strong> di unit atau paket yang Anda pilih. Format pesan WhatsApp akan otomatis terisi lengkap dengan rincian unit. Admin CS kami siap melayani ketersediaan tanggal dan proses booking.
+              </p>
+            </details>
+
+            <details className="bg-white rounded-2xl border border-sand-200 p-4 group">
+              <summary className="font-bold text-brand-900 text-xs sm:text-sm cursor-pointer flex justify-between items-center">
+                Apakah paket BBQ atau Jeep bisa diantar ke glamping/homestay?
+                <i className="fa-solid fa-chevron-down text-xs group-open:rotate-180 transition me-1"></i>
+              </summary>
+              <p className="text-sand-800 text-xs mt-2 leading-relaxed">
+                Tentu saja! Untuk seluruh wilayah Tawangmangu, Kemuning, dan sekitarnya, tim Sekala siap mengantarkan paket BBQ lengkap dengan alat grill. Driver Jeep kami juga bisa langsung menjemput Anda di lokasi menginap.
               </p>
             </details>
           </div>
         </section>
       </main>
 
-      {/* Footer tanpa link admin publik */}
+      {/* Footer */}
       <Footer />
 
       {/* Mobile Nav */}

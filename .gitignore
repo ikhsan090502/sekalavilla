@@ -1,5 +1,5 @@
 .DS_Store
 .env
 node_modules/
-react-version/node_modules/
-react-version/.vite/
+dist/
+.vite/

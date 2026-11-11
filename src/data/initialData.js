@@ -5,8 +5,8 @@ export const DEFAULT_BANNERS = [
     hasText: true,
     badge: 'PROMO WEEKEND SPESIAL',
     title: 'Liburan Nyaman Rasa Rumah Sendiri.',
-    subtitle: 'Sewa villa private pool Tawangmangu & Jogja dengan fasilitas komplit. Bisa tambah paket BBQ siap bakar, Jeep tour Kemuning, & sewa PS5!',
-    btnText: 'Cek Unit Tawangmangu',
+    subtitle: 'Sewa villa private pool, glamping kebun teh, & homestay Tawangmangu - Jogja. Bisa tambah paket BBQ siap bakar & Jeep tour!',
+    btnText: 'Cek Katalog Unit',
     btnLink: '#katalog'
   },
   {
@@ -21,10 +21,19 @@ export const DEFAULT_BANNERS = [
   }
 ];
 
+export const PROPERTY_TYPES = [
+  { id: 'all', label: 'Semua Kategori', icon: 'fa-layer-group' },
+  { id: 'villa', label: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
+  { id: 'glamping', label: 'Glamping & Camp', icon: 'fa-campground' },
+  { id: 'homestay', label: 'Homestay Rombongan', icon: 'fa-people-roof' }
+];
+
 export const DEFAULT_VILLAS = [
+  // 1. VILLA PRIVATE POOL
   {
     id: 'sekala-1',
     name: 'Sekala Pine Resort Villa',
+    propertyType: 'villa',
     category: 'Premium',
     location: 'Tawangmangu',
     capacity: 12,
@@ -40,11 +49,12 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80',
     ],
     features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater'],
-    desc: 'Villa eksklusif dengan view pegunungan Lawu yang memukau. Cocok untuk gathering keluarga besar atau rombongan dengan fasilitas lengkap termasuk private pool, karaoke, dan water heater gratis.'
+    desc: 'Villa eksklusif dengan view pegunungan Lawu yang memukau. Dilengkapi kolam renang privat, fasilitas karaoke lengkap, dan water heater untuk liburan keluarga besar.'
   },
   {
     id: 'sekala-2',
     name: 'Villa Sekala Heritage Jogja',
+    propertyType: 'villa',
     category: 'Standard',
     location: 'Yogyakarta',
     capacity: 8,
@@ -57,84 +67,133 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?auto=format&fit=crop&w=800&q=80',
     ],
     features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
-    desc: 'Villa bergaya heritage Jawa modern di jantung Yogyakarta. Nikmati private pool, area BBQ di taman, dan koneksi WiFi super cepat 100Mbps untuk staycation yang nyaman.'
+    desc: 'Villa bergaya heritage modern di Yogyakarta. Cocok untuk staycation keluarga dengan kolam renang privat dan area outdoor BBQ.'
+  },
+
+  // 2. GLAMPING & CAMP
+  {
+    id: 'sekala-glamp-1',
+    name: 'Sekala Cloud Glamping Kemuning',
+    propertyType: 'glamping',
+    category: 'Standard',
+    location: 'Tawangmangu',
+    capacity: 4,
+    bedrooms: 1,
+    price: 850000,
+    rating: 4.9,
+    badge: 'View Kebun Teh',
+    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1499363536502-87642509e31b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['View Kebun Teh', 'View Gunung', 'Free Water Heater', 'Wifi 100Mbps'],
+    desc: 'Pengalaman menginap glamping mewah di tengah hamparan kebun teh Kemuning dengan pemandangan langsung Gunung Lawu. Sudah termasuk kasur empuk king-size, air hangat, dan api unggun.'
   },
   {
-    id: 'sekala-3',
-    name: 'Sekala Peak View Cottage',
+    id: 'sekala-glamp-2',
+    name: 'Sekala Dome Safari Camp',
+    propertyType: 'glamping',
     category: 'Budget',
     location: 'Tawangmangu',
     capacity: 4,
-    bedrooms: 2,
+    bedrooms: 1,
+    price: 650000,
+    rating: 4.8,
+    badge: 'Sensasi Dingin Lawu',
+    image: 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1506535772317-9fca71c959c6?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps'],
+    desc: 'Tenda dome estetik beratap transparan untuk melihat bintang di malam hari. Lokasi sejuk di lereng Lawu, dilengkapi spot grill BBQ dan penerangan estetik.'
+  },
+
+  // 3. HOMESTAY ROMBONGAN
+  {
+    id: 'sekala-home-1',
+    name: 'Sekala Omah Kayu Homestay',
+    propertyType: 'homestay',
+    category: 'Budget',
+    location: 'Yogyakarta',
+    capacity: 10,
+    bedrooms: 3,
     price: 950000,
     rating: 4.7,
-    badge: 'Budget Friendly',
+    badge: 'Hemat Rombongan',
     image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
     images: [
       'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['View Kebun Teh', 'Balkon Pegunungan', 'Dapur Ringkas'],
-    desc: 'Cottage cozy dengan pemandangan hamparan kebun teh Kemuning langsung dari balkon. Pilihan terbaik untuk pasangan atau keluarga kecil yang ingin menikmati udara sejuk Tawangmangu.'
+    features: ['Dapur Ringkas', 'Wifi 100Mbps', 'Parkir Luas', 'Free Water Heater'],
+    desc: 'Homestay bernuansa kayu klasik dengan dapur lengkap, ruang keluarga luas, dan halaman parkir cukup untuk 3 mobil. Sangat cocok untuk rombongan wisata keluarga di Jogja.'
   },
   {
-    id: 'sekala-4',
-    name: 'Sekala Serenity Estate',
-    category: 'Premium',
-    location: 'Yogyakarta',
+    id: 'sekala-home-2',
+    name: 'Sekala Lawu Lodge Homestay',
+    propertyType: 'homestay',
+    category: 'Standard',
+    location: 'Tawangmangu',
     capacity: 15,
     bedrooms: 5,
-    price: 3200000,
-    rating: 5.0,
-    badge: 'Gathering Size',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    price: 1350000,
+    rating: 4.8,
+    badge: 'Kapasitas Besar',
+    image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80',
     images: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1619292974578-ee84bbd86f7c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['Private Pool', 'Karaoke', 'View Gunung', 'Garden BBQ Area'],
-    desc: 'Estate mewah berkapasitas besar dengan view Gunung Merapi yang spektakuler. Sempurna untuk gathering perusahaan, reuni, atau arisan besar dengan fasilitas karaoke hall dan area outbound.'
+    features: ['View Gunung', 'Karaoke', 'Dapur Ringkas', 'Garden BBQ Area'],
+    desc: 'Rumah homestay besar 5 kamar di pusat Tawangmangu. Dekat dengan Grojogan Sewu dan pasar wisata. Fasilitas karaoke dan dapur masak mandiri.'
   }
 ];
 
 export const DEFAULT_SETTINGS = {
   whatsappPhone: '6281381669735',
-  waTemplateVilla: `Halo Admin Sekala Villa! 🖐️\nSaya tertarik mau booking unit villa ini:\n\n📌 *Villa:* {villa_name}\n🏷️ *Kategori:* {category}\n📍 *Lokasi:* {location}\n👥 *Kapasitas:* {capacity} Pax\n💰 *Mulai Dari:* {price_start} / malam\n✨ *Fasilitas Utama:* {facilities}\n\nApakah unit ini ready untuk tanggal rencana saya kak? Mohon infonya, terima kasih!`,
-  waTemplateAddon: `Halo Admin Sekala Villa! 🖐️\nSaya mau pesan paket layanan:\n\n🎁 *Paket:* {addon_name}\n💰 *Harga:* {price}\n\nBoleh diinfokan alur pemesanan dan ketersediaannya kak? Terima kasih!`
+  waTemplateVilla: `Halo Admin Sekala Villa! 🖐️\nSaya tertarik booking unit ini:\n\n📌 *Nama:* {villa_name}\n🏷️ *Tipe:* {property_type}\n📍 *Lokasi:* {location}\n👥 *Kapasitas:* {capacity} Pax\n💰 *Mulai Dari:* {price_start} / malam\n✨ *Fasilitas Utama:* {facilities}\n\nApakah unit ini ready untuk tanggal rencana saya kak? Mohon infonya, terima kasih!`,
+  waTemplateAddon: `Halo Admin Sekala Villa! 🖐️\nSaya mau pesan paket layanan:\n\n🎁 *Paket:* {addon_name}\n💰 *Harga:* {price}\n\nBoleh diinfokan ketersediaan jadwalnya kak? Terima kasih!`,
+  
+  // Promo Popup Settings
+  promoEnabled: true,
+  promoTitle: 'Diskon Rp 150.000 + Free Alat BBQ Set!',
+  promoSubtitle: 'Khusus booking minggu ini melalui website resmi Sekala Villa! Dapatkan potongan langsung sewa unit di Tawangmangu & Jogja plus bonus free peminjaman alat grill BBQ.',
+  promoCode: 'SEKALAADS150',
+  promoDiscount: 'Rp 150.000 + Bonus Free Alat BBQ Set',
+  promoImageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80'
 };
 
 export const ADDONS_DATA = {
   bbq: {
     title: "Katalog Paket BBQ Siap Bakar",
     subtitle: "Termasuk kompor/alat grill portable, arang batok, bumbu marinasi, & saus khas Sekala.",
-    note: "Gratis antar ke lokasi villa area Tawangmangu/Kemuning.",
+    note: "Alat grill dipinjamkan gratis selama masa sewa paket.",
     packages: [
       {
         id: 'bbq-1',
-        name: 'BBQ Paket Penasaran (2-4 Pax)',
-        price: 150000,
-        tag: 'Cocok Pasangan / Mini Group',
-        summary: '250g Shortplate + 250g Sosis/Ayam + Alat Grill Set',
+        name: 'BBQ Paket Berdua / Couple',
+        price: 175000,
+        tag: 'Porsi 2 Pax',
+        summary: '250 gr Daging Beef Sliced + Sosis + Saus BBQ & Blackpepper',
         details: [
-          '250 gram US Beef Shortplate Sliced Meat',
-          '250 gram Chicken Sliced / Sosis Grill Premium',
-          'Set Alat Panggangan BBQ Portable + Capit',
-          '1 Pack Arang Batok Kelapa + Margarin',
-          'Saus Blackpepper & Bumbu Marinasi Teriyaki'
+          '250 gram Daging US Beef Shortplate Sliced',
+          '2 Pcs Sosis Sapi Jumbo & Bakso Ikan',
+          '1 Set Kompor Gas Portable + Pan Grill Anti Lengket',
+          '1 Kaleng Gas Portable Baru',
+          'Saus Signature BBQ & Saus Sambal Pedas Manis'
         ]
       },
       {
         id: 'bbq-2',
-        name: 'BBQ Paket Rame-Rame (5-8 Pax)',
-        price: 275000,
-        tag: 'Terfavorit Tamu',
-        summary: '500g US Shortplate + Bakso/Sosis + Bumbu Lengkap',
+        name: 'BBQ Paket Family Seru (4-6 Pax)',
+        price: 295000,
+        tag: 'Paling Laris',
+        summary: '500 gr US Shortplate + Bakso/Sosis + Bumbu Lengkap',
         details: [
           '500 gram US Shortplate Sliced Premium',
           '250 gram Bakso Sapi Grill & Sosis Jumbo',
@@ -147,7 +206,7 @@ export const ADDONS_DATA = {
         id: 'bbq-3',
         name: 'BBQ Paket Premium Gathering (10+ Pax)',
         price: 450000,
-        tag: 'Porsi Sultan Rombongan',
+        tag: 'Porsi Rombongan',
         summary: '1 Kg Meltique Wagyu & Shortplate + Jagung + Drink',
         details: [
           '1000 gram Meltique Wagyu & Shortplate Sliced',
@@ -166,7 +225,7 @@ export const ADDONS_DATA = {
     packages: [
       {
         id: 'jeep-1',
-        name: 'Jeep Short Trip Tawangmangu',
+        name: 'Jeep Short Trip Kemuning',
         price: 350000,
         tag: 'Durasi ± 1.5 Jam',
         summary: 'Jelajah Kebun Teh, Spot Foto Panoramic, & Kebun Strawberry',
@@ -189,18 +248,6 @@ export const ADDONS_DATA = {
           'Driver & Guide Berpengalaman',
           'Fasilitas Jas Hujan / Mantol saat Musim Hujan'
         ]
-      },
-      {
-        id: 'jeep-3',
-        name: 'Creator Dokumentasi Photo & Video Jeep',
-        price: 200000,
-        tag: 'Add-On Konten Reels/TikTok',
-        summary: 'Kameramen Pribadi + File Mentah & Video Edit Siap Upload',
-        details: [
-          'Kameramen khusus mendampingi selama tour',
-          'File Foto & Video mentah di-share via Google Drive',
-          'Bonus 1-2 Video Reels/TikTok yang sudah di-edit'
-        ]
       }
     ]
   },
@@ -218,21 +265,19 @@ export const ADDONS_DATA = {
         details: [
           'Unit Console PS4 Pro 1TB HDD',
           '2 Stik Wireless DualShock 4',
-          'Kabel HDMI & Kabel Charger',
-          'Game: EA FC24/PES, GTA V, Tekken 7, CTR, Naruto, Mortal Kombat'
+          'Game: EA FC24/PES, GTA V, Tekken 7, CTR, Mortal Kombat'
         ]
       },
       {
         id: 'ps-2',
         name: 'Sewa PlayStation 5 Disc Edition',
         price: 250000,
-        tag: 'Next-Gen Grafis 4K',
+        tag: 'Next-Gen 4K',
         summary: 'Console PS5 + 2 Stik DualSense Wireless + Game Terbaru',
         details: [
           'Unit Console PS5 Disc Edition',
           '2 Stik DualSense Wireless Controller',
-          'Pengalaman Grafis Smooth 4K HDR',
-          'Game: EA FC 24, Spiderman 2, Mortal Kombat 1, God of War Ragnarok'
+          'Game: EA FC 24, Spiderman 2, Mortal Kombat 1'
         ]
       }
     ]
@@ -253,19 +298,6 @@ export const ADDONS_DATA = {
           'Lauk Utama: Ayam Goreng Lengkuas / Rendang Sapi / Ikan Bakar',
           'Lauk Pendamping: Tahu Tempe & Sayur Capcay / Sop',
           'Sambal, Kerupuk, Buah Potong & Es Sup Buah'
-        ]
-      },
-      {
-        id: 'cat-2',
-        name: 'Paket Nasi Box Hemat',
-        price: 25000,
-        tag: 'Harga Per Box',
-        summary: 'Nasi Box Praktis untuk Sarapan / Bekal Tour',
-        details: [
-          'Nasi Putih',
-          'Ayam Bakar / Ayam Geprek Sambal Bawang',
-          'Mie Goreng Jawa & Tumis Buncis',
-          'Kerupuk & Air Mineral Box'
         ]
       }
     ]

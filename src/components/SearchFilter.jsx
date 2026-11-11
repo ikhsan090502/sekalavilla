@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatRupiah } from '../data/initialData';
+import { formatRupiah, PROPERTY_TYPES } from '../data/initialData';
 
 const FACILITIES = [
   { id: 'all', label: 'Semua Fasilitas' },
@@ -15,16 +15,40 @@ export default function SearchFilter({ filters, setFilters, onReset }) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
       <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-sand-100">
-          <span className="font-bold text-brand-900 text-xs sm:text-sm flex items-center gap-2">
-            <i className="fa-solid fa-sliders text-terracotta-500 text-base"></i> Filter Pencarian Villa
-          </span>
-          <button 
-            onClick={onReset}
-            className="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1"
-          >
-            <i className="fa-solid fa-rotate-left text-[11px]"></i> Reset Filter
-          </button>
+        
+        {/* TAB MENU UTAMA: VILLA / GLAMPING / HOMESTAY */}
+        <div className="border-b border-sand-100 pb-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-sand-500">
+              Pilih Tipe Akomodasi
+            </span>
+            <button 
+              onClick={onReset}
+              className="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1"
+            >
+              <i className="fa-solid fa-rotate-left text-[11px]"></i> Reset Filter
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {PROPERTY_TYPES.map(pt => {
+              const active = (filters.propertyType || 'all') === pt.id;
+              return (
+                <button
+                  key={pt.id}
+                  onClick={() => setFilters(prev => ({ ...prev, propertyType: pt.id }))}
+                  className={`py-3 px-3 rounded-2xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 border ${
+                    active 
+                      ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-md scale-[1.02]' 
+                      : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
+                  }`}
+                >
+                  <i className={`fa-solid ${pt.icon} ${active ? 'text-amber-400' : 'text-brand-700'}`}></i>
+                  <span>{pt.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Baris 1: Filter Dropdown & Budget */}
@@ -49,7 +73,7 @@ export default function SearchFilter({ filters, setFilters, onReset }) {
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
               className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold text-sand-900 focus:outline-none"
             >
-              <option value="all">Semua Kategori</option>
+              <option value="all">Semua Kelas</option>
               <option value="Budget">Budget Friendly</option>
               <option value="Standard">Standard Pool</option>
               <option value="Premium">Premium / Gathering</option>
@@ -64,8 +88,8 @@ export default function SearchFilter({ filters, setFilters, onReset }) {
               className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold text-sand-900 focus:outline-none"
             >
               <option value="0">Semua Kapasitas</option>
-              <option value="4">2 - 4 Pax</option>
-              <option value="8">5 - 8 Pax</option>
+              <option value="4">2 - 4 Pax (Couple/Small)</option>
+              <option value="8">5 - 8 Pax (Keluarga)</option>
               <option value="15">10+ Pax (Rombongan)</option>
             </select>
           </div>
@@ -89,7 +113,7 @@ export default function SearchFilter({ filters, setFilters, onReset }) {
 
         {/* Baris 2: Filter Fasilitas Unggulan */}
         <div className="pt-2 border-t border-sand-100">
-          <span className="block text-[10px] font-extrabold text-sand-800 uppercase mb-2">Filter Berdasarkan Fasilitas Unggulan:</span>
+          <span className="block text-[10px] font-extrabold text-sand-800 uppercase mb-2">Filter Berdasarkan Fasilitas:</span>
           <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-1">
             {FACILITIES.map(fac => {
               const active = filters.facility === fac.id;

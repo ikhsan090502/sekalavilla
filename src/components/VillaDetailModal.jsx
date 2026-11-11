@@ -38,6 +38,7 @@ export default function VillaDetailModal({ villa, settings, onClose }) {
 
     const text = template
       .replace(/{villa_name}/g, villa.name)
+      .replace(/{property_type}/g, villa.propertyType === 'glamping' ? 'Glamping' : (villa.propertyType === 'homestay' ? 'Homestay' : 'Villa'))
       .replace(/{category}/g, villa.category || 'Standard')
       .replace(/{location}/g, villa.location)
       .replace(/{capacity}/g, villa.capacity)
