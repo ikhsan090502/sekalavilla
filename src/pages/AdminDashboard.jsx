@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { storage } from '../services/storage';
 import { formatRupiah, DEFAULT_BANNERS, DEFAULT_VILLAS, DEFAULT_SETTINGS } from '../data/initialData';
+import { scrapeGoogleMaps } from '../services/scraper';
 
 export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   const [isLoggedIn, setIsLoggedIn] = useState(storage.isAuth());
@@ -46,6 +47,13 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     features: ['Private Pool'],
     desc: ''
   });
+
+  // Scraper Google Maps States
+  const [scraperModalOpen, setScraperModalOpen] = useState(false);
+  const [scraperInput, setScraperInput] = useState('');
+  const [isScraping, setIsScraping] = useState(false);
+  const [scrapedResult, setScrapedResult] = useState(null);
+  const [scraperError, setScraperError] = useState('');
 
   // Promo Form State
   const [promoForm, setPromoForm] = useState({
@@ -235,6 +243,38 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     storage.saveVillas(updated);
     onDataChanged();
     triggerToast('Unit berhasil dihapus.');
+  };
+
+  // GOOGLE MAPS AUTO SCRAPER HANDLERS
+  const handleRunScraper = async (overrideQuery) => {
+    const q = overrideQuery || scraperInput;
+    if (!q || !q.trim()) {
+      setScraperError('Silakan masukkan nama tempat atau link Google Maps!');
+      return;
+    }
+    setScraperError('');
+    setIsScraping(true);
+    setScrapedResult(null);
+    try {
+      const res = await scrapeGoogleMaps(q);
+      setScrapedResult(res);
+    } catch (err) {
+      setScraperError(err.message || 'Gagal menarik data dari Google Maps.');
+    } finally {
+      setIsScraping(false);
+    }
+  };
+
+  const handleSaveScrapedUnit = () => {
+    if (!scrapedResult) return;
+    const updated = [scrapedResult, ...villas];
+    setVillas(updated);
+    storage.saveVillas(updated);
+    onDataChanged();
+    setScraperModalOpen(false);
+    setScrapedResult(null);
+    setScraperInput('');
+    triggerToast(`✅ Unit "${scrapedResult.name}" berhasil ditarik & masuk katalog!`);
   };
 
   // PROMO SETTINGS HANDLER
@@ -470,12 +510,21 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                   Atur tipe unit akomodasi, harga per malam, fasilitas utama, dan foto galeri 1:1.
                 </p>
               </div>
-              <button
-                onClick={openAddVilla}
-                className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-3 rounded-2xl shadow transition flex items-center gap-2 shrink-0"
-              >
-                <i className="fa-solid fa-plus"></i> Tambah Unit Baru
-              </button>
+              <div className="flex flex-wrap gap-2 shrink-0">
+                <button
+                  onClick={() => { setScraperModalOpen(true); setScrapedResult(null); setScraperError(''); }}
+                  className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-2xl shadow transition flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-wand-magic-sparkles text-brand-900"></i>
+                  <span>⚡ Tarik Otomatis dari Maps</span>
+                </button>
+                <button
+                  onClick={openAddVilla}
+                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-4 py-2.5 rounded-2xl shadow transition flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-plus"></i> Tambah Manual
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -1152,6 +1201,178 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* ========================================================= */}
+      {/* MODAL AUTO SCRAPER GOOGLE MAPS                            */}
+      {/* ========================================================= */}
+      {scraperModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-sand-200 max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-sand-100">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-900 flex items-center justify-center text-sm font-bold shadow">
+                  <i className="fa-solid fa-wand-magic-sparkles"></i>
+                </span>
+                <div>
+                  <h3 className="font-serif font-bold text-lg text-brand-900 leading-tight">
+                    Tarik Data Otomatis dari Google Maps
+                  </h3>
+                  <p className="text-[10px] text-sand-600">Ekstrak nama, tipe, foto & fasilitas filter secara instan</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setScraperModalOpen(false)} 
+                className="text-sand-400 hover:text-sand-900"
+              >
+                <i className="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1.5">
+                  Link Google Maps atau Nama Tempat *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={scraperInput}
+                    onChange={(e) => setScraperInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleRunScraper(); }}
+                    placeholder="Contoh: The Noman Tawangmangu, Bilby Villa, atau paste link maps.app.goo.gl..."
+                    className="flex-1 bg-sand-50 border border-sand-200 rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  />
+                  <button
+                    onClick={() => handleRunScraper()}
+                    disabled={isScraping}
+                    className="bg-amber-400 hover:bg-amber-500 disabled:bg-sand-200 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5 shrink-0"
+                  >
+                    {isScraping ? (
+                      <>
+                        <i className="fa-solid fa-spinner fa-spin"></i>
+                        <span>Menarik Data...</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="fa-solid fa-bolt"></i>
+                        <span>Tarik Data</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Contoh Cepat Klik 1 Kali */}
+              <div>
+                <span className="text-[10px] font-bold text-sand-500 block mb-1">
+                  Atau klik contoh tempat populer di bawah:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    'The Noman Tawangmangu',
+                    'Bilby Villa Tawangmangu',
+                    'Villa Nuansa Sekipan',
+                    'Rumah Atsiri Glamping',
+                    'Bohemian Jogja Villas',
+                    'Ubu Villa Jogja',
+                    'Barokah Homestay Tawangmangu'
+                  ].map((example) => (
+                    <button
+                      key={example}
+                      type="button"
+                      onClick={() => {
+                        setScraperInput(example);
+                        handleRunScraper(example);
+                      }}
+                      className="bg-sand-100 hover:bg-sand-200 text-sand-800 text-[10px] font-semibold px-2.5 py-1 rounded-lg transition"
+                    >
+                      + {example}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {scraperError && (
+                <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl font-medium flex items-center gap-2">
+                  <i className="fa-solid fa-triangle-exclamation"></i>
+                  <span>{scraperError}</span>
+                </div>
+              )}
+
+              {/* HASIL PREVIEW SCRAPING */}
+              {scrapedResult && (
+                <div className="bg-sand-50 border border-amber-300 rounded-2xl p-4 space-y-3 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between border-b border-sand-200 pb-2">
+                    <span className="text-[10px] font-extrabold uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <i className="fa-solid fa-check"></i> Data Berhasil Diekstrak
+                    </span>
+                    <span className="text-xs font-bold text-amber-700">
+                      ★ {scrapedResult.rating} Google Review
+                    </span>
+                  </div>
+
+                  <div className="flex gap-3 items-start">
+                    <img
+                      src={scrapedResult.image}
+                      alt={scrapedResult.name}
+                      className="w-20 h-20 rounded-xl object-cover border border-sand-200 shrink-0"
+                    />
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <h4 className="font-serif font-bold text-sm text-brand-900 leading-tight">
+                        {scrapedResult.name}
+                      </h4>
+                      <div className="flex items-center gap-2 text-[10px] text-sand-700">
+                        <span className="font-bold text-brand-800">
+                          {scrapedResult.propertyType === 'glamping' ? '🏕️ Glamping' : (scrapedResult.propertyType === 'homestay' ? '🏠 Homestay' : '🏰 Villa')}
+                        </span>
+                        <span>•</span>
+                        <span>📍 {scrapedResult.location}</span>
+                        <span>•</span>
+                        <span>👥 {scrapedResult.capacity} Pax</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fasilitas Terdeteksi */}
+                  <div>
+                    <span className="text-[10px] font-bold text-sand-800 uppercase block mb-1">
+                      Fasilitas Terdeteksi (Otomatis Masuk Filter):
+                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {scrapedResult.features.map((f, i) => (
+                        <span key={i} className="bg-emerald-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <i className="fa-solid fa-check text-[8px]"></i> {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Input Harga yang bisa disesuaikan sebelum simpan */}
+                  <div className="pt-2 border-t border-sand-200 flex items-center justify-between gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-sand-800 block">
+                        Harga Sewa / Malam
+                      </label>
+                      <input
+                        type="number"
+                        value={scrapedResult.price}
+                        onChange={(e) => setScrapedResult({ ...scrapedResult, price: parseInt(e.target.value) || 0 })}
+                        className="bg-white border border-sand-300 rounded-lg px-2.5 py-1 text-xs font-bold text-brand-900 w-36"
+                      />
+                    </div>
+                    <button
+                      onClick={handleSaveScrapedUnit}
+                      className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center gap-1.5"
+                    >
+                      <i className="fa-solid fa-floppy-disk"></i>
+                      <span>Simpan ke Katalog</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

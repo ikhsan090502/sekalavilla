@@ -9,6 +9,8 @@ const FACILITIES = [
   { id: 'Karaoke', label: 'Karaoke', icon: 'fa-microphone' },
   { id: 'Free Water Heater', label: 'Water Heater', icon: 'fa-temperature-arrow-up' },
   { id: 'Wifi 100Mbps', label: 'Wifi 100Mbps', icon: 'fa-wifi' },
+  { id: 'Garden BBQ Area', label: 'Area BBQ', icon: 'fa-fire-burner' },
+  { id: 'Dapur Ringkas', label: 'Dapur Masak', icon: 'fa-kitchen-set' },
 ];
 
 export default function SearchFilter({ filters, setFilters, onReset }) {
@@ -49,6 +51,26 @@ export default function SearchFilter({ filters, setFilters, onReset }) {
               );
             })}
           </div>
+        </div>
+
+        {/* INPUT PENCARIAN KATA KUNCI (SEARCH BAR) */}
+        <div className="relative">
+          <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-sand-400 text-sm"></i>
+          <input
+            type="text"
+            value={filters.search || ''}
+            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+            placeholder="Cari nama unit (misal: The Noman, Atsiri, Bilby) atau fasilitas..."
+            className="w-full bg-sand-50 border border-sand-200 rounded-2xl pl-11 pr-10 py-3 text-xs sm:text-sm font-medium text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-700 focus:bg-white transition"
+          />
+          {filters.search && (
+            <button
+              onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sand-400 hover:text-sand-700 text-xs"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          )}
         </div>
 
         {/* Baris 1: Filter Dropdown & Budget */}
