@@ -233,44 +233,6 @@ export default function SearchFilter({
           </div>
         </div>
 
-        {/* OPSIONAL AKSES JELAJAHI PER WILAYAH KHUSUS */}
-        {regions && regions.length > 0 && onOpenRegionPage && (
-          <div className="pt-3 border-t border-sand-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-extrabold text-sand-500 uppercase tracking-wider">
-                Atau Jelajahi Halaman Khusus per Daerah:
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {regions.map(r => (
-                <button 
-                  key={r.id} 
-                  onClick={() => onOpenRegionPage(r.id)}
-                  className="bg-sand-50 hover:bg-brand-900 border border-sand-200 hover:border-brand-900 rounded-2xl p-3 flex items-center justify-between group transition text-left shadow-xs"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-xl bg-brand-900 group-hover:bg-amber-400 text-amber-300 group-hover:text-slate-950 flex items-center justify-center text-xs transition-colors">
-                      <i className="fa-solid fa-location-dot"></i>
-                    </span>
-                    <div>
-                      <span className="font-bold text-xs sm:text-sm text-brand-900 group-hover:text-white block transition-colors">
-                        {r.name}
-                      </span>
-                      <span className="text-[10px] text-sand-500 group-hover:text-amber-200 transition-colors">
-                        Lihat Semua Villa & Glamping ({r.badge})
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-terracotta-600 group-hover:text-amber-300 transition-colors">
-                    <span>Buka Halaman</span>
-                    <i className="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1 transition-transform"></i>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
       </div>
     </section>
   );
