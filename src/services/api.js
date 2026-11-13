@@ -69,7 +69,9 @@ export const villaApi = {
         if (filters.budget) {
           query.append('max_price', filters.budget);
         }
-        if (filters.facility && filters.facility !== 'all') {
+        if (filters.facilities && filters.facilities.length > 0) {
+          filters.facilities.forEach(fac => query.append('facility', fac));
+        } else if (filters.facility && filters.facility !== 'all') {
           query.append('facility', filters.facility);
         }
 
@@ -107,7 +109,15 @@ export const villaApi = {
       if (filters.category && filters.category !== 'all' && (v.category || 'Standard') !== filters.category) return false;
       if (filters.capacity && filters.capacity > 0 && v.capacity < filters.capacity) return false;
       if (filters.budget && v.price > filters.budget) return false;
-      if (filters.facility && filters.facility !== 'all') {
+      
+      // Filter Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
+      if (filters.facilities && Array.isArray(filters.facilities) && filters.facilities.length > 0) {
+        const itemFeatures = v.features || [];
+        const hasAllSelected = filters.facilities.every(selectedFac =>
+          itemFeatures.some(f => f.toLowerCase().includes(selectedFac.toLowerCase()))
+        );
+        if (!hasAllSelected) return false;
+      } else if (filters.facility && filters.facility !== 'all') {
         const hasFac = (v.features || []).some(f => f.toLowerCase().includes(filters.facility.toLowerCase()));
         if (!hasFac) return false;
       }

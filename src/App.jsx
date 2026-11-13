@@ -40,8 +40,13 @@ export default function App() {
   const [promoOpen, setPromoOpen] = useState(false);
 
   const [filters, setFilters] = useState({
-    propertyType: 'all', // 'villa' | 'glamping' | 'homestay'
+    propertyType: 'all', // 'all' | 'villa' | 'glamping'
     location: 'all',
+    category: 'all',
+    capacity: 0,
+    budget: 5000000,
+    facilities: [], // multi-select fasilitas
+    search: ''
   });
 
   // Listener URL Routing (#admin atau /admin)
@@ -124,6 +129,11 @@ export default function App() {
     setFilters({
       propertyType: 'all',
       location: 'all',
+      category: 'all',
+      capacity: 0,
+      budget: 5000000,
+      facilities: [],
+      search: ''
     });
   };
 
@@ -160,14 +170,44 @@ export default function App() {
 
   // Filter unit yang tampil di homepage
   const displayVillas = villas.filter(v => {
+    // 1. Search text
+    if (filters.search && filters.search.trim() !== '') {
+      const q = filters.search.toLowerCase().trim();
+      const matchName = (v.name || '').toLowerCase().includes(q);
+      const matchDesc = (v.desc || '').toLowerCase().includes(q);
+      const matchLoc = (v.location || '').toLowerCase().includes(q);
+      const matchFeat = (v.features || []).some(f => f.toLowerCase().includes(q));
+      if (!matchName && !matchDesc && !matchLoc && !matchFeat) return false;
+    }
+    // 2. Property type
     if (filters.propertyType !== 'all') {
       const pType = (v.propertyType || 'villa').toLowerCase();
       if (pType !== filters.propertyType.toLowerCase()) return false;
     }
+    // 3. Location
     if (filters.location !== 'all') {
       const loc = (v.location || '').toLowerCase();
       if (!loc.includes(filters.location.toLowerCase())) return false;
     }
+    // 4. Category
+    if (filters.category && filters.category !== 'all') {
+      if ((v.category || 'Standard') !== filters.category) return false;
+    }
+    // 5. Capacity (berapa orang)
+    if (filters.capacity && filters.capacity > 0) {
+      if ((v.capacity || 0) < filters.capacity) return false;
+    }
+    // 6. Budget
+    if (filters.budget && (v.price || 0) > filters.budget) return false;
+    // 7. Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
+    if (filters.facilities && Array.isArray(filters.facilities) && filters.facilities.length > 0) {
+      const itemFeatures = v.features || [];
+      const hasAllSelected = filters.facilities.every(selectedFac =>
+        itemFeatures.some(f => f.toLowerCase().includes(selectedFac.toLowerCase()))
+      );
+      if (!hasAllSelected) return false;
+    }
+
     return true;
   });
 
@@ -176,7 +216,6 @@ export default function App() {
     switch(filters.propertyType) {
       case 'villa': return 'Katalog Unit Villa Private Pool';
       case 'glamping': return 'Katalog Glamping & Camp';
-      case 'homestay': return 'Katalog Homestay Rombongan';
       default: return 'Katalog Semua Unit Pilihan Sekala';
     }
   };

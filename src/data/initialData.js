@@ -29,8 +29,7 @@ export const DEFAULT_REGIONS = [
     badge: 'Pegunungan Lawu',
     types: [
       { id: 'villa', name: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
-      { id: 'glamping', name: 'Glamping & Camp', icon: 'fa-campground' },
-      { id: 'homestay', name: 'Homestay Rombongan', icon: 'fa-people-roof' }
+      { id: 'glamping', name: 'Glamping & Camp', icon: 'fa-campground' }
     ]
   },
   {
@@ -39,8 +38,7 @@ export const DEFAULT_REGIONS = [
     badge: 'Kota & Kaliurang',
     types: [
       { id: 'villa', name: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
-      { id: 'glamping', name: 'Glamping Merapi', icon: 'fa-campground' },
-      { id: 'homestay', name: 'Homestay Rombongan', icon: 'fa-people-roof' }
+      { id: 'glamping', name: 'Glamping Merapi', icon: 'fa-campground' }
     ]
   }
 ];
@@ -48,8 +46,7 @@ export const DEFAULT_REGIONS = [
 export const PROPERTY_TYPES = [
   { id: 'all', label: 'Semua Kategori', icon: 'fa-layer-group' },
   { id: 'villa', label: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
-  { id: 'glamping', label: 'Glamping & Camp', icon: 'fa-campground' },
-  { id: 'homestay', label: 'Homestay Rombongan', icon: 'fa-people-roof' }
+  { id: 'glamping', label: 'Glamping & Camp', icon: 'fa-campground' }
 ];
 
 export const DEFAULT_VILLAS = [
