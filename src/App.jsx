@@ -226,11 +226,19 @@ export default function App() {
     if (filters.bedrooms && filters.bedrooms > 0) {
       if ((v.bedrooms || 1) < filters.bedrooms) return false;
     }
-    // 6. Range Harga: Min Price & Max Budget
+    // 6. Range Harga: Fleksibel dengan toleransi harga mendekati (±15% atau 150rb)
+    // Jika tamu mencari minPrice (misal 1jt), unit yang harganya mendekati (misal 850rb - 900rb) tetap dimasukkan
     if (filters.minPrice && filters.minPrice > 0) {
-      if ((v.price || 0) < filters.minPrice) return false;
+      const minTolerance = Math.min(filters.minPrice * 0.15, 200000); // toleransi 15% atau maks 200rb
+      const effectiveMin = Math.max(0, filters.minPrice - minTolerance);
+      if ((v.price || 0) < effectiveMin) return false;
     }
-    if (filters.budget && (v.price || 0) > filters.budget) return false;
+    // Jika tamu mencari batas maksimal budget (misal 1jt), unit yang sedikit di atasnya (misal 1.1jt) atau di bawahnya tetap masuk
+    if (filters.budget && filters.budget > 0) {
+      const maxTolerance = Math.min(filters.budget * 0.15, 250000); // toleransi 15% atau maks 250rb
+      const effectiveMax = filters.budget + maxTolerance;
+      if ((v.price || 0) > effectiveMax) return false;
+    }
     // 7. Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
     if (filters.facilities && Array.isArray(filters.facilities) && filters.facilities.length > 0) {
       const itemFeatures = v.features || [];

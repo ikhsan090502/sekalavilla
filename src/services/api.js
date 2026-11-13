@@ -109,8 +109,17 @@ export const villaApi = {
       if (filters.category && filters.category !== 'all' && (v.category || 'Standard') !== filters.category) return false;
       if (filters.capacity && filters.capacity > 0 && v.capacity < filters.capacity) return false;
       if (filters.bedrooms && filters.bedrooms > 0 && (v.bedrooms || 1) < filters.bedrooms) return false;
-      if (filters.minPrice && filters.minPrice > 0 && v.price < filters.minPrice) return false;
-      if (filters.budget && v.price > filters.budget) return false;
+      // Toleransi harga mendekati (±15% atau maks 200-250rb)
+      if (filters.minPrice && filters.minPrice > 0) {
+        const minTolerance = Math.min(filters.minPrice * 0.15, 200000);
+        const effectiveMin = Math.max(0, filters.minPrice - minTolerance);
+        if (v.price < effectiveMin) return false;
+      }
+      if (filters.budget && filters.budget > 0) {
+        const maxTolerance = Math.min(filters.budget * 0.15, 250000);
+        const effectiveMax = filters.budget + maxTolerance;
+        if (v.price > effectiveMax) return false;
+      }
       
       // Filter Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
       if (filters.facilities && Array.isArray(filters.facilities) && filters.facilities.length > 0) {
