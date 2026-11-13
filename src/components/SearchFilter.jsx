@@ -18,8 +18,7 @@ export default function SearchFilter({
   filters, 
   setFilters, 
   onReset,
-  regions = [],
-  onOpenRegionPage
+  onOpenGateway
 }) {
   // Toggle pilihan fasilitas (Multi-select)
   const toggleFacility = (facilityId) => {
@@ -42,10 +41,78 @@ export default function SearchFilter({
 
   const selectedFacilities = filters.facilities || [];
 
+  // Hitung berapa kriteria aktif dari landing matcher
+  const hasCustomMatcher = (filters.location && filters.location !== 'all') || 
+                           (filters.capacity && filters.capacity > 0) || 
+                           (filters.bedrooms && filters.bedrooms > 0) || 
+                           (filters.minPrice && filters.minPrice > 0) || 
+                           (filters.budget && filters.budget < 5000000) ||
+                           (filters.propertyType && filters.propertyType !== 'all');
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
       <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4 sm:space-y-5">
         
+        {/* BANNER NOTIFIKASI FILTER DARI TRIP MATCHER */}
+        {hasCustomMatcher && (
+          <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xs shrink-0 shadow-xs">
+                <i className="fa-solid fa-sliders"></i>
+              </span>
+              <div>
+                <span className="text-xs font-bold text-brand-900 block">
+                  Filter Sesuai Pencarian Anda Aktif
+                </span>
+                <div className="flex flex-wrap gap-1.5 mt-0.5">
+                  {filters.location !== 'all' && (
+                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
+                      📍 {filters.location}
+                    </span>
+                  )}
+                  {filters.propertyType !== 'all' && (
+                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200 capitalize">
+                      🏡 {filters.propertyType}
+                    </span>
+                  )}
+                  {filters.capacity > 0 && (
+                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
+                      👥 Min. {filters.capacity} Orang
+                    </span>
+                  )}
+                  {filters.bedrooms > 0 && (
+                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
+                      🛏️ Min. {filters.bedrooms} Kamar
+                    </span>
+                  )}
+                  {(filters.minPrice > 0 || filters.budget < 5000000) && (
+                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
+                      💰 {filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} - {formatRupiah(filters.budget)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              {onOpenGateway && (
+                <button
+                  onClick={onOpenGateway}
+                  className="text-xs font-bold text-brand-900 hover:text-terracotta-600 bg-white hover:bg-sand-100 px-3 py-1.5 rounded-xl border border-sand-300 transition flex items-center gap-1 shadow-xs"
+                >
+                  <i className="fa-solid fa-arrow-rotate-left text-[10px]"></i> Ubah Kriteria
+                </button>
+              )}
+              <button
+                onClick={onReset}
+                className="text-xs font-bold text-terracotta-600 hover:underline px-2 py-1"
+              >
+                Reset Filter
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* HEADER: PILIH TIPE AKOMODASI (HANYA VILLA & GLAMPING) */}
         <div>
           <div className="flex items-center justify-between mb-2.5">

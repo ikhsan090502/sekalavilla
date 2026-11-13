@@ -379,8 +379,10 @@ export default function App() {
           filters={filters} 
           setFilters={setFilters} 
           onReset={handleResetFilters}
-          regions={regions}
-          onOpenRegionPage={handleOpenRegionPage}
+          onOpenGateway={() => {
+            setShowLandingGateway(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
 
         {/* Katalog Villa */}
