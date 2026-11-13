@@ -1828,13 +1828,14 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">URL Foto Cover Artikel *</label>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                  URL Foto Cover Artikel (Opsional - Post SEO Murni Teks)
+                </label>
                 <input
                   type="url"
-                  required
                   value={articleForm.image}
                   onChange={e => setArticleForm({ ...articleForm, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/... atau link foto gambar"
+                  placeholder="Opsional (Kosongkan jika ingin postingan murni teks/judul tanpa thumbnail)"
                   className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-700 font-mono"
                 />
               </div>

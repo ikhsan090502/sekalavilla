@@ -90,14 +90,16 @@ export default function ArticlePage({ article, settings, onBack, onNavigateHome 
             </div>
           </header>
 
-          {/* Main Cover Image */}
-          <div className="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-xl mb-8 border border-sand-200 bg-sand-200">
-            <img 
-              src={article.image} 
-              alt={article.title} 
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* Main Cover Image (Hanya tampil jika ada gambar) */}
+          {article.image && (
+            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-xl mb-8 border border-sand-200 bg-sand-200">
+              <img 
+                src={article.image} 
+                alt={article.title} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
 
           {/* Article Body Content */}
           <article className="space-y-6 max-w-3xl mx-auto">

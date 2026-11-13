@@ -20,6 +20,20 @@ export default function SearchFilter({
   onReset,
   onOpenGateway
 }) {
+  // Helper memformat angka ribuan dengan pemisah titik otomatis (contoh: 1500000 -> 1.500.000)
+  const formatNumberWithDots = (val) => {
+    if (!val && val !== 0) return '';
+    const cleanDigits = val.toString().replace(/\D/g, '');
+    if (!cleanDigits) return '';
+    return new Intl.NumberFormat('id-ID').format(parseInt(cleanDigits, 10));
+  };
+
+  const getRawNumber = (str) => {
+    if (!str) return 0;
+    const cleanDigits = str.toString().replace(/\D/g, '');
+    return parseInt(cleanDigits, 10) || 0;
+  };
+
   // Toggle pilihan fasilitas (Multi-select)
   const toggleFacility = (facilityId) => {
     setFilters(prev => {
@@ -175,7 +189,7 @@ export default function SearchFilter({
           )}
         </div>
 
-        {/* BARIS DROPDOWN & SLIDER HARGA */}
+        {/* BARIS FILTER UTAMA: LOKASI, KAPASITAS ORANG (KETIK), KAMAR (KETIK), RENTANG BUDGET (RP MIN - RP MAX) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* 1. LOKASI */}
           <div>
@@ -193,63 +207,97 @@ export default function SearchFilter({
             </select>
           </div>
 
-          {/* 2. KAPASITAS TAMU */}
+          {/* 2. KAPASITAS TAMU (KETIK BEBAS) */}
           <div>
             <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-user-group text-brand-700 mr-1"></i> Kapasitas Tamu (Berapa Orang)
+              <i className="fa-solid fa-user-group text-brand-700 mr-1"></i> Kapasitas Orang (Ketik)
             </label>
-            <select
-              value={filters.capacity || 0}
-              onChange={(e) => setFilters(prev => ({ ...prev, capacity: parseInt(e.target.value) || 0 }))}
-              className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700"
-            >
-              <option value="0">Semua Kapasitas</option>
-              <option value="2">Minimal 2 Orang (Couple/Duo)</option>
-              <option value="4">Minimal 4 Orang (Keluarga Kecil)</option>
-              <option value="8">Minimal 8 Orang (Keluarga Besar)</option>
-              <option value="12">Minimal 12+ Orang (Rombongan)</option>
-            </select>
-          </div>
-
-          {/* 3. KATEGORI KELAS */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-crown text-brand-700 mr-1"></i> Kategori Kelas
-            </label>
-            <select
-              value={filters.category || 'all'}
-              onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-              className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700"
-            >
-              <option value="all">Semua Kelas</option>
-              <option value="Budget">Budget Friendly</option>
-              <option value="Standard">Standard Pool & Camp</option>
-              <option value="Premium">Premium / Gathering</option>
-            </select>
-          </div>
-
-          {/* 4. BATAS BUDGET / HARGA PER MALAM */}
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-[10px] font-extrabold text-sand-800 uppercase">
-                <i className="fa-solid fa-tag text-brand-700 mr-1"></i> Batas Budget / Malam
-              </label>
-              <span className="text-xs font-extrabold text-brand-900 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300">
-                {formatRupiah(filters.budget || 5000000)}
+            <div className="relative">
+              <input
+                type="number"
+                min="0"
+                placeholder="Semua (Misal: 8)"
+                value={filters.capacity > 0 ? filters.capacity : ''}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  setFilters(prev => ({ ...prev, capacity: isNaN(val) ? 0 : val }));
+                }}
+                className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
+                Orang
               </span>
             </div>
-            <input
-              type="range"
-              min="300000"
-              max="5000000"
-              step="100000"
-              value={filters.budget || 5000000}
-              onChange={(e) => setFilters(prev => ({ ...prev, budget: parseInt(e.target.value) }))}
-              className="w-full accent-brand-700 h-2 bg-sand-200 rounded-lg cursor-pointer mt-1"
-            />
-            <div className="flex justify-between text-[10px] text-sand-400 mt-1 font-semibold">
-              <span>Rp 300rb</span>
-              <span>Rp 5 Juta+</span>
+          </div>
+
+          {/* 3. JUMLAH KAMAR TIDUR (KETIK BEBAS) */}
+          <div>
+            <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+              <i className="fa-solid fa-bed text-brand-700 mr-1"></i> Kamar Tidur (Ketik)
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min="0"
+                placeholder="Semua (Misal: 3)"
+                value={filters.bedrooms > 0 ? filters.bedrooms : ''}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  setFilters(prev => ({ ...prev, bedrooms: isNaN(val) ? 0 : val }));
+                }}
+                className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
+                Kamar
+              </span>
+            </div>
+          </div>
+
+          {/* 4. RENTANG BUDGET SEWA (RP MINIMAL - RP MAKSIMAL DENGAN TITIK OTOMATIS) */}
+          <div>
+            <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+              <i className="fa-solid fa-tag text-brand-700 mr-1"></i> Rentang Budget / Malam
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {/* Min Rp */}
+              <div className="relative">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
+                  Min
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Rp 0"
+                  value={filters.minPrice > 0 ? formatNumberWithDots(filters.minPrice) : ''}
+                  onChange={(e) => {
+                    const raw = getRawNumber(e.target.value);
+                    setFilters(prev => ({ ...prev, minPrice: raw }));
+                  }}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+
+              {/* Max Rp */}
+              <div className="relative">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
+                  Max
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Maksimal"
+                  value={filters.budget && filters.budget < 5000000 ? formatNumberWithDots(filters.budget) : ''}
+                  onChange={(e) => {
+                    const raw = getRawNumber(e.target.value);
+                    setFilters(prev => ({ ...prev, budget: raw > 0 ? raw : 5000000 }));
+                  }}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+            </div>
+            <div className="flex justify-between text-[9px] text-sand-400 mt-1 font-semibold">
+              <span>{filters.minPrice > 0 ? `Min: ${formatRupiah(filters.minPrice)}` : 'Mulai Rp 0'}</span>
+              <span>{filters.budget && filters.budget < 5000000 ? `Max: ${formatRupiah(filters.budget)}` : 'Semua Harga'}</span>
             </div>
           </div>
         </div>
