@@ -62,6 +62,8 @@ export default function App() {
     location: 'all',
     category: 'all',
     capacity: 0,
+    bedrooms: 0,
+    minPrice: 0,
     budget: 5000000,
     facilities: [], // multi-select fasilitas
     search: ''
@@ -153,6 +155,8 @@ export default function App() {
       location: 'all',
       category: 'all',
       capacity: 0,
+      bedrooms: 0,
+      minPrice: 0,
       budget: 5000000,
       facilities: [],
       search: ''
@@ -218,7 +222,14 @@ export default function App() {
     if (filters.capacity && filters.capacity > 0) {
       if ((v.capacity || 0) < filters.capacity) return false;
     }
-    // 6. Budget
+    // 5B. Bedrooms (berapa kamar)
+    if (filters.bedrooms && filters.bedrooms > 0) {
+      if ((v.bedrooms || 1) < filters.bedrooms) return false;
+    }
+    // 6. Range Harga: Min Price & Max Budget
+    if (filters.minPrice && filters.minPrice > 0) {
+      if ((v.price || 0) < filters.minPrice) return false;
+    }
     if (filters.budget && (v.price || 0) > filters.budget) return false;
     // 7. Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
     if (filters.facilities && Array.isArray(filters.facilities) && filters.facilities.length > 0) {
@@ -261,7 +272,10 @@ export default function App() {
             ...prev,
             location: chosenFilters.location || 'all',
             capacity: chosenFilters.capacity || 0,
-            propertyType: chosenFilters.propertyType || 'all'
+            bedrooms: chosenFilters.bedrooms || 0,
+            propertyType: chosenFilters.propertyType || 'all',
+            minPrice: chosenFilters.minPrice || 0,
+            budget: chosenFilters.maxPrice > 0 ? chosenFilters.maxPrice : 5000000
           }));
           sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
           setShowLandingGateway(false);

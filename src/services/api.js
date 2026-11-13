@@ -108,6 +108,8 @@ export const villaApi = {
       if (filters.location && filters.location !== 'all' && v.location !== filters.location) return false;
       if (filters.category && filters.category !== 'all' && (v.category || 'Standard') !== filters.category) return false;
       if (filters.capacity && filters.capacity > 0 && v.capacity < filters.capacity) return false;
+      if (filters.bedrooms && filters.bedrooms > 0 && (v.bedrooms || 1) < filters.bedrooms) return false;
+      if (filters.minPrice && filters.minPrice > 0 && v.price < filters.minPrice) return false;
       if (filters.budget && v.price > filters.budget) return false;
       
       // Filter Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
