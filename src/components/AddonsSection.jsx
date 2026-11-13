@@ -6,7 +6,17 @@ export default function AddonsSection({ settings }) {
   const [selectedAddon, setSelectedAddon] = useState(null);
 
   const currentData = ADDONS_DATA[activeTab];
-  const phone = settings?.whatsappPhone || '6281381669735';
+  
+  // Tentukan nomor WhatsApp sesuai tipe add-on
+  const getAddonPhone = (type) => {
+    switch (type) {
+      case 'bbq': return settings?.whatsappBBQ || settings?.whatsappPhone || '6281381669735';
+      case 'jeep': return settings?.whatsappJeep || settings?.whatsappPhone || '6281381669735';
+      case 'ps': return settings?.whatsappPS || settings?.whatsappPhone || '6281381669735';
+      case 'catering': return settings?.whatsappCatering || settings?.whatsappPhone || '6281381669735';
+      default: return settings?.whatsappPhone || '6281381669735';
+    }
+  };
 
   const handleOrderWA = (addonName, price) => {
     const template = settings?.waTemplateAddon || 
@@ -16,7 +26,8 @@ export default function AddonsSection({ settings }) {
       .replace(/{addon_name}/g, addonName)
       .replace(/{price}/g, formatRupiah(price));
 
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+    const targetPhone = getAddonPhone(activeTab);
+    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (

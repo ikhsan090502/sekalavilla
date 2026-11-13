@@ -7,6 +7,8 @@ import SearchFilter from './components/SearchFilter';
 import VillaCard from './components/VillaCard';
 import VillaDetailModal from './components/VillaDetailModal';
 import AddonsSection from './components/AddonsSection';
+import ArticlesSection from './components/ArticlesSection';
+import ArticleDetailModal from './components/ArticleDetailModal';
 import PromoModal from './components/PromoModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import Footer from './components/Footer';
@@ -32,10 +34,12 @@ export default function App() {
   const [banners, setBanners] = useState(storage.getBanners());
   const [villas, setVillas] = useState([]);
   const [regions, setRegions] = useState(storage.getRegions());
+  const [articles, setArticles] = useState(storage.getArticles());
   const [loadingVillas, setLoadingVillas] = useState(true);
   const [settings, setSettings] = useState(storage.getSettings());
 
   const [selectedVilla, setSelectedVilla] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null);
   const [promoOpen, setPromoOpen] = useState(false);
 
   const [filters, setFilters] = useState({
@@ -110,6 +114,7 @@ export default function App() {
     setBanners(storage.getBanners());
     setSettings(storage.getSettings());
     setRegions(storage.getRegions());
+    setArticles(storage.getArticles());
     setLoadingVillas(false);
   };
 
@@ -344,6 +349,12 @@ export default function App() {
         {/* Add-Ons Section */}
         <AddonsSection settings={settings} />
 
+        {/* Artikel & Panduan Wisata Section */}
+        <ArticlesSection 
+          articles={articles} 
+          onSelectArticle={setSelectedArticle} 
+        />
+
         {/* FAQ Section */}
         <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900 text-center mb-6">
@@ -387,6 +398,13 @@ export default function App() {
           villa={selectedVilla} 
           settings={settings} 
           onClose={() => setSelectedVilla(null)} 
+        />
+      )}
+
+      {selectedArticle && (
+        <ArticleDetailModal 
+          article={selectedArticle} 
+          onClose={() => setSelectedArticle(null)} 
         />
       )}
 

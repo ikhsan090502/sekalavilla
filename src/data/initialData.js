@@ -239,7 +239,13 @@ export const DEFAULT_VILLAS = [
 ];
 
 export const DEFAULT_SETTINGS = {
-  whatsappPhone: '6281381669735',
+  whatsappPhone: '6281381669735', // Fallback Utama
+  whatsappTawangmangu: '6281381669735', // Admin Area Tawangmangu
+  whatsappJogja: '6281381669735', // Admin Area Yogyakarta
+  whatsappBBQ: '6281381669735', // PIC Layanan BBQ
+  whatsappJeep: '6281381669735', // PIC Wisata Jeep Kemuning
+  whatsappPS: '6281381669735', // PIC Rental PS
+  whatsappCatering: '6281381669735', // PIC Catering
   waTemplateVilla: `Halo Admin Sekala Villa! 🖐️\nSaya tertarik booking unit ini:\n\n📌 *Nama:* {villa_name}\n🏷️ *Tipe:* {property_type}\n📍 *Lokasi:* {location}\n👥 *Kapasitas:* {capacity} Pax\n💰 *Mulai Dari:* {price_start} / malam\n✨ *Fasilitas Utama:* {facilities}\n\nApakah unit ini ready untuk tanggal rencana saya kak? Mohon infonya, terima kasih!`,
   waTemplateAddon: `Halo Admin Sekala Villa! 🖐️\nSaya mau pesan paket layanan:\n\n🎁 *Paket:* {addon_name}\n💰 *Harga:* {price}\n\nBoleh diinfokan ketersediaan jadwalnya kak? Terima kasih!`,
   
@@ -251,6 +257,43 @@ export const DEFAULT_SETTINGS = {
   promoDiscount: 'Rp 150.000 + Bonus Free Alat BBQ Set',
   promoImageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80'
 };
+
+// Artikel / Blog Dummy Awal
+export const DEFAULT_ARTICLES = [
+  {
+    id: 'art-1',
+    slug: 'tips-staycation-seru-tawangmangu',
+    title: '5 Tips Staycation Seru & Dingin di Tawangmangu Bersama Keluarga',
+    category: 'Panduan Wisata',
+    date: '12 Nov 2026',
+    author: 'Tim Sekala',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80',
+    summary: 'Rekomendasi persiapan menginap di kaki Gunung Lawu mulai dari pilihan villa private pool hingga perlengkapan BBQ hangat.',
+    content: `Liburan di Tawangmangu selalu menghadirkan sensasi kesegaran khas pegunungan Lawu yang sejuk berkabut. Bagi Anda yang berencana staycation bersama rombongan atau keluarga tercinta, berikut beberapa tips penting:
+
+1. **Pilih Villa dengan Fasilitas Water Heater & Pemanas**
+Suhu malam di Tawangmangu dan Kemuning bisa turun drastis hingga 16°C. Pastikan memilih villa Sekala yang sudah dilengkapi shower air panas dan selimut tebal ekstra.
+
+2. **Siapkan Momen BBQ Siap Bakar di Halaman**
+Suasana dingin malam pegunungan sangat pas ditemani aroma harum daging panggang. Layanan paket BBQ Sekala Villa sudah membawakan kompor grill, arang batok, dan bumbu marinasi langsung di villa Anda.
+
+3. **Nikmati Wisata Alam & Tour Jeep Kemuning**
+Pagi hari adalah waktu terbaik menikmati sunrise kebun teh. Cobalah sensasi seru jelajah lereng Lawu dengan armada Jeep 4x4 Sekala Adventure.`
+  },
+  {
+    id: 'art-2',
+    slug: 'rekomendasi-glamping-estetik-jogja',
+    title: 'Sensasi Glamping Romantis di Jogja dengan Pemandangan Gagah Merapi',
+    category: 'Rekomendasi Akomodasi',
+    date: '10 Nov 2026',
+    author: 'Admin Sekala',
+    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=1000&q=80',
+    summary: 'Ingin liburan dengan konsep tenda mewah tanpa ribet? Ini alasan glamping Kaliurang Merapi jadi favorit pasangan dan keluarga muda.',
+    content: `Glamping (Glamorous Camping) menawarkan perpaduan sempurna antara petualangan alam terbuka dengan kenyamanan kasur empuk hotel bintang lima.
+
+Kawasan Kaliurang Sleman kini menjadi destinasi primadona bagi wisatawan Jogja yang mendambakan udara segar jauh dari hiruk-pikuk pusat kota. Suara gemerisik pohon pinus dan pemandangan megah puncak Merapi di pagi hari dijamin bikin pikiran rileks dan tenang kembali.`
+  }
+];
 
 export const ADDONS_DATA = {
   bbq: {

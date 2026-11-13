@@ -16,7 +16,20 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   const [banners, setBanners] = useState(storage.getBanners());
   const [villas, setVillas] = useState(storage.getVillas());
   const [regions, setRegions] = useState(storage.getRegions());
+  const [articles, setArticles] = useState(storage.getArticles());
   const [settings, setSettings] = useState(storage.getSettings());
+
+  // Article Modal States
+  const [articleModalOpen, setArticleModalOpen] = useState(false);
+  const [editingArticle, setEditingArticle] = useState(null);
+  const [articleForm, setArticleForm] = useState({
+    title: '',
+    category: 'Panduan Wisata',
+    image: '',
+    summary: '',
+    content: '',
+    author: 'Admin Sekala'
+  });
 
   // Region / Type Custom Form State
   const [newRegionName, setNewRegionName] = useState('');
@@ -51,6 +64,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     price: 1500000,
     rating: 4.8,
     badge: '',
+    whatsapp: '', // Nomor WA khusus unit jika ada
     imagesText: '',
     features: ['Private Pool'],
     desc: ''
@@ -75,6 +89,12 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
 
   // WA Settings Form State
   const [waPhone, setWaPhone] = useState(settings.whatsappPhone || '6281381669735');
+  const [waTawangmangu, setWaTawangmangu] = useState(settings.whatsappTawangmangu || '6281381669735');
+  const [waJogja, setWaJogja] = useState(settings.whatsappJogja || '6281381669735');
+  const [waBBQ, setWaBBQ] = useState(settings.whatsappBBQ || '6281381669735');
+  const [waJeep, setWaJeep] = useState(settings.whatsappJeep || '6281381669735');
+  const [waPS, setWaPS] = useState(settings.whatsappPS || '6281381669735');
+  const [waCatering, setWaCatering] = useState(settings.whatsappCatering || '6281381669735');
   const [waTemplateVilla, setWaTemplateVilla] = useState(settings.waTemplateVilla || '');
   const [waTemplateAddon, setWaTemplateAddon] = useState(settings.waTemplateAddon || '');
 
@@ -232,6 +252,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
       price: 1500000,
       rating: 4.8,
       badge: '',
+      whatsapp: '',
       imagesText: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
       features: ['Private Pool', 'View Gunung', 'Karaoke'],
       desc: ''
@@ -251,6 +272,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
       price: v.price,
       rating: v.rating,
       badge: v.badge || '',
+      whatsapp: v.whatsapp || '',
       imagesText: (v.images || [v.image]).join('\n'),
       features: v.features || [],
       desc: v.desc || ''
@@ -284,6 +306,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
       price: parseInt(villaForm.price) || 500000,
       rating: parseFloat(villaForm.rating) || 4.8,
       badge: villaForm.badge.trim(),
+      whatsapp: villaForm.whatsapp ? villaForm.whatsapp.trim() : '',
       image: mainImg,
       images: imgs.length ? imgs : [mainImg],
       features: villaForm.features,
@@ -369,13 +392,92 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     const updated = {
       ...settings,
       whatsappPhone: waPhone.trim(),
+      whatsappTawangmangu: waTawangmangu.trim(),
+      whatsappJogja: waJogja.trim(),
+      whatsappBBQ: waBBQ.trim(),
+      whatsappJeep: waJeep.trim(),
+      whatsappPS: waPS.trim(),
+      whatsappCatering: waCatering.trim(),
       waTemplateVilla,
       waTemplateAddon
     };
     setSettings(updated);
     storage.saveSettings(updated);
     onDataChanged();
-    triggerToast('Pengaturan WhatsApp berhasil disimpan!');
+    triggerToast('Pengaturan nomor WhatsApp & template berhasil disimpan!');
+  };
+
+  // ARTICLE HANDLERS
+  const handleOpenAddArticle = () => {
+    setEditingArticle(null);
+    setArticleForm({
+      title: '',
+      category: 'Panduan Wisata',
+      image: '',
+      summary: '',
+      content: '',
+      author: 'Admin Sekala'
+    });
+    setArticleModalOpen(true);
+  };
+
+  const handleOpenEditArticle = (art) => {
+    setEditingArticle(art);
+    setArticleForm({
+      title: art.title || '',
+      category: art.category || 'Panduan Wisata',
+      image: art.image || '',
+      summary: art.summary || '',
+      content: art.content || '',
+      author: art.author || 'Admin Sekala'
+    });
+    setArticleModalOpen(true);
+  };
+
+  const handleDeleteArticle = (id) => {
+    if (window.confirm('Yakin ingin menghapus artikel ini?')) {
+      const filtered = articles.filter(a => a.id !== id);
+      setArticles(filtered);
+      storage.saveArticles(filtered);
+      onDataChanged();
+      triggerToast('Artikel berhasil dihapus!');
+    }
+  };
+
+  const handleSaveArticle = (e) => {
+    e.preventDefault();
+    if (!articleForm.title.trim()) {
+      alert('Judul artikel wajib diisi!');
+      return;
+    }
+
+    const slug = articleForm.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+    const today = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date());
+
+    if (editingArticle) {
+      const updated = articles.map(a => a.id === editingArticle.id ? {
+        ...a,
+        ...articleForm,
+        slug
+      } : a);
+      setArticles(updated);
+      storage.saveArticles(updated);
+      triggerToast('Artikel berhasil diperbarui!');
+    } else {
+      const newArt = {
+        id: 'art-' + Date.now(),
+        ...articleForm,
+        slug,
+        date: today
+      };
+      const updated = [newArt, ...articles];
+      setArticles(updated);
+      storage.saveArticles(updated);
+      triggerToast('Artikel baru berhasil ditambahkan!');
+    }
+
+    setArticleModalOpen(false);
+    onDataChanged();
   };
 
   // LOGIN SCREEN
@@ -439,9 +541,10 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   const tabs = [
     { id: 'villas', label: 'Katalog Unit Akomodasi', icon: 'fa-house-chimney-window' },
     { id: 'regions', label: 'Kelola Daerah & Tipe (Sub-Admin)', icon: 'fa-map-location-dot' },
+    { id: 'articles', label: 'Kelola Artikel & Halaman', icon: 'fa-newspaper' },
     { id: 'banners', label: 'Banner Iklan Slider', icon: 'fa-image' },
     { id: 'promo', label: 'Pengaturan Popup Promo', icon: 'fa-tags' },
-    { id: 'whatsapp', label: 'Template WhatsApp', icon: 'fa-whatsapp', brand: true },
+    { id: 'whatsapp', label: 'Nomor WhatsApp & Template', icon: 'fa-whatsapp', brand: true },
     { id: 'api', label: 'Koneksi REST API VPS', icon: 'fa-code' },
   ];
 
@@ -1003,56 +1106,239 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
         )}
 
         {/* ========================================================= */}
+        {/* TAB 3: ARTIKEL & HALAMAN MANAGEMENT                      */}
+        {/* ========================================================= */}
+        {activeTab === 'articles' && (
+          <div className="space-y-6">
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+              <div>
+                <span className="bg-brand-100 text-brand-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
+                  Konten & Edukasi Wisata
+                </span>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+                  Manajemen Artikel & Wisata
+                </h2>
+                <p className="text-xs text-sand-800 mt-1">
+                  Tambah dan kelola artikel, tips wisata, rekomendasi villa, beserta foto cover dan isi halaman.
+                </p>
+              </div>
+              <button
+                onClick={handleOpenAddArticle}
+                className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-3 rounded-2xl shadow transition flex items-center justify-center gap-2 shrink-0"
+              >
+                <i className="fa-solid fa-plus"></i>
+                <span>Tulis Artikel Baru</span>
+              </button>
+            </div>
+
+            {/* List Artikel */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {articles.map((art) => (
+                <div key={art.id} className="bg-white rounded-3xl border border-sand-200 p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-sand-100">
+                      <img src={art.image} alt={art.title} className="w-full h-full object-cover" />
+                      <span className="absolute top-2.5 left-2.5 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur">
+                        {art.category}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-sand-500 font-semibold block">{art.date} • {art.author}</span>
+                      <h3 className="font-serif font-bold text-base text-brand-900 line-clamp-2 mt-1">
+                        {art.title}
+                      </h3>
+                      <p className="text-xs text-sand-700 line-clamp-2 mt-1">
+                        {art.summary}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-sand-100 flex items-center justify-end gap-2 mt-4">
+                    <button
+                      onClick={() => handleOpenEditArticle(art)}
+                      className="bg-sand-100 hover:bg-sand-200 text-brand-900 font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
+                    >
+                      <i className="fa-solid fa-pen-to-square text-[11px]"></i> Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteArticle(art.id)}
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
+                    >
+                      <i className="fa-solid fa-trash text-[11px]"></i> Hapus
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
         {/* TAB 4: WHATSAPP SETTINGS                                 */}
         {/* ========================================================= */}
         {activeTab === 'whatsapp' && (
           <div className="max-w-3xl space-y-6">
             <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm">
               <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
-                WhatsApp Booking
+                WhatsApp Multi-Admin & Layanan
               </span>
               <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
-                Format Pesan WhatsApp CS
+                Pengaturan Nomor WhatsApp & Template Pesan
               </h2>
               <p className="text-xs text-sand-800 mt-1">
-                Atur nomor CS admin dan template pesan otomatis saat calon tamu menekan tombol booking di website.
+                Atur nomor WhatsApp yang berbeda untuk setiap cabang daerah (Tawangmangu & Jogja) serta setiap divisi layanan (BBQ, Jeep, PS, Catering).
               </p>
             </div>
 
-            <form onSubmit={handleSaveWA} className="bg-white p-6 rounded-3xl border border-sand-200 shadow-sm space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Nomor WhatsApp Admin (Format 62xxx) *</label>
-                <input
-                  type="text"
-                  required
-                  value={waPhone}
-                  onChange={e => setWaPhone(e.target.value)}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+            <form onSubmit={handleSaveWA} className="bg-white p-6 rounded-3xl border border-sand-200 shadow-sm space-y-6">
+              
+              {/* BAGIAN 1: NOMOR PER DAERAH & PUSAT */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-sm text-brand-900 border-b border-sand-200 pb-2 flex items-center gap-2">
+                  <i className="fa-solid fa-map-location-dot text-brand-700"></i>
+                  <span>Nomor Admin per Cabang Wilayah</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                      📍 Admin Area Tawangmangu & Kemuning *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={waTawangmangu}
+                      onChange={e => setWaTawangmangu(e.target.value)}
+                      placeholder="6281381669735"
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <span className="text-[10px] text-sand-500 mt-1 block">Otomatis dipakai jika tamu booking unit di Tawangmangu</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                      📍 Admin Area Yogyakarta & Sleman *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={waJogja}
+                      onChange={e => setWaJogja(e.target.value)}
+                      placeholder="6281381669735"
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <span className="text-[10px] text-sand-500 mt-1 block">Otomatis dipakai jika tamu booking unit di Yogyakarta</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                    🏢 Nomor WhatsApp Admin Utama / Pusat (Fallback) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={waPhone}
+                    onChange={e => setWaPhone(e.target.value)}
+                    placeholder="6281381669735"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <span className="text-[10px] text-sand-500 mt-1 block">Dipakai untuk tombol Hubungi Admin di Header & Footer</span>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Template Booking Unit *</label>
-                <p className="text-[10px] text-sand-600 mb-2">Tag yang bisa dipakai: <code>{'{villa_name}'}</code>, <code>{'{property_type}'}</code>, <code>{'{location}'}</code>, <code>{'{capacity}'}</code>, <code>{'{price_start}'}</code>, <code>{'{facilities}'}</code></p>
-                <textarea
-                  rows="6"
-                  required
-                  value={waTemplateVilla}
-                  onChange={e => setWaTemplateVilla(e.target.value)}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+              {/* BAGIAN 2: NOMOR PIC ADD-ONS */}
+              <div className="space-y-4 pt-2">
+                <h3 className="font-bold text-sm text-brand-900 border-b border-sand-200 pb-2 flex items-center gap-2">
+                  <i className="fa-solid fa-bell-concierge text-brand-700"></i>
+                  <span>Nomor PIC Layanan Add-Ons</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                      🥩 PIC Paket BBQ Siap Bakar *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={waBBQ}
+                      onChange={e => setWaBBQ(e.target.value)}
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                      🚙 PIC Wisata Jeep Adventure Kemuning *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={waJeep}
+                      onChange={e => setWaJeep(e.target.value)}
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                      🎮 PIC Rental PlayStation Delivery *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={waPS}
+                      onChange={e => setWaPS(e.target.value)}
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                      🍱 PIC Catering Rombongan / Prasmanan *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={waCatering}
+                      onChange={e => setWaCatering(e.target.value)}
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl px-4 py-2.5 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Template Pesan Add-On (BBQ / Jeep / PS) *</label>
-                <p className="text-[10px] text-sand-600 mb-2">Tag yang bisa dipakai: <code>{'{addon_name}'}</code>, <code>{'{price}'}</code></p>
-                <textarea
-                  rows="4"
-                  required
-                  value={waTemplateAddon}
-                  onChange={e => setWaTemplateAddon(e.target.value)}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+              {/* BAGIAN 3: TEMPLATE PESAN */}
+              <div className="space-y-4 pt-2">
+                <h3 className="font-bold text-sm text-brand-900 border-b border-sand-200 pb-2 flex items-center gap-2">
+                  <i className="fa-solid fa-comment-dots text-brand-700"></i>
+                  <span>Format Pesan Otomatis (Template)</span>
+                </h3>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Template Booking Unit *</label>
+                  <p className="text-[10px] text-sand-600 mb-2">Tag yang bisa dipakai: <code>{'{villa_name}'}</code>, <code>{'{property_type}'}</code>, <code>{'{location}'}</code>, <code>{'{capacity}'}</code>, <code>{'{price_start}'}</code>, <code>{'{facilities}'}</code></p>
+                  <textarea
+                    rows="5"
+                    required
+                    value={waTemplateVilla}
+                    onChange={e => setWaTemplateVilla(e.target.value)}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Template Pesan Add-On (BBQ / Jeep / PS / Catering) *</label>
+                  <p className="text-[10px] text-sand-600 mb-2">Tag yang bisa dipakai: <code>{'{addon_name}'}</code>, <code>{'{price}'}</code></p>
+                  <textarea
+                    rows="3"
+                    required
+                    value={waTemplateAddon}
+                    onChange={e => setWaTemplateAddon(e.target.value)}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
               </div>
 
               <div className="pt-2">
@@ -1060,7 +1346,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                   type="submit"
                   className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-6 py-3 rounded-xl shadow transition"
                 >
-                  Simpan Format Pesan WA
+                  Simpan Semua Pengaturan WhatsApp
                 </button>
               </div>
             </form>
@@ -1230,15 +1516,31 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Badge Tag Promo (Opsional)</label>
-                <input
-                  type="text"
-                  value={villaForm.badge}
-                  onChange={e => setVillaForm({ ...villaForm, badge: e.target.value })}
-                  placeholder="Contoh: Best Seller / View Kebun Teh / Free BBQ"
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Badge Tag Promo (Opsional)</label>
+                  <input
+                    type="text"
+                    value={villaForm.badge}
+                    onChange={e => setVillaForm({ ...villaForm, badge: e.target.value })}
+                    placeholder="Contoh: Best Seller / View Kebun Teh / Free BBQ"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">
+                    Nomor WhatsApp Khusus Unit Ini (Opsional)
+                  </label>
+                  <input
+                    type="text"
+                    value={villaForm.whatsapp || ''}
+                    onChange={e => setVillaForm({ ...villaForm, whatsapp: e.target.value })}
+                    placeholder="Contoh: 6281234567890 (Kosongkan jika ikut nomor daerah)"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-mono"
+                  />
+                  <span className="text-[10px] text-sand-500 mt-0.5 block">Jika diisi, pesan booking unit ini akan langsung masuk ke nomor ini</span>
+                </div>
               </div>
 
               {/* Checklist Fasilitas */}
@@ -1438,6 +1740,127 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
           </div>
         </div>
       )}
+      {/* ========================================================= */}
+      {/* MODAL ARTIKEL & HALAMAN WISATA                            */}
+      {/* ========================================================= */}
+      {articleModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-sand-200 max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-sand-100">
+              <h3 className="font-serif font-bold text-lg text-brand-900">
+                {editingArticle ? 'Edit Artikel Wisata' : 'Tulis Artikel / Halaman Baru'}
+              </h3>
+              <button
+                onClick={() => setArticleModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-sand-100 text-sand-800 hover:bg-sand-200 flex items-center justify-center transition"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveArticle} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Judul Artikel *</label>
+                <input
+                  type="text"
+                  required
+                  value={articleForm.title}
+                  onChange={e => setArticleForm({ ...articleForm, title: e.target.value })}
+                  placeholder="Contoh: 5 Rekomendasi Villa Private Pool di Tawangmangu untuk Gathering"
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Kategori Artikel *</label>
+                  <select
+                    value={articleForm.category}
+                    onChange={e => setArticleForm({ ...articleForm, category: e.target.value })}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold text-brand-900"
+                  >
+                    <option value="Panduan Wisata">Panduan Wisata</option>
+                    <option value="Rekomendasi Akomodasi">Rekomendasi Akomodasi</option>
+                    <option value="Tips & Trik Staycation">Tips & Trik Staycation</option>
+                    <option value="Promo & Berita">Promo & Berita</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Penulis / Author</label>
+                  <input
+                    type="text"
+                    value={articleForm.author}
+                    onChange={e => setArticleForm({ ...articleForm, author: e.target.value })}
+                    placeholder="Admin Sekala"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">URL Foto Cover Artikel *</label>
+                <input
+                  type="url"
+                  required
+                  value={articleForm.image}
+                  onChange={e => setArticleForm({ ...articleForm, image: e.target.value })}
+                  placeholder="https://images.unsplash.com/... atau link foto gambar"
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-700 font-mono"
+                />
+              </div>
+
+              {articleForm.image && (
+                <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border border-sand-200 bg-sand-100 max-h-48">
+                  <img src={articleForm.image} alt="Preview Cover" className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Ringkasan Singkat (Summary) *</label>
+                <textarea
+                  rows="2"
+                  required
+                  value={articleForm.summary}
+                  onChange={e => setArticleForm({ ...articleForm, summary: e.target.value })}
+                  placeholder="Ringkasan 1-2 kalimat yang tampil di kartu artikel..."
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Isi Lengkap Artikel *</label>
+                <p className="text-[10px] text-sand-500 mb-1">Tuliskan konten artikel secara detail (bisa menggunakan spasi dan baris baru untuk paragraf).</p>
+                <textarea
+                  rows="8"
+                  required
+                  value={articleForm.content}
+                  onChange={e => setArticleForm({ ...articleForm, content: e.target.value })}
+                  placeholder="Tulis paragraf artikel disini..."
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs leading-relaxed"
+                />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-3 border-t border-sand-100">
+                <button
+                  type="button"
+                  onClick={() => setArticleModalOpen(false)}
+                  className="bg-sand-200 text-sand-800 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-sand-300 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-6 py-2.5 rounded-xl shadow transition"
+                >
+                  Simpan Artikel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ========================================================= */}
       {/* MODAL AUTO SCRAPER GOOGLE MAPS                            */}
       {/* ========================================================= */}

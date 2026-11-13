@@ -84,7 +84,22 @@ export default function VillaDetailModal({ villa, settings, onClose }) {
       .replace(/{price_start}/g, formatRupiah(villa.price))
       .replace(/{facilities}/g, (villa.features || []).join(', '));
 
-    const phone = settings?.whatsappPhone || '6281381669735';
+    // Prioritas nomor:
+    // 1. Nomor khusus unit villa jika ada (villa.whatsapp)
+    // 2. Nomor daerah (Tawangmangu vs Yogyakarta)
+    // 3. Nomor utama (settings.whatsappPhone)
+    let phone = villa.whatsapp;
+    if (!phone || phone.trim() === '') {
+      const loc = (villa.location || '').toLowerCase();
+      if (loc.includes('tawangmangu')) {
+        phone = settings?.whatsappTawangmangu || settings?.whatsappPhone || '6281381669735';
+      } else if (loc.includes('jogja') || loc.includes('yogyakarta')) {
+        phone = settings?.whatsappJogja || settings?.whatsappPhone || '6281381669735';
+      } else {
+        phone = settings?.whatsappPhone || '6281381669735';
+      }
+    }
+
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 

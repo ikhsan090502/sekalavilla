@@ -106,6 +106,7 @@ export default function Header({ settings, regions = [], onOpenRegionPage, onHom
             </div>
 
             <a href="#addons-section" className="hover:text-brand-700 transition">Detail Add-Ons</a>
+            <a href="#artikel" className="hover:text-brand-700 transition">Artikel</a>
             <a href="#faq" className="hover:text-brand-700 transition">Info & FAQ</a>
           </nav>
 
@@ -157,6 +158,9 @@ export default function Header({ settings, regions = [], onOpenRegionPage, onHom
 
             <a href="#addons-section" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sand-800">
               Detail Add-Ons
+            </a>
+            <a href="#artikel" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sand-800">
+              Artikel & Wisata
             </a>
             <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sand-800">
               Tanya Jawab
