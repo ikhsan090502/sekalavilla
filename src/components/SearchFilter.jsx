@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { formatRupiah, PROPERTY_TYPES } from '../data/initialData';
 
 export const POPULAR_FACILITIES = [
-  { id: 'Private Pool', label: 'Private Pool', icon: 'fa-water-ladder' },
-  { id: 'View Gunung', label: 'View Gunung', icon: 'fa-mountain-sun' },
-  { id: 'View Kebun Teh', label: 'View Kebun Teh', icon: 'fa-leaf' },
-  { id: 'Karaoke', label: 'Karaoke', icon: 'fa-microphone' },
-  { id: 'Free Water Heater', label: 'Water Heater', icon: 'fa-temperature-arrow-up' },
-  { id: 'Wifi 100Mbps', label: 'Wifi Cepat', icon: 'fa-wifi' },
-  { id: 'Garden BBQ Area', label: 'Area BBQ', icon: 'fa-fire-burner' },
-  { id: 'Dapur Ringkas', label: 'Dapur Masak', icon: 'fa-kitchen-set' },
-  { id: 'Api Unggun', label: 'Api Unggun', icon: 'fa-campground' },
-  { id: 'Billiard', label: 'Billiard', icon: 'fa-circle-dot' },
+  { id: 'Private Pool', label: 'Private Pool', icon: 'fa-water-ladder', category: 'Utama' },
+  { id: 'View Gunung', label: 'View Gunung', icon: 'fa-mountain-sun', category: 'Pemandangan' },
+  { id: 'View Kebun Teh', label: 'View Kebun Teh', icon: 'fa-leaf', category: 'Pemandangan' },
+  { id: 'Karaoke', label: 'Karaoke', icon: 'fa-microphone', category: 'Hiburan' },
+  { id: 'Free Water Heater', label: 'Water Heater', icon: 'fa-temperature-arrow-up', category: 'Kenyamanan' },
+  { id: 'Wifi 100Mbps', label: 'Wifi Cepat', icon: 'fa-wifi', category: 'Kenyamanan' },
+  { id: 'Garden BBQ Area', label: 'Area BBQ', icon: 'fa-fire-burner', category: 'Outdoor' },
+  { id: 'Dapur Ringkas', label: 'Dapur Masak', icon: 'fa-kitchen-set', category: 'Fasilitas' },
+  { id: 'Api Unggun', label: 'Api Unggun', icon: 'fa-campground', category: 'Outdoor' },
+  { id: 'Billiard', label: 'Billiard', icon: 'fa-circle-dot', category: 'Hiburan' },
+  { id: 'Parkir Luas', label: 'Parkir Luas & Bus', icon: 'fa-square-parking', category: 'Akses' },
+  { id: 'Playground', label: 'Playground Anak', icon: 'fa-child-reaching', category: 'Hiburan' },
+  { id: 'Smart TV & Netflix', label: 'Smart TV / Netflix', icon: 'fa-tv', category: 'Hiburan' },
+  { id: 'AC / Pendingin', label: 'AC / Air Conditioner', icon: 'fa-snowflake', category: 'Kenyamanan' },
+  { id: 'Balkon Rooftop', label: 'Balkon Rooftop', icon: 'fa-cloud-sun', category: 'Pemandangan' },
 ];
 
 export default function SearchFilter({ 
@@ -20,6 +25,12 @@ export default function SearchFilter({
   onReset,
   onOpenGateway
 }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [searchFacility, setSearchFacility] = useState('');
+
+  // 6 Fasilitas Favorit Utama yang selalu tampil di baris depan
+  const TOP_FACILITIES = POPULAR_FACILITIES.slice(0, 6);
+
   // Helper memformat angka ribuan dengan pemisah titik otomatis (contoh: 1500000 -> 1.500.000)
   const formatNumberWithDots = (val) => {
     if (!val && val !== 0) return '';
@@ -54,6 +65,22 @@ export default function SearchFilter({
   };
 
   const selectedFacilities = filters.facilities || [];
+
+  // Filter fasilitas di dalam Pop-up modal berdasarkan input cari
+  const filteredAllFacilities = useMemo(() => {
+    if (!searchFacility.trim()) return POPULAR_FACILITIES;
+    const q = searchFacility.toLowerCase().trim();
+    return POPULAR_FACILITIES.filter(f => 
+      f.label.toLowerCase().includes(q) || 
+      (f.category && f.category.toLowerCase().includes(q))
+    );
+  }, [searchFacility]);
+
+  // Hitung fasilitas yang dipilih tapi berada di luar 6 teratas
+  const extraSelectedCount = useMemo(() => {
+    const topIds = TOP_FACILITIES.map(f => f.id);
+    return selectedFacilities.filter(id => !topIds.includes(id)).length;
+  }, [selectedFacilities, TOP_FACILITIES]);
 
   // Hitung berapa kriteria aktif dari landing matcher
   const hasCustomMatcher = (filters.location && filters.location !== 'all') || 
@@ -302,16 +329,16 @@ export default function SearchFilter({
           </div>
         </div>
 
-        {/* BARIS FASILITAS: BISA PILIH BANYAK OPSI SEKALIGUS (MULTI-SELECT) */}
+        {/* BARIS FASILITAS: TAMPILKAN 6 UTAMA + TOMBOL MODAL SEMUA FASILITAS */}
         <div className="pt-3 border-t border-sand-100">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-extrabold text-sand-800 uppercase tracking-wider">
                 <i className="fa-solid fa-check-double text-emerald-600 mr-1"></i> 
-                Pilih Fasilitas (Bisa Pilih Banyak Sekaligus):
+                Fasilitas Favorit (Bisa Multi-Pilih):
               </span>
               {selectedFacilities.length > 0 && (
-                <span className="text-[10px] bg-brand-900 text-amber-300 font-extrabold px-2 py-0.5 rounded-full">
+                <span className="text-[10px] bg-brand-900 text-amber-300 font-extrabold px-2 py-0.5 rounded-full shadow-xs">
                   {selectedFacilities.length} dipilih
                 </span>
               )}
@@ -326,8 +353,9 @@ export default function SearchFilter({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
-            {POPULAR_FACILITIES.map(fac => {
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {/* 6 FASILITAS UTAMA DI TAMPILAN DEPAN */}
+            {TOP_FACILITIES.map(fac => {
               const isSelected = selectedFacilities.includes(fac.id);
               return (
                 <button
@@ -345,10 +373,166 @@ export default function SearchFilter({
                 </button>
               );
             })}
+
+            {/* TOMBOL LIHAT SEMUA FASILITAS (+MODAL POPUP) */}
+            <button
+              type="button"
+              onClick={() => {
+                setSearchFacility('');
+                setModalOpen(true);
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                extraSelectedCount > 0
+                  ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-sm'
+                  : 'bg-sand-200/80 hover:bg-sand-300 text-sand-900 border-sand-300'
+              }`}
+              title="Buka daftar semua fasilitas lengkap"
+            >
+              <i className="fa-solid fa-sliders text-xs"></i>
+              <span>Semua Fasilitas</span>
+              {extraSelectedCount > 0 ? (
+                <span className="bg-brand-900 text-amber-300 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
+                  +{extraSelectedCount}
+                </span>
+              ) : (
+                <span className="text-[10px] text-sand-500 font-extrabold">
+                  ({POPULAR_FACILITIES.length})
+                </span>
+              )}
+            </button>
           </div>
         </div>
 
       </div>
+
+      {/* ======================================================== */}
+      {/* MODAL POP-UP PILIH SEMUA FASILITAS LENGKAP               */}
+      {/* ======================================================== */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-sand-200 max-h-[85vh] flex flex-col justify-between">
+            
+            {/* Header Modal */}
+            <div className="flex items-center justify-between pb-3 border-b border-sand-200">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xs shadow-xs">
+                  <i className="fa-solid fa-list-check"></i>
+                </span>
+                <div>
+                  <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight">
+                    Pilih Fasilitas Unit
+                  </h3>
+                  <span className="text-[11px] text-sand-500">
+                    Centang fasilitas yang wajib ada di villa / glamping pilihan Anda
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-sand-100 hover:bg-sand-200 text-sand-800 flex items-center justify-center transition"
+              >
+                <i className="fa-solid fa-xmark text-sm"></i>
+              </button>
+            </div>
+
+            {/* Pencarian Fasilitas Cepat */}
+            <div className="py-3">
+              <div className="relative">
+                <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs"></i>
+                <input
+                  type="text"
+                  placeholder="Ketik cari fasilitas (misal: AC, Dapur, Billiard)..."
+                  value={searchFacility}
+                  onChange={(e) => setSearchFacility(e.target.value)}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-8 py-2 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700 placeholder-sand-400"
+                />
+                {searchFacility && (
+                  <button
+                    onClick={() => setSearchFacility('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sand-400 hover:text-sand-700 text-xs"
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* List Fasilitas (Scrollable Grid) */}
+            <div className="flex-1 overflow-y-auto pr-1 py-1 space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {filteredAllFacilities.map(fac => {
+                  const isSelected = selectedFacilities.includes(fac.id);
+                  return (
+                    <button
+                      key={fac.id}
+                      type="button"
+                      onClick={() => toggleFacility(fac.id)}
+                      className={`p-3 rounded-2xl text-xs font-bold text-left transition flex items-center justify-between border ${
+                        isSelected 
+                          ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm' 
+                          : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <i className={`fa-solid ${fac.icon || 'fa-tag'} text-sm ${isSelected ? 'text-amber-300' : 'text-emerald-700'}`}></i>
+                        <div>
+                          <span className="block leading-tight">{fac.label}</span>
+                          {fac.category && (
+                            <span className={`text-[9px] uppercase tracking-wider block font-medium ${isSelected ? 'text-sand-300' : 'text-sand-400'}`}>
+                              {fac.category}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <i className={`fa-solid ${isSelected ? 'fa-circle-check text-amber-300' : 'fa-circle text-sand-300'} text-base`}></i>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {filteredAllFacilities.length === 0 && (
+                <div className="text-center py-8 text-sand-400 text-xs">
+                  <i className="fa-solid fa-triangle-exclamation text-xl mb-1 block"></i>
+                  Fasilitas "{searchFacility}" tidak ditemukan.
+                </div>
+              )}
+            </div>
+
+            {/* Footer Modal: Ringkasan & Tombol Terapkan */}
+            <div className="pt-3 mt-3 border-t border-sand-200 flex items-center justify-between">
+              <div className="text-xs">
+                {selectedFacilities.length > 0 ? (
+                  <span className="font-bold text-brand-900">
+                    <strong className="text-terracotta-600">{selectedFacilities.length}</strong> fasilitas dipilih
+                  </span>
+                ) : (
+                  <span className="text-sand-500">Belum ada fasilitas dipilih</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {selectedFacilities.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearFacilities}
+                    className="text-xs text-terracotta-600 font-bold hover:underline px-2 py-1"
+                  >
+                    Reset
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-2.5 rounded-xl shadow transition"
+                >
+                  Terapkan Filter
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
     </section>
   );
 }
