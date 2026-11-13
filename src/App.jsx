@@ -32,9 +32,9 @@ export default function App() {
   };
 
   const checkHasEnteredSite = () => {
-    // Jika ada parameter pencarian atau hash langsung, lewati landing gateway
-    if (window.location.hash || window.location.search) return true;
-    return sessionStorage.getItem('SEKALA_ENTERED_GATEWAY') === 'true';
+    // Lewati hanya jika membuka halaman admin atau artikel spesifik
+    if (checkIsAdminURL() || getArticleSlugFromURL()) return true;
+    return false; // Selalu tampilkan landing gateway terlebih dahulu saat masuk
   };
 
   const [view, setView] = useState(checkIsAdminURL() ? 'admin' : 'site');
