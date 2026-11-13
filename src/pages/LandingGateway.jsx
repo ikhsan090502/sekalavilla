@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { formatRupiah } from '../data/initialData';
 
 export default function LandingGateway({ onComplete, onSkip, settings }) {
-  // Input State
-  const [destination, setDestination] = useState('tawangmangu'); // 'tawangmangu' | 'yogyakarta'
+  // Input State: Default 'all' agar pengguna bebas memilih atau melewati tanpa terkunci ke satu daerah
+  const [destination, setDestination] = useState('all'); // 'all' | 'tawangmangu' | 'yogyakarta'
   const [propertyType, setPropertyType] = useState('all'); // 'all' | 'villa' | 'glamping'
   
   // Custom Typed Inputs
@@ -39,7 +39,7 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onComplete({
-      location: destination === 'tawangmangu' ? 'Tawangmangu' : 'Yogyakarta',
+      location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
       propertyType: propertyType,
       capacity: parseInt(capacity) || 0,
       bedrooms: parseInt(bedrooms) || 0,
@@ -58,9 +58,9 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
         <div 
           className="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-25 scale-105"
           style={{
-            backgroundImage: destination === 'tawangmangu' 
-              ? `url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80')`
-              : `url('https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=1600&q=80')`
+            backgroundImage: destination === 'yogyakarta'
+              ? `url('https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=1600&q=80')`
+              : `url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80')`
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-950/90 via-sand-950/85 to-sand-950"></div>
@@ -117,43 +117,67 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
             <label className="text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
               1. Pilih Wilayah Destinasi
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {/* Opsi Semua Wilayah */}
+              <button
+                type="button"
+                onClick={() => setDestination('all')}
+                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
+                  destination === 'all'
+                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-lg font-bold'
+                    : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🗺️</span>
+                  <div>
+                    <strong className="text-xs sm:text-sm block">Semua Wilayah</strong>
+                    <span className={`text-[10px] block ${destination === 'all' ? 'text-slate-800' : 'text-sand-400'}`}>
+                      Tawangmangu & Jogja
+                    </span>
+                  </div>
+                </div>
+                <i className={`fa-solid fa-circle-check text-base ${destination === 'all' ? 'text-slate-950' : 'text-transparent'}`}></i>
+              </button>
+
+              {/* Opsi Tawangmangu */}
               <button
                 type="button"
                 onClick={() => setDestination('tawangmangu')}
-                className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
+                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
                   destination === 'tawangmangu'
                     ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-lg font-bold'
                     : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl">🏔️</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🏔️</span>
                   <div>
-                    <strong className="text-xs sm:text-sm block">Tawangmangu & Kemuning</strong>
+                    <strong className="text-xs sm:text-sm block">Tawangmangu</strong>
                     <span className={`text-[10px] block ${destination === 'tawangmangu' ? 'text-slate-800' : 'text-sand-400'}`}>
-                      Dingin Pegunungan & Kebun Teh Lawu
+                      Dingin Lawu & Kebun Teh
                     </span>
                   </div>
                 </div>
                 <i className={`fa-solid fa-circle-check text-base ${destination === 'tawangmangu' ? 'text-slate-950' : 'text-transparent'}`}></i>
               </button>
 
+              {/* Opsi Yogyakarta */}
               <button
                 type="button"
                 onClick={() => setDestination('yogyakarta')}
-                className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
+                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
                   destination === 'yogyakarta'
                     ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-lg font-bold'
                     : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl">🏛️</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🏛️</span>
                   <div>
-                    <strong className="text-xs sm:text-sm block">Yogyakarta & Sleman</strong>
+                    <strong className="text-xs sm:text-sm block">Yogyakarta</strong>
                     <span className={`text-[10px] block ${destination === 'yogyakarta' ? 'text-slate-800' : 'text-sand-400'}`}>
-                      Syahdu Kaliurang Merapi & Dekat Kota
+                      Kaliurang & Dekat Kota
                     </span>
                   </div>
                 </div>

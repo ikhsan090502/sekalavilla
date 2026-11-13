@@ -165,12 +165,15 @@ export default function SearchFilter({
                 Temukan Villa & Glamping Pilihan
               </h3>
             </div>
-            <button 
-              onClick={onReset}
-              className="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-terracotta-50 transition"
-            >
-              <i className="fa-solid fa-rotate-left text-[11px]"></i> Reset Semua
-            </button>
+            {/* Tampilkan tombol reset utama di sini hanya jika banner kriteria atas tidak sedang aktif */}
+            {!hasCustomMatcher && (
+              <button 
+                onClick={onReset}
+                className="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-terracotta-50 transition"
+              >
+                <i className="fa-solid fa-rotate-left text-[11px]"></i> Reset Filter
+              </button>
+            )}
           </div>
 
           {/* TAB TIPE AKOMODASI: SEMUA / VILLA / GLAMPING */}

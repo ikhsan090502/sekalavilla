@@ -290,6 +290,8 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onSkip={() => {
+          // Ketika melewati landing page, pastikan semua filter tetap default bersih (lokasi: 'all')
+          handleResetFilters();
           sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
           setShowLandingGateway(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
