@@ -258,7 +258,7 @@ export const DEFAULT_SETTINGS = {
   promoImageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80'
 };
 
-// Artikel / Blog Dummy Awal
+// Artikel / Blog Awal dengan Kelengkapan SEO
 export const DEFAULT_ARTICLES = [
   {
     id: 'art-1',
@@ -278,7 +278,14 @@ Suhu malam di Tawangmangu dan Kemuning bisa turun drastis hingga 16°C. Pastikan
 Suasana dingin malam pegunungan sangat pas ditemani aroma harum daging panggang. Layanan paket BBQ Sekala Villa sudah membawakan kompor grill, arang batok, dan bumbu marinasi langsung di villa Anda.
 
 3. **Nikmati Wisata Alam & Tour Jeep Kemuning**
-Pagi hari adalah waktu terbaik menikmati sunrise kebun teh. Cobalah sensasi seru jelajah lereng Lawu dengan armada Jeep 4x4 Sekala Adventure.`
+Pagi hari adalah waktu terbaik menikmati sunrise kebun teh. Cobalah sensasi seru jelajah lereng Lawu dengan armada Jeep 4x4 Sekala Adventure.`,
+    // SEO Fields
+    metaTitle: '5 Tips Staycation Tawangmangu Terbaik & Nyaman | Sekala Villa',
+    metaDesc: 'Panduan lengkap liburan dan sewa villa di Tawangmangu Lawu. Tips memilih fasilitas water heater, paket BBQ, hingga rute jeep kebun teh.',
+    focusKeyword: 'villa tawangmangu, staycation tawangmangu',
+    canonicalUrl: '',
+    readingTime: '3 Menit Baca',
+    tags: ['Tawangmangu', 'Staycation', 'Villa Keluarga', 'Wisata Lawu']
   },
   {
     id: 'art-2',
@@ -291,7 +298,36 @@ Pagi hari adalah waktu terbaik menikmati sunrise kebun teh. Cobalah sensasi seru
     summary: 'Ingin liburan dengan konsep tenda mewah tanpa ribet? Ini alasan glamping Kaliurang Merapi jadi favorit pasangan dan keluarga muda.',
     content: `Glamping (Glamorous Camping) menawarkan perpaduan sempurna antara petualangan alam terbuka dengan kenyamanan kasur empuk hotel bintang lima.
 
-Kawasan Kaliurang Sleman kini menjadi destinasi primadona bagi wisatawan Jogja yang mendambakan udara segar jauh dari hiruk-pikuk pusat kota. Suara gemerisik pohon pinus dan pemandangan megah puncak Merapi di pagi hari dijamin bikin pikiran rileks dan tenang kembali.`
+Kawasan Kaliurang Sleman kini menjadi destinasi primadona bagi wisatawan Jogja yang mendambakan udara segar jauh dari hiruk-pikuk pusat kota. Suara gemerisik pohon pinus dan pemandangan megah puncak Merapi di pagi hari dijamin bikin pikiran rileks dan tenang kembali.`,
+    // SEO Fields
+    metaTitle: 'Glamping Romantis View Merapi Kaliurang Jogja | Sekala Villa',
+    metaDesc: 'Rekomendasi glamping aesthetic di lereng Merapi Kaliurang Jogja. Suasana syahdu, api unggun, dan fasilitas lengkap untuk liburan.',
+    focusKeyword: 'glamping jogja, glamping merapi kaliurang',
+    canonicalUrl: '',
+    readingTime: '2 Menit Baca',
+    tags: ['Jogja', 'Glamping', 'Merapi', 'Kaliurang']
+  },
+  {
+    id: 'art-3',
+    slug: 'paket-bbq-siap-bakar-villa-tawangmangu',
+    title: 'Serunya Pesta BBQ di Dinginnya Malam Villa Tawangmangu: Praktis & Siap Bakar',
+    category: 'Tips & Trik Staycation',
+    date: '13 Nov 2026',
+    author: 'Tim Kuliner Sekala',
+    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1000&q=80',
+    summary: 'Tak perlu repot bawa panggangan dan bumbu marinasi dari rumah. Simak rahasia sukses acara BBQ keluarga di villa tanpa ribet!',
+    content: `Menginap di villa pegunungan seperti Tawangmangu dan Kemuning kurang lengkap rasanya jika belum mengadakan acara bakar-bakar daging di halaman.
+
+**Mengapa Memilih Paket BBQ Siap Bakar Sekala Villa?**
+1. **Daging Berkualitas Premium:** Irisan daging US Shortplate tipis bercampur bumbu marinasi gurih meresap sampai ke serat daging.
+2. **Peralatan Lengkap Siap Pakai:** Kami membawakan kompor grill portable anti-lengket, gas portable, piring saji, penjepit daging, hingga arang batok tanpa asap pedih.
+3. **Diantar Tepat Waktu Langsung ke Villa:** Anda cukup memesan paket melalui WhatsApp, dan tim Sekala siap mengantarkan paket sebelum jam makan malam tiba.`,
+    metaTitle: 'Paket BBQ Villa Tawangmangu Siap Bakar Praktis | Sekala Villa',
+    metaDesc: 'Sewa villa Tawangmangu makin asyik dengan paket BBQ siap bakar lengkap panggangan, arang, daging slice US beef, & bumbu gurih khas Sekala.',
+    focusKeyword: 'paket bbq tawangmangu, bbq villa siap bakar',
+    canonicalUrl: '',
+    readingTime: '4 Menit Baca',
+    tags: ['BBQ Villa', 'Tawangmangu', 'Kuliner Liburan', 'Gathering']
   }
 ];
 

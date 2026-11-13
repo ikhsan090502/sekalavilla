@@ -28,7 +28,12 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     image: '',
     summary: '',
     content: '',
-    author: 'Admin Sekala'
+    author: 'Admin Sekala',
+    metaTitle: '',
+    metaDesc: '',
+    focusKeyword: '',
+    tagsText: '',
+    readingTime: '3 Menit'
   });
 
   // Region / Type Custom Form State
@@ -416,7 +421,12 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
       image: '',
       summary: '',
       content: '',
-      author: 'Admin Sekala'
+      author: 'Admin Sekala',
+      metaTitle: '',
+      metaDesc: '',
+      focusKeyword: '',
+      tagsText: 'Tawangmangu, Villa, Wisata',
+      readingTime: '3 Menit'
     });
     setArticleModalOpen(true);
   };
@@ -429,7 +439,12 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
       image: art.image || '',
       summary: art.summary || '',
       content: art.content || '',
-      author: art.author || 'Admin Sekala'
+      author: art.author || 'Admin Sekala',
+      metaTitle: art.metaTitle || '',
+      metaDesc: art.metaDesc || '',
+      focusKeyword: art.focusKeyword || '',
+      tagsText: Array.isArray(art.tags) ? art.tags.join(', ') : (art.tagsText || ''),
+      readingTime: art.readingTime || '3 Menit'
     });
     setArticleModalOpen(true);
   };
@@ -453,27 +468,41 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
 
     const slug = articleForm.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
     const today = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date());
+    const tags = articleForm.tagsText.split(',').map(t => t.trim()).filter(Boolean);
+
+    const articleData = {
+      title: articleForm.title.trim(),
+      category: articleForm.category,
+      image: articleForm.image.trim(),
+      summary: articleForm.summary.trim(),
+      content: articleForm.content.trim(),
+      author: articleForm.author.trim() || 'Admin Sekala',
+      metaTitle: articleForm.metaTitle.trim() || `${articleForm.title.trim()} | Sekala Villa`,
+      metaDesc: articleForm.metaDesc.trim() || articleForm.summary.trim(),
+      focusKeyword: articleForm.focusKeyword.trim(),
+      tags,
+      readingTime: articleForm.readingTime || '3 Menit',
+      slug
+    };
 
     if (editingArticle) {
       const updated = articles.map(a => a.id === editingArticle.id ? {
         ...a,
-        ...articleForm,
-        slug
+        ...articleData
       } : a);
       setArticles(updated);
       storage.saveArticles(updated);
-      triggerToast('Artikel berhasil diperbarui!');
+      triggerToast('Artikel & SEO berhasil diperbarui!');
     } else {
       const newArt = {
         id: 'art-' + Date.now(),
-        ...articleForm,
-        slug,
+        ...articleData,
         date: today
       };
       const updated = [newArt, ...articles];
       setArticles(updated);
       storage.saveArticles(updated);
-      triggerToast('Artikel baru berhasil ditambahkan!');
+      triggerToast('Artikel baru & SEO berhasil ditambahkan!');
     }
 
     setArticleModalOpen(false);
@@ -1839,6 +1868,122 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                   placeholder="Tulis paragraf artikel disini..."
                   className="w-full bg-sand-50 border border-sand-200 rounded-xl p-3 text-xs leading-relaxed"
                 />
+              </div>
+
+              {/* =================================================== */}
+              {/* PANEL PENGATURAN SEO & SEARCH ENGINE OPTIMIZATION   */}
+              {/* =================================================== */}
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-4">
+                <div className="flex items-center justify-between border-b border-emerald-200/80 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-lg bg-emerald-700 text-white flex items-center justify-center text-xs">
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <strong className="text-xs text-emerald-950 font-bold uppercase tracking-wide">
+                      Pengaturan SEO Google (Search Engine Optimization)
+                    </strong>
+                  </div>
+                  <span className="text-[10px] bg-emerald-200 text-emerald-900 font-extrabold px-2 py-0.5 rounded-full">
+                    SEO Rank Booster
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-sand-800 mb-1">
+                      Meta Title Google (Maks 60 Karakter)
+                    </label>
+                    <input
+                      type="text"
+                      value={articleForm.metaTitle}
+                      onChange={e => setArticleForm({ ...articleForm, metaTitle: e.target.value })}
+                      placeholder="Contoh: 7 Rekomendasi Villa Private Pool di Tawangmangu Murah | Sekala"
+                      className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs font-semibold"
+                    />
+                    <div className="flex justify-between text-[10px] text-sand-500 mt-0.5">
+                      <span>Judul yang muncul di hasil pencarian Google & tab browser</span>
+                      <span className={(articleForm.metaTitle || '').length > 60 ? 'text-amber-600 font-bold' : 'text-sand-400'}>
+                        {(articleForm.metaTitle || '').length} / 60
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-sand-800 mb-1">
+                      Meta Description Google (Maks 155-160 Karakter)
+                    </label>
+                    <textarea
+                      rows="2"
+                      value={articleForm.metaDesc}
+                      onChange={e => setArticleForm({ ...articleForm, metaDesc: e.target.value })}
+                      placeholder="Ringkasan persuasif dengan kata kunci villa/glamping yang membuat orang klik di Google..."
+                      className="w-full bg-white border border-sand-300 rounded-xl p-2.5 text-xs"
+                    />
+                    <div className="flex justify-between text-[10px] text-sand-500 mt-0.5">
+                      <span>Snippet deskripsi yang muncul di bawah judul pada pencarian Google</span>
+                      <span className={(articleForm.metaDesc || '').length > 160 ? 'text-amber-600 font-bold' : 'text-sand-400'}>
+                        {(articleForm.metaDesc || '').length} / 160
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-sand-800 mb-1">
+                        Fokus Kata Kunci (Keywords SEO)
+                      </label>
+                      <input
+                        type="text"
+                        value={articleForm.focusKeyword}
+                        onChange={e => setArticleForm({ ...articleForm, focusKeyword: e.target.value })}
+                        placeholder="villa tawangmangu, sewa villa private pool"
+                        className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-sand-800 mb-1">
+                        Perkiraan Durasi Baca (Reading Time)
+                      </label>
+                      <input
+                        type="text"
+                        value={articleForm.readingTime}
+                        onChange={e => setArticleForm({ ...articleForm, readingTime: e.target.value })}
+                        placeholder="3 Menit Baca"
+                        className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-sand-800 mb-1">
+                      Tag / Topik Terkait (Pisahkan dengan tanda koma)
+                    </label>
+                    <input
+                      type="text"
+                      value={articleForm.tagsText}
+                      onChange={e => setArticleForm({ ...articleForm, tagsText: e.target.value })}
+                      placeholder="Tawangmangu, Private Pool, BBQ, Keluarga"
+                      className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs"
+                    />
+                  </div>
+
+                  {/* PREVIEW HASIL GOOGLE SEARCH SNIPPET */}
+                  <div className="bg-white rounded-xl p-3 border border-sand-200 mt-2">
+                    <span className="text-[9px] font-extrabold uppercase text-sand-400 block mb-1">
+                      Simulasi Preview di Google:
+                    </span>
+                    <span className="text-xs text-emerald-800 font-medium block truncate">
+                      https://sekalavilla.com › artikel › {articleForm.title ? articleForm.title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 30) : 'judul-artikel'}
+                    </span>
+                    <h4 className="text-sm font-bold text-blue-700 hover:underline cursor-pointer leading-snug">
+                      {articleForm.metaTitle || articleForm.title || 'Judul Artikel Anda di Google'}
+                    </h4>
+                    <p className="text-[11px] text-sand-600 line-clamp-2 mt-0.5">
+                      {articleForm.metaDesc || articleForm.summary || 'Deskripsi meta artikel Anda akan ditampilkan seperti ini di hasil pencarian Google.'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2 justify-end pt-3 border-t border-sand-100">
