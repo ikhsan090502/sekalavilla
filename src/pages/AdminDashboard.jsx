@@ -110,9 +110,8 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
       name: newRegionName.trim(),
       badge: newRegionBadge.trim() || 'Destinasi Baru',
       types: [
-        { id: 'villa', name: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
-        { id: 'glamping', name: 'Glamping & Camp', icon: 'fa-campground' },
-        { id: 'homestay', name: 'Homestay Rombongan', icon: 'fa-people-roof' }
+        { id: 'villa', name: 'Villa', icon: 'fa-house-chimney-window' },
+        { id: 'glamping', name: 'Glamping', icon: 'fa-campground' }
       ]
     };
     const updated = [...regions, newReg];
@@ -1160,8 +1159,8 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                     onChange={e => setVillaForm({ ...villaForm, propertyType: e.target.value })}
                     className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
                   >
-                    <option value="villa">🏰 Villa Private Pool</option>
-                    <option value="glamping">🏕️ Glamping & Camp</option>
+                    <option value="villa">🏰 Villa</option>
+                    <option value="glamping">🏕️ Glamping</option>
                     <option value="homestay">🏠 Homestay Rombongan</option>
                   </select>
                 </div>

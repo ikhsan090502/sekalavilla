@@ -212,8 +212,8 @@ export default function App() {
   // Judul dinamis katalog sesuai tipe yang dipilih
   const getCatalogHeading = () => {
     switch(filters.propertyType) {
-      case 'villa': return 'Katalog Unit Villa Private Pool';
-      case 'glamping': return 'Katalog Glamping & Camp';
+      case 'villa': return 'Katalog Unit Villa';
+      case 'glamping': return 'Katalog Glamping';
       default: return 'Katalog Semua Unit Pilihan Sekala';
     }
   };
@@ -235,7 +235,8 @@ export default function App() {
         <Header 
           settings={settings} 
           regions={regions} 
-          onOpenRegionPage={handleOpenRegionPage} 
+          onOpenRegionPage={handleOpenRegionPage}
+          onHomeClick={handleCloseRegionPage}
         />
         <main>
           <RegionCatalogPage
@@ -268,6 +269,10 @@ export default function App() {
         settings={settings} 
         regions={regions}
         onOpenRegionPage={handleOpenRegionPage}
+        onHomeClick={() => {
+          handleResetFilters();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       <main>

@@ -99,7 +99,7 @@ export default function RegionCatalogPage({
               }`}
             >
               <i className="fa-solid fa-house-chimney-window"></i>
-              <span>Villa Private Pool</span>
+              <span>Villa</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === 'villa' ? 'bg-amber-400 text-slate-950' : 'bg-sand-200 text-sand-700'}`}>
                 {countVilla}
               </span>
@@ -114,7 +114,7 @@ export default function RegionCatalogPage({
               }`}
             >
               <i className="fa-solid fa-campground"></i>
-              <span>Glamping & Camp</span>
+              <span>Glamping</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === 'glamping' ? 'bg-amber-400 text-slate-950' : 'bg-sand-200 text-sand-700'}`}>
                 {countGlamping}
               </span>

@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 
-export default function Header({ settings, regions = [], onOpenRegionPage }) {
+export default function Header({ settings, regions = [], onOpenRegionPage, onHomeClick }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [catalogDropdownOpen, setCatalogDropdownOpen] = useState(false);
   const waPhone = settings?.whatsappPhone || '6281381669735';
+
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    if (onHomeClick) {
+      onHomeClick();
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   return (
     <>
@@ -16,12 +25,17 @@ export default function Header({ settings, regions = [], onOpenRegionPage }) {
       {/* Header Bar */}
       <header className="sticky top-0 z-40 bg-sand-50/90 backdrop-blur-md border-b border-sand-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xl font-serif font-bold shadow-md">
+          <a 
+            href="#" 
+            onClick={handleLogoClick}
+            className="flex items-center gap-3 group cursor-pointer"
+            title="Kembali ke Halaman Utama Sekala Villa"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xl font-serif font-bold shadow-md group-hover:scale-105 group-hover:bg-brand-800 transition-all">
               S
             </div>
             <div>
-              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-brand-900 leading-none block">SEKALA</span>
+              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-brand-900 leading-none block group-hover:text-brand-700 transition-colors">SEKALA</span>
               <span className="text-[9px] uppercase tracking-widest text-terracotta-600 font-bold">Villa & Stays</span>
             </div>
           </a>
