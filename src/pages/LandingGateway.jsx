@@ -69,132 +69,132 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
       </div>
 
       {/* TOP BAR: LOGO & FAST ACTION */}
-      <header className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-amber-400 text-brand-900 flex items-center justify-center text-xl font-serif font-black shadow-lg">
+      <header className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-3.5 sm:py-5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-amber-400 text-brand-900 flex items-center justify-center text-base sm:text-xl font-serif font-black shadow-lg">
             S
           </div>
           <div>
-            <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-amber-50 leading-none block">
+            <span className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-amber-50 leading-none block">
               SEKALA
             </span>
-            <span className="text-[9px] uppercase tracking-widest text-amber-300 font-extrabold">
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-widest text-amber-300 font-extrabold">
               Villa & Stays
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={onSkip}
-            className="text-xs text-sand-300 hover:text-amber-300 font-bold transition flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-white/5"
+            className="text-[11px] sm:text-xs text-sand-300 hover:text-amber-300 font-bold transition flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10"
           >
-            <span>Lewati & Lihat Semua Unit</span>
-            <i className="fa-solid fa-arrow-right text-[10px]"></i>
+            <span>Lewati</span>
+            <i className="fa-solid fa-arrow-right text-[9px] sm:text-[10px]"></i>
           </button>
         </div>
       </header>
 
       {/* MAIN INTERACTIVE MATCHER FORM */}
-      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 w-full">
-        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8 space-y-2">
-          <span className="bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] sm:text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 shadow-sm">
-            <i className="fa-solid fa-sliders text-amber-400"></i> Smart Trip Matcher
+      <main className="relative z-10 max-w-3xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2 sm:py-8 w-full">
+        <div className="text-center max-w-2xl mx-auto mb-4 sm:mb-8 space-y-1 sm:space-y-2">
+          <span className="bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] sm:text-xs font-extrabold px-3 py-0.5 sm:py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 shadow-sm">
+            <i className="fa-solid fa-sliders text-amber-400 text-[10px]"></i> Smart Trip Matcher
           </span>
-          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-amber-50 leading-tight">
+          <h1 className="font-serif text-xl sm:text-4xl font-bold text-amber-50 leading-tight">
             Cari Tempat Menginap Sesuai Kebutuhan Anda
           </h1>
-          <p className="text-xs sm:text-sm text-sand-300 leading-relaxed max-w-lg mx-auto">
-            Ketik kriteria kapasitas, jumlah kamar, dan batas harga Anda. Sistem akan langsung mencocokkan unit di katalog utama.
+          <p className="text-[11px] sm:text-sm text-sand-300 leading-relaxed max-w-lg mx-auto">
+            Ketik kriteria kapasitas, jumlah kamar, dan batas harga. Sistem langsung mencocokkan unit di katalog.
           </p>
         </div>
 
         {/* FORM CONTAINER DENGAN INPUT BEBAS KETIK */}
-        <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl space-y-4 sm:space-y-6">
           
           {/* STEP 1: PILIH DESTINASI */}
-          <div className="space-y-2">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
               1. Pilih Wilayah Destinasi
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
               {/* Opsi Semua Wilayah */}
               <button
                 type="button"
                 onClick={() => setDestination('all')}
-                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
+                className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl border text-center sm:text-left transition-all duration-200 flex flex-col sm:flex-row items-center sm:justify-between gap-1 sm:gap-2 ${
                   destination === 'all'
-                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-lg font-bold'
+                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md font-bold scale-[1.02]'
                     : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🗺️</span>
+                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                  <span className="text-base sm:text-lg">🗺️</span>
                   <div>
-                    <strong className="text-xs sm:text-sm block">Semua Wilayah</strong>
-                    <span className={`text-[10px] block ${destination === 'all' ? 'text-slate-800' : 'text-sand-400'}`}>
+                    <strong className="text-[11px] sm:text-sm block leading-tight">Semua</strong>
+                    <span className={`text-[8px] sm:text-[10px] hidden sm:block ${destination === 'all' ? 'text-slate-800' : 'text-sand-400'}`}>
                       Tawangmangu & Jogja
                     </span>
                   </div>
                 </div>
-                <i className={`fa-solid fa-circle-check text-base ${destination === 'all' ? 'text-slate-950' : 'text-transparent'}`}></i>
+                <i className={`fa-solid fa-circle-check text-xs sm:text-base hidden sm:inline ${destination === 'all' ? 'text-slate-950' : 'text-transparent'}`}></i>
               </button>
 
               {/* Opsi Tawangmangu */}
               <button
                 type="button"
                 onClick={() => setDestination('tawangmangu')}
-                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
+                className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl border text-center sm:text-left transition-all duration-200 flex flex-col sm:flex-row items-center sm:justify-between gap-1 sm:gap-2 ${
                   destination === 'tawangmangu'
-                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-lg font-bold'
+                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md font-bold scale-[1.02]'
                     : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🏔️</span>
+                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                  <span className="text-base sm:text-lg">🏔️</span>
                   <div>
-                    <strong className="text-xs sm:text-sm block">Tawangmangu</strong>
-                    <span className={`text-[10px] block ${destination === 'tawangmangu' ? 'text-slate-800' : 'text-sand-400'}`}>
-                      Dingin Lawu & Kebun Teh
+                    <strong className="text-[11px] sm:text-sm block leading-tight">Tawangmangu</strong>
+                    <span className={`text-[8px] sm:text-[10px] hidden sm:block ${destination === 'tawangmangu' ? 'text-slate-800' : 'text-sand-400'}`}>
+                      Dingin Lawu
                     </span>
                   </div>
                 </div>
-                <i className={`fa-solid fa-circle-check text-base ${destination === 'tawangmangu' ? 'text-slate-950' : 'text-transparent'}`}></i>
+                <i className={`fa-solid fa-circle-check text-xs sm:text-base hidden sm:inline ${destination === 'tawangmangu' ? 'text-slate-950' : 'text-transparent'}`}></i>
               </button>
 
               {/* Opsi Yogyakarta */}
               <button
                 type="button"
                 onClick={() => setDestination('yogyakarta')}
-                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
+                className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl border text-center sm:text-left transition-all duration-200 flex flex-col sm:flex-row items-center sm:justify-between gap-1 sm:gap-2 ${
                   destination === 'yogyakarta'
-                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-lg font-bold'
+                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md font-bold scale-[1.02]'
                     : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🏛️</span>
+                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                  <span className="text-base sm:text-lg">🏛️</span>
                   <div>
-                    <strong className="text-xs sm:text-sm block">Yogyakarta</strong>
-                    <span className={`text-[10px] block ${destination === 'yogyakarta' ? 'text-slate-800' : 'text-sand-400'}`}>
-                      Kaliurang & Dekat Kota
+                    <strong className="text-[11px] sm:text-sm block leading-tight">Yogyakarta</strong>
+                    <span className={`text-[8px] sm:text-[10px] hidden sm:block ${destination === 'yogyakarta' ? 'text-slate-800' : 'text-sand-400'}`}>
+                      Kaliurang & Kota
                     </span>
                   </div>
                 </div>
-                <i className={`fa-solid fa-circle-check text-base ${destination === 'yogyakarta' ? 'text-slate-950' : 'text-transparent'}`}></i>
+                <i className={`fa-solid fa-circle-check text-xs sm:text-base hidden sm:inline ${destination === 'yogyakarta' ? 'text-slate-950' : 'text-transparent'}`}></i>
               </button>
             </div>
           </div>
 
           {/* STEP 2: TIPE AKOMODASI (VILLA / GLAMPING) */}
-          <div className="space-y-2">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
               2. Konsep Akomodasi
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               {[
-                { id: 'all', label: 'Semua Tipe', icon: 'fa-layer-group' },
-                { id: 'villa', label: 'Villa Privat', icon: 'fa-house-chimney-window' },
+                { id: 'all', label: 'Semua', icon: 'fa-layer-group' },
+                { id: 'villa', label: 'Villa', icon: 'fa-house-chimney-window' },
                 { id: 'glamping', label: 'Glamping', icon: 'fa-campground' }
               ].map(t => {
                 const active = propertyType === t.id;
@@ -203,14 +203,14 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                     key={t.id}
                     type="button"
                     onClick={() => setPropertyType(t.id)}
-                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 ${
+                    className={`p-2 sm:p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 ${
                       active
                         ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow'
                         : 'bg-white/5 hover:bg-white/10 text-white border-white/10 text-xs'
                     }`}
                   >
-                    <i className={`fa-solid ${t.icon} text-sm ${active ? 'text-slate-950' : 'text-amber-400'}`}></i>
-                    <span className="text-xs">{t.label}</span>
+                    <i className={`fa-solid ${t.icon} text-xs sm:text-sm ${active ? 'text-slate-950' : 'text-amber-400'}`}></i>
+                    <span className="text-[11px] sm:text-xs">{t.label}</span>
                   </button>
                 );
               })}
@@ -218,15 +218,15 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
           </div>
 
           {/* STEP 3: INPUT KAPASITAS ORANG & JUMLAH KAMAR (DIKETIK SENDIRI) */}
-          <div className="space-y-2">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
-              3. Kapasitas Tamu & Jumlah Kamar (Ketik Sesuai Kebutuhan)
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
+              3. Kapasitas Tamu & Jumlah Kamar
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {/* Input Berapa Orang */}
               <div>
-                <label className="text-[11px] text-sand-300 font-semibold block mb-1">
-                  <i className="fa-solid fa-users text-amber-400 mr-1.5"></i> Kapasitas Berapa Orang?
+                <label className="text-[10px] sm:text-[11px] text-sand-300 font-semibold block mb-1 truncate">
+                  <i className="fa-solid fa-users text-amber-400 mr-1"></i> Berapa Orang?
                 </label>
                 <div className="relative">
                   <input
@@ -235,9 +235,9 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                     placeholder="Contoh: 8"
                     value={capacity}
                     onChange={(e) => setCapacity(e.target.value)}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-3 text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-semibold">
+                  <span className="absolute right-2.5 sm:right-4 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-sand-400 font-semibold">
                     Orang
                   </span>
                 </div>
@@ -245,19 +245,19 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
 
               {/* Input Berapa Kamar Tidur */}
               <div>
-                <label className="text-[11px] text-sand-300 font-semibold block mb-1">
-                  <i className="fa-solid fa-bed text-amber-400 mr-1.5"></i> Kamar yang Diinginkan?
+                <label className="text-[10px] sm:text-[11px] text-sand-300 font-semibold block mb-1 truncate">
+                  <i className="fa-solid fa-bed text-amber-400 mr-1"></i> Berapa Kamar?
                 </label>
                 <div className="relative">
                   <input
                     type="number"
                     min="1"
-                    placeholder="Contoh: 3 (Opsional)"
+                    placeholder="Contoh: 3"
                     value={bedrooms}
                     onChange={(e) => setBedrooms(e.target.value)}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-3 text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-semibold">
+                  <span className="absolute right-2.5 sm:right-4 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-sand-400 font-semibold">
                     Kamar
                   </span>
                 </div>
@@ -266,38 +266,38 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
           </div>
 
           {/* STEP 4: RANGE HARGA SEWA (RP MINIMAL & RP MAKSIMAL DIKETIK SENDIRI DENGAN TITIK OTOMATIS) */}
-          <div className="space-y-2">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
-              4. Budget Harga Sewa / Malam (Ketik Range Budget)
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
+              4. Budget Sewa / Malam (Opsional)
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {/* Minimal Rp */}
               <div>
-                <label className="text-[11px] text-sand-300 font-semibold block mb-1">
-                  Budget Minimal (Rp)
+                <label className="text-[10px] sm:text-[11px] text-sand-300 font-semibold block mb-1 truncate">
+                  Budget Min (Rp)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-bold">
+                  <span className="absolute left-2.5 sm:left-4 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-sand-400 font-bold">
                     Rp
                   </span>
                   <input
                     type="text"
                     inputMode="numeric"
-                    placeholder="500.000 (Opsional)"
+                    placeholder="500.000"
                     value={minPriceDisplay}
                     onChange={handleMinPriceChange}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl pl-11 pr-4 py-3 text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-xl sm:rounded-2xl pl-8 sm:pl-11 pr-2 sm:pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
 
               {/* Maksimal Rp */}
               <div>
-                <label className="text-[11px] text-sand-300 font-semibold block mb-1">
-                  Budget Maksimal (Rp)
+                <label className="text-[10px] sm:text-[11px] text-sand-300 font-semibold block mb-1 truncate">
+                  Budget Max (Rp)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-bold">
+                  <span className="absolute left-2.5 sm:left-4 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-sand-400 font-bold">
                     Rp
                   </span>
                   <input
@@ -306,31 +306,31 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                     placeholder="2.500.000"
                     value={maxPriceDisplay}
                     onChange={handleMaxPriceChange}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl pl-11 pr-4 py-3 text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-xl sm:rounded-2xl pl-8 sm:pl-11 pr-2 sm:pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
             </div>
             {maxPriceDisplay && getRawNumber(maxPriceDisplay) > 0 && (
-              <span className="text-[11px] text-amber-300 font-semibold block pt-0.5">
-                Batas maksimal budget: <strong>Rp {maxPriceDisplay} / malam</strong>
+              <span className="text-[10px] sm:text-[11px] text-amber-300 font-semibold block pt-0.5">
+                Maksimal budget: <strong>Rp {maxPriceDisplay} / malam</strong>
               </span>
             )}
           </div>
 
           {/* TOMBOL AKSI UTAMA MENUJU HALAMAN UTAMA */}
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10">
+          <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 border-t border-white/10">
             <button
               type="button"
               onClick={onSkip}
-              className="text-xs text-sand-400 hover:text-white transition font-medium order-2 sm:order-1 py-2"
+              className="text-[11px] sm:text-xs text-sand-400 hover:text-white transition font-medium order-2 sm:order-1 py-1 sm:py-2"
             >
               Atau langsung buka semua katalog unit →
             </button>
 
             <button
               type="submit"
-              className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-slate-950 font-black text-xs sm:text-sm px-8 py-4 rounded-2xl shadow-xl hover:shadow-amber-400/20 transition-all flex items-center justify-center gap-2 order-1 sm:order-2"
+              className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-slate-950 font-black text-xs sm:text-sm px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-amber-400/20 transition-all flex items-center justify-center gap-2 order-1 sm:order-2"
             >
               <i className="fa-solid fa-magnifying-glass text-slate-950"></i>
               <span>CARI & BUKA KATALOG UTAMA</span>
@@ -341,34 +341,34 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
         </form>
 
         {/* 3 VALUE UNGGULAN SEKALA VILLA (TRUST BADGES) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3">
-            <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-              <i className="fa-solid fa-location-crosshairs text-sm"></i>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-6">
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+            <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+              <i className="fa-solid fa-location-crosshairs text-xs sm:text-sm"></i>
             </span>
             <div>
-              <strong className="text-xs text-white block">Free Antar Survey Villa</strong>
-              <span className="text-[10px] text-sand-400">Bisa cek 1-5 villa langsung ke lokasi bersama tim Sekala</span>
+              <strong className="text-[11px] sm:text-xs text-white block">Free Antar Survey Villa</strong>
+              <span className="text-[9px] sm:text-[10px] text-sand-400">Bisa cek 1-5 villa langsung ke lokasi</span>
             </div>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3">
-            <span className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
-              <i className="fa-solid fa-fire-burner text-sm"></i>
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+            <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+              <i className="fa-solid fa-fire-burner text-xs sm:text-sm"></i>
             </span>
             <div>
-              <strong className="text-xs text-white block">Bonus Alat BBQ Portable</strong>
-              <span className="text-[10px] text-sand-400">Peminjaman alat panggangan siap pakai selama menginap</span>
+              <strong className="text-[11px] sm:text-xs text-white block">Bonus Alat BBQ Portable</strong>
+              <span className="text-[9px] sm:text-[10px] text-sand-400">Peminjaman alat panggangan siap pakai</span>
             </div>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3">
-            <span className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
-              <i className="fa-solid fa-shield-check text-sm"></i>
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+            <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
+              <i className="fa-solid fa-shield-check text-xs sm:text-sm"></i>
             </span>
             <div>
-              <strong className="text-xs text-white block">100% Host Terverifikasi</strong>
-              <span className="text-[10px] text-sand-400">Harga langsung tanpa mark-up liar & jaminan kebersihan</span>
+              <strong className="text-[11px] sm:text-xs text-white block">100% Host Terverifikasi</strong>
+              <span className="text-[9px] sm:text-[10px] text-sand-400">Harga langsung tanpa mark-up liar</span>
             </div>
           </div>
         </div>
