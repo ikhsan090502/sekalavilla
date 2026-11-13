@@ -9,8 +9,32 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
   // Custom Typed Inputs
   const [capacity, setCapacity] = useState(''); // Berapa orang (bebas ketik)
   const [bedrooms, setBedrooms] = useState(''); // Berapa kamar yang diinginkan (bebas ketik)
-  const [minPrice, setMinPrice] = useState(''); // Harga sewa minimal (bebas ketik Rp)
-  const [maxPrice, setMaxPrice] = useState(''); // Harga sewa maksimal (bebas ketik Rp)
+  const [minPriceDisplay, setMinPriceDisplay] = useState(''); // Teks format titik Rp
+  const [maxPriceDisplay, setMaxPriceDisplay] = useState(''); // Teks format titik Rp
+
+  // Helper memformat angka dengan pemisah ribuan titik (contoh: 1500000 -> 1.500.000)
+  const formatNumberWithDots = (val) => {
+    if (!val) return '';
+    const cleanDigits = val.toString().replace(/\D/g, '');
+    if (!cleanDigits) return '';
+    return new Intl.NumberFormat('id-ID').format(parseInt(cleanDigits, 10));
+  };
+
+  const getRawNumber = (str) => {
+    if (!str) return 0;
+    const cleanDigits = str.toString().replace(/\D/g, '');
+    return parseInt(cleanDigits, 10) || 0;
+  };
+
+  const handleMinPriceChange = (e) => {
+    const formatted = formatNumberWithDots(e.target.value);
+    setMinPriceDisplay(formatted);
+  };
+
+  const handleMaxPriceChange = (e) => {
+    const formatted = formatNumberWithDots(e.target.value);
+    setMaxPriceDisplay(formatted);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,8 +43,8 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
       propertyType: propertyType,
       capacity: parseInt(capacity) || 0,
       bedrooms: parseInt(bedrooms) || 0,
-      minPrice: parseInt(minPrice) || 0,
-      maxPrice: parseInt(maxPrice) || 0
+      minPrice: getRawNumber(minPriceDisplay),
+      maxPrice: getRawNumber(maxPriceDisplay)
     });
   };
 
@@ -187,7 +211,7 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                     placeholder="Contoh: 8"
                     value={capacity}
                     onChange={(e) => setCapacity(e.target.value)}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-3 text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-3 text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-semibold">
                     Orang
@@ -207,7 +231,7 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                     placeholder="Contoh: 3 (Opsional)"
                     value={bedrooms}
                     onChange={(e) => setBedrooms(e.target.value)}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-3 text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl px-4 py-3 text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-semibold">
                     Kamar
@@ -217,7 +241,7 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
             </div>
           </div>
 
-          {/* STEP 4: RANGE HARGA SEWA (RP MINIMAL & RP MAKSIMAL DIKETIK SENDIRI) */}
+          {/* STEP 4: RANGE HARGA SEWA (RP MINIMAL & RP MAKSIMAL DIKETIK SENDIRI DENGAN TITIK OTOMATIS) */}
           <div className="space-y-2">
             <label className="text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
               4. Budget Harga Sewa / Malam (Ketik Range Budget)
@@ -233,12 +257,12 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                     Rp
                   </span>
                   <input
-                    type="number"
-                    step="50000"
+                    type="text"
+                    inputMode="numeric"
                     placeholder="500.000 (Opsional)"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl pl-11 pr-4 py-3 text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                    value={minPriceDisplay}
+                    onChange={handleMinPriceChange}
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl pl-11 pr-4 py-3 text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
@@ -253,19 +277,19 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                     Rp
                   </span>
                   <input
-                    type="number"
-                    step="100000"
+                    type="text"
+                    inputMode="numeric"
                     placeholder="2.500.000"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl pl-11 pr-4 py-3 text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                    value={maxPriceDisplay}
+                    onChange={handleMaxPriceChange}
+                    className="w-full bg-slate-900/80 border border-white/20 rounded-2xl pl-11 pr-4 py-3 text-sm text-white font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
             </div>
-            {maxPrice && parseInt(maxPrice) > 0 && (
+            {maxPriceDisplay && getRawNumber(maxPriceDisplay) > 0 && (
               <span className="text-[11px] text-amber-300 font-semibold block pt-0.5">
-                Batas maksimal budget: <strong>{formatRupiah(parseInt(maxPrice))} / malam</strong>
+                Batas maksimal budget: <strong>Rp {maxPriceDisplay} / malam</strong>
               </span>
             )}
           </div>
