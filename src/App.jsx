@@ -11,6 +11,7 @@ import PromoModal from './components/PromoModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
+import RegionCatalogPage from './pages/RegionCatalogPage';
 
 export default function App() {
   const checkIsAdminURL = () => {
@@ -22,8 +23,16 @@ export default function App() {
   };
 
   const [view, setView] = useState(checkIsAdminURL() ? 'admin' : 'site');
+  // State Halaman Daerah (New Page): { active: boolean, regionId: 'tawangmangu', typeId: 'villa' }
+  const [regionPage, setRegionPage] = useState({
+    active: false,
+    regionId: 'tawangmangu',
+    typeId: 'villa'
+  });
+
   const [banners, setBanners] = useState(storage.getBanners());
   const [villas, setVillas] = useState([]);
+  const [regions, setRegions] = useState(storage.getRegions());
   const [loadingVillas, setLoadingVillas] = useState(true);
   const [settings, setSettings] = useState(storage.getSettings());
 
@@ -33,16 +42,17 @@ export default function App() {
   const [filters, setFilters] = useState({
     propertyType: 'all', // 'villa' | 'glamping' | 'homestay'
     location: 'all',
-    category: 'all',
-    capacity: 0,
-    budget: 5000000,
-    facility: 'all'
   });
 
   // Listener URL Routing (#admin atau /admin)
   useEffect(() => {
     const handleUrlChange = () => {
-      setView(checkIsAdminURL() ? 'admin' : 'site');
+      if (checkIsAdminURL()) {
+        setView('admin');
+        setRegionPage(prev => ({ ...prev, active: false }));
+      } else {
+        setView('site');
+      }
     };
     window.addEventListener('hashchange', handleUrlChange);
     window.addEventListener('popstate', handleUrlChange);
@@ -52,7 +62,7 @@ export default function App() {
     };
   }, []);
 
-  // Fetch Banners & Settings di awal
+  // Fetch Banners, Settings, Regions di awal
   useEffect(() => {
     async function loadMeta() {
       try {
@@ -62,6 +72,7 @@ export default function App() {
         ]);
         if (b && b.length) setBanners(b);
         if (s) setSettings(s);
+        setRegions(storage.getRegions());
       } catch (err) {
         console.error('Error loading meta:', err);
       }
@@ -69,7 +80,7 @@ export default function App() {
     loadMeta();
   }, []);
 
-  // Fetch Data Unit (Villa, Glamping, Homestay) setiap kali Filter berubah
+  // Fetch Data Unit setiap kali Filter berubah
   useEffect(() => {
     let isMounted = true;
     async function loadVillas() {
@@ -94,6 +105,7 @@ export default function App() {
     setVillas(data);
     setBanners(storage.getBanners());
     setSettings(storage.getSettings());
+    setRegions(storage.getRegions());
     setLoadingVillas(false);
   };
 
@@ -112,10 +124,6 @@ export default function App() {
     setFilters({
       propertyType: 'all',
       location: 'all',
-      category: 'all',
-      capacity: 0,
-      budget: 5000000,
-      facility: 'all'
     });
   };
 
@@ -132,19 +140,48 @@ export default function App() {
       window.history.pushState(null, '', window.location.pathname);
     }
     setView('site');
+    setRegionPage(prev => ({ ...prev, active: false }));
   };
+
+  // BUKA HALAMAN BARU BERDASARKAN DAERAH & SUB-TIPE
+  const handleOpenRegionPage = (regionId, typeId) => {
+    setRegionPage({
+      active: true,
+      regionId,
+      typeId
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseRegionPage = () => {
+    setRegionPage(prev => ({ ...prev, active: false }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Filter unit yang tampil di homepage
+  const displayVillas = villas.filter(v => {
+    if (filters.propertyType !== 'all') {
+      const pType = (v.propertyType || 'villa').toLowerCase();
+      if (pType !== filters.propertyType.toLowerCase()) return false;
+    }
+    if (filters.location !== 'all') {
+      const loc = (v.location || '').toLowerCase();
+      if (!loc.includes(filters.location.toLowerCase())) return false;
+    }
+    return true;
+  });
 
   // Judul dinamis katalog sesuai tipe yang dipilih
   const getCatalogHeading = () => {
     switch(filters.propertyType) {
       case 'villa': return 'Katalog Unit Villa Private Pool';
-      case 'glamping': return 'Katalog Glamping & Camp Pegunungan';
+      case 'glamping': return 'Katalog Glamping & Camp';
       case 'homestay': return 'Katalog Homestay Rombongan';
-      default: return 'Katalog Unit Pilihan Sekala';
+      default: return 'Katalog Semua Unit Pilihan Sekala';
     }
   };
 
-  // Jika membuka URL admin
+  // 1. TAMPILKAN DASHBOARD ADMIN
   if (view === 'admin') {
     return (
       <AdminDashboard 
@@ -154,10 +191,48 @@ export default function App() {
     );
   }
 
+  // 2. TAMPILKAN NEW PAGE DAERAH & SUB-MENU (JIKA DIBUKA)
+  if (regionPage.active) {
+    return (
+      <div className="min-h-screen bg-sand-50 text-sand-900 font-sans">
+        <Header 
+          settings={settings} 
+          regions={regions} 
+          onOpenRegionPage={handleOpenRegionPage} 
+        />
+        <main>
+          <RegionCatalogPage
+            regionId={regionPage.regionId}
+            typeId={regionPage.typeId}
+            villas={villas}
+            regions={regions}
+            onSelectVilla={setSelectedVilla}
+            onBack={handleCloseRegionPage}
+            onNavigate={(rId, tId) => setRegionPage({ active: true, regionId: rId, typeId: tId })}
+          />
+        </main>
+        <Footer />
+        <MobileBottomNav settings={settings} />
+        {selectedVilla && (
+          <VillaDetailModal 
+            villa={selectedVilla} 
+            settings={settings} 
+            onClose={() => setSelectedVilla(null)} 
+          />
+        )}
+      </div>
+    );
+  }
+
+  // 3. TAMPILKAN HOMEPAGE UTAMA
   return (
     <div className="min-h-screen bg-sand-50 text-sand-900 font-sans">
-      {/* Header */}
-      <Header settings={settings} />
+      {/* Header dengan Sub-menu Katalog Daerah */}
+      <Header 
+        settings={settings} 
+        regions={regions}
+        onOpenRegionPage={handleOpenRegionPage}
+      />
 
       <main>
         {/* Banner Slider */}
@@ -166,11 +241,13 @@ export default function App() {
           onFilterLocation={handleFilterLocation}
         />
 
-        {/* Filter Pencarian, Tipe (Villa/Glamping/Homestay) & Fasilitas */}
+        {/* Pemilih Daerah (New Page) & Tab Kategori */}
         <SearchFilter 
           filters={filters} 
           setFilters={setFilters} 
           onReset={handleResetFilters}
+          regions={regions}
+          onOpenRegionPage={handleOpenRegionPage}
         />
 
         {/* Katalog Villa */}
@@ -178,23 +255,16 @@ export default function App() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
             <div>
               <span className="text-terracotta-600 font-bold text-[10px] uppercase tracking-widest block">
-                Rekomendasi Terbaik
+                Rekomendasi Terverifikasi
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brand-900">
                 {getCatalogHeading()}
               </h2>
             </div>
             
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              {villaApi.isConfigured() && (
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded-md flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> REST API Aktif
-                </span>
-              )}
-              <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800">
-                Menampilkan <strong className="text-brand-900 font-extrabold">{villas.length}</strong> Unit
-              </span>
-            </div>
+            <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800 self-start sm:self-auto">
+              Menampilkan <strong className="text-brand-900 font-extrabold">{displayVillas.length}</strong> Unit
+            </span>
           </div>
 
           {/* Kondisi Loading vs Konten */}
@@ -203,23 +273,23 @@ export default function App() {
               <i className="fa-solid fa-spinner fa-spin text-3xl text-brand-800 mb-3 block"></i>
               <p className="text-xs font-bold text-sand-800">Memuat data unit akomodasi...</p>
             </div>
-          ) : villas.length === 0 ? (
+          ) : displayVillas.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-3xl border border-sand-200 p-6">
               <i className="fa-solid fa-building-circle-exclamation text-4xl text-sand-400 mb-3 block"></i>
               <h3 className="text-base font-bold text-sand-900">Unit Tidak Ditemukan</h3>
               <p className="text-sand-800 text-xs mb-4 max-w-md mx-auto">
-                Tidak ada unit yang cocok dengan kombinasi filter yang Anda pilih. Silakan reset filter untuk melihat semua opsi.
+                Tidak ada unit yang cocok dengan filter yang dipilih. Silakan klik tombol di bawah untuk melihat semua unit.
               </p>
               <button 
                 onClick={handleResetFilters}
                 className="bg-brand-900 hover:bg-brand-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition"
               >
-                Reset Semua Filter
+                Lihat Semua Unit
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {villas.map(item => (
+              {displayVillas.map(item => (
                 <VillaCard 
                   key={item.id} 
                   villa={item} 
@@ -246,7 +316,7 @@ export default function App() {
               </summary>
               <p className="text-sand-800 text-xs mt-2 leading-relaxed">
                 <strong>Villa:</strong> Hunian privat eksklusif dengan kolam renang pribadi dan karaoke.<br/>
-                <strong>Glamping:</strong> Pengalaman berkemah mewah di tengah kebun teh dengan kasur empuk dan view Lawu.<br/>
+                <strong>Glamping:</strong> Pengalaman berkemah mewah di pegunungan dengan kasur empuk dan view alam.<br/>
                 <strong>Homestay:</strong> Rumah nyaman berkapasitas besar dengan harga hemat untuk keluarga & rombongan.
               </p>
             </details>

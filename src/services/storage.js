@@ -1,8 +1,9 @@
-import { DEFAULT_BANNERS, DEFAULT_VILLAS, DEFAULT_SETTINGS } from '../data/initialData';
+import { DEFAULT_BANNERS, DEFAULT_VILLAS, DEFAULT_SETTINGS, DEFAULT_REGIONS } from '../data/initialData';
 
 const KEY_BANNERS = 'SEKALA_BANNERS';
 const KEY_VILLAS = 'SEKALA_VILLAS';
 const KEY_SETTINGS = 'SEKALA_SETTINGS';
+const KEY_REGIONS = 'SEKALA_REGIONS';
 const KEY_AUTH = 'SEKALA_ADMIN_AUTH';
 
 export const storage = {
@@ -28,6 +29,18 @@ export const storage = {
   },
   saveVillas: (data) => {
     localStorage.setItem(KEY_VILLAS, JSON.stringify(data));
+  },
+
+  getRegions: () => {
+    try {
+      const raw = localStorage.getItem(KEY_REGIONS);
+      return raw ? JSON.parse(raw) : DEFAULT_REGIONS;
+    } catch {
+      return DEFAULT_REGIONS;
+    }
+  },
+  saveRegions: (data) => {
+    localStorage.setItem(KEY_REGIONS, JSON.stringify(data));
   },
 
   getSettings: () => {

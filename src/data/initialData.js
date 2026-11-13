@@ -21,6 +21,30 @@ export const DEFAULT_BANNERS = [
   }
 ];
 
+// Master Daerah & Sub-Kategori Akomodasi
+export const DEFAULT_REGIONS = [
+  {
+    id: 'tawangmangu',
+    name: 'Tawangmangu & Kemuning',
+    badge: 'Pegunungan Lawu',
+    types: [
+      { id: 'villa', name: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
+      { id: 'glamping', name: 'Glamping & Camp', icon: 'fa-campground' },
+      { id: 'homestay', name: 'Homestay Rombongan', icon: 'fa-people-roof' }
+    ]
+  },
+  {
+    id: 'yogyakarta',
+    name: 'Yogyakarta & Sleman',
+    badge: 'Kota & Kaliurang',
+    types: [
+      { id: 'villa', name: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
+      { id: 'glamping', name: 'Glamping Merapi', icon: 'fa-campground' },
+      { id: 'homestay', name: 'Homestay Rombongan', icon: 'fa-people-roof' }
+    ]
+  }
+];
+
 export const PROPERTY_TYPES = [
   { id: 'all', label: 'Semua Kategori', icon: 'fa-layer-group' },
   { id: 'villa', label: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
@@ -29,9 +53,9 @@ export const PROPERTY_TYPES = [
 ];
 
 export const DEFAULT_VILLAS = [
-  // 1. VILLA PRIVATE POOL
+  // 1. TAWANGMANGU - VILLA
   {
-    id: 'sekala-1',
+    id: 'sekala-tw-villa-1',
     name: 'Sekala Pine Resort Villa',
     propertyType: 'villa',
     category: 'Premium',
@@ -52,7 +76,90 @@ export const DEFAULT_VILLAS = [
     desc: 'Villa eksklusif dengan view pegunungan Lawu yang memukau. Dilengkapi kolam renang privat, fasilitas karaoke lengkap, dan water heater untuk liburan keluarga besar.'
   },
   {
-    id: 'sekala-2',
+    id: 'sekala-tw-villa-2',
+    name: 'Villa Nuansa Sekipan Tawangmangu',
+    propertyType: 'villa',
+    category: 'Standard',
+    location: 'Tawangmangu',
+    capacity: 10,
+    bedrooms: 3,
+    price: 1650000,
+    rating: 4.8,
+    badge: 'Private Pool',
+    image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['Private Pool', 'View Gunung', 'Garden BBQ Area', 'Free Water Heater'],
+    desc: 'Villa sejuk di kawasan Sekipan Tawangmangu dengan private pool outdoor, balkon pemandangan bukit, dan area BBQ siap pakai.'
+  },
+
+  // 2. TAWANGMANGU - GLAMPING
+  {
+    id: 'sekala-tw-glamp-1',
+    name: 'Sekala Cloud Glamping Kemuning',
+    propertyType: 'glamping',
+    category: 'Standard',
+    location: 'Tawangmangu',
+    capacity: 4,
+    bedrooms: 1,
+    price: 850000,
+    rating: 4.9,
+    badge: 'View Kebun Teh',
+    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1499363536502-87642509e31b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['View Kebun Teh', 'View Gunung', 'Free Water Heater', 'Wifi 100Mbps'],
+    desc: 'Pengalaman menginap glamping mewah di tengah hamparan kebun teh Kemuning dengan pemandangan langsung Gunung Lawu. Kasur empuk, air hangat, dan api unggun.'
+  },
+  {
+    id: 'sekala-tw-glamp-2',
+    name: 'Sekala Lawu Dome Camp',
+    propertyType: 'glamping',
+    category: 'Budget',
+    location: 'Tawangmangu',
+    capacity: 4,
+    bedrooms: 1,
+    price: 650000,
+    rating: 4.8,
+    badge: 'Sensasi Dingin Lawu',
+    image: 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1506535772317-9fca71c959c6?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps'],
+    desc: 'Tenda dome estetik beratap transparan untuk melihat bintang di malam hari. Lokasi sejuk di lereng Lawu dengan spot grill BBQ.'
+  },
+
+  // 3. TAWANGMANGU - HOMESTAY
+  {
+    id: 'sekala-tw-home-1',
+    name: 'Sekala Lawu Lodge Homestay',
+    propertyType: 'homestay',
+    category: 'Standard',
+    location: 'Tawangmangu',
+    capacity: 15,
+    bedrooms: 5,
+    price: 1350000,
+    rating: 4.8,
+    badge: 'Kapasitas Besar',
+    image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['View Gunung', 'Karaoke', 'Dapur Ringkas', 'Garden BBQ Area'],
+    desc: 'Rumah homestay besar 5 kamar di pusat Tawangmangu. Dekat Grojogan Sewu dan pasar wisata. Fasilitas karaoke dan dapur masak lengkap.'
+  },
+
+  // 4. JOGJA - VILLA
+  {
+    id: 'sekala-jg-villa-1',
     name: 'Villa Sekala Heritage Jogja',
     propertyType: 'villa',
     category: 'Standard',
@@ -71,52 +178,51 @@ export const DEFAULT_VILLAS = [
     features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
     desc: 'Villa bergaya heritage modern di Yogyakarta. Cocok untuk staycation keluarga dengan kolam renang privat dan area outdoor BBQ.'
   },
-
-  // 2. GLAMPING & CAMP
   {
-    id: 'sekala-glamp-1',
-    name: 'Sekala Cloud Glamping Kemuning',
+    id: 'sekala-jg-villa-2',
+    name: 'Sekala Serenity Estate Jogja',
+    propertyType: 'villa',
+    category: 'Premium',
+    location: 'Yogyakarta',
+    capacity: 15,
+    bedrooms: 5,
+    price: 3200000,
+    rating: 5.0,
+    badge: 'Gathering Size',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
+    desc: 'Estate mewah berkapasitas besar di area Kaliurang Jogja. Kolam renang luas, gazebo santai, dan taman tropis yang sejuk.'
+  },
+
+  // 5. JOGJA - GLAMPING
+  {
+    id: 'sekala-jg-glamp-1',
+    name: 'Sekala Merapi View Glamping',
     propertyType: 'glamping',
     category: 'Standard',
-    location: 'Tawangmangu',
+    location: 'Yogyakarta',
     capacity: 4,
     bedrooms: 1,
-    price: 850000,
-    rating: 4.9,
-    badge: 'View Kebun Teh',
+    price: 750000,
+    rating: 4.8,
+    badge: 'View Merapi Syahdu',
     image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
     images: [
       'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1499363536502-87642509e31b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['View Kebun Teh', 'View Gunung', 'Free Water Heater', 'Wifi 100Mbps'],
-    desc: 'Pengalaman menginap glamping mewah di tengah hamparan kebun teh Kemuning dengan pemandangan langsung Gunung Lawu. Sudah termasuk kasur empuk king-size, air hangat, dan api unggun.'
-  },
-  {
-    id: 'sekala-glamp-2',
-    name: 'Sekala Dome Safari Camp',
-    propertyType: 'glamping',
-    category: 'Budget',
-    location: 'Tawangmangu',
-    capacity: 4,
-    bedrooms: 1,
-    price: 650000,
-    rating: 4.8,
-    badge: 'Sensasi Dingin Lawu',
-    image: 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1506535772317-9fca71c959c6?auto=format&fit=crop&w=800&q=80'
-    ],
-    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps'],
-    desc: 'Tenda dome estetik beratap transparan untuk melihat bintang di malam hari. Lokasi sejuk di lereng Lawu, dilengkapi spot grill BBQ dan penerangan estetik.'
+    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps', 'Free Water Heater'],
+    desc: 'Glamping estetik di lereng Gunung Merapi Kaliurang. Udara sejuk, pemandangan pepohonan rindang, dan tempat santai api unggun.'
   },
 
-  // 3. HOMESTAY ROMBONGAN
+  // 6. JOGJA - HOMESTAY
   {
-    id: 'sekala-home-1',
-    name: 'Sekala Omah Kayu Homestay',
+    id: 'sekala-jg-home-1',
+    name: 'Sekala Omah Kayu Homestay Jogja',
     propertyType: 'homestay',
     category: 'Budget',
     location: 'Yogyakarta',
@@ -131,26 +237,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=800&q=80'
     ],
     features: ['Dapur Ringkas', 'Wifi 100Mbps', 'Parkir Luas', 'Free Water Heater'],
-    desc: 'Homestay bernuansa kayu klasik dengan dapur lengkap, ruang keluarga luas, dan halaman parkir cukup untuk 3 mobil. Sangat cocok untuk rombongan wisata keluarga di Jogja.'
-  },
-  {
-    id: 'sekala-home-2',
-    name: 'Sekala Lawu Lodge Homestay',
-    propertyType: 'homestay',
-    category: 'Standard',
-    location: 'Tawangmangu',
-    capacity: 15,
-    bedrooms: 5,
-    price: 1350000,
-    rating: 4.8,
-    badge: 'Kapasitas Besar',
-    image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
-    ],
-    features: ['View Gunung', 'Karaoke', 'Dapur Ringkas', 'Garden BBQ Area'],
-    desc: 'Rumah homestay besar 5 kamar di pusat Tawangmangu. Dekat dengan Grojogan Sewu dan pasar wisata. Fasilitas karaoke dan dapur masak mandiri.'
+    desc: 'Homestay bernuansa kayu klasik dengan dapur lengkap, ruang keluarga luas, dan halaman parkir untuk 3 mobil di Yogyakarta.'
   }
 ];
 

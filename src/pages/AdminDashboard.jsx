@@ -15,7 +15,15 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   // Storage States
   const [banners, setBanners] = useState(storage.getBanners());
   const [villas, setVillas] = useState(storage.getVillas());
+  const [regions, setRegions] = useState(storage.getRegions());
   const [settings, setSettings] = useState(storage.getSettings());
+
+  // Region / Type Custom Form State
+  const [newRegionName, setNewRegionName] = useState('');
+  const [newRegionBadge, setNewRegionBadge] = useState('');
+  const [selectedRegionForType, setSelectedRegionForType] = useState('tawangmangu');
+  const [newTypeName, setNewTypeName] = useState('');
+  const [newTypeIcon, setNewTypeIcon] = useState('fa-house');
 
   // Banner Modal
   const [bannerModalOpen, setBannerModalOpen] = useState(false);
@@ -90,6 +98,67 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   const handleLogout = () => {
     storage.setAuth(false);
     setIsLoggedIn(false);
+  };
+
+  // REGION & SUB-ADMIN TIPE AKOMODASI HANDLERS
+  const handleAddRegion = (e) => {
+    e.preventDefault();
+    if (!newRegionName.trim()) return;
+    const rId = newRegionName.toLowerCase().replace(/[^a-z0-9]/g, '-').trim() || ('reg-' + Date.now());
+    const newReg = {
+      id: rId,
+      name: newRegionName.trim(),
+      badge: newRegionBadge.trim() || 'Destinasi Baru',
+      types: [
+        { id: 'villa', name: 'Villa Private Pool', icon: 'fa-house-chimney-window' },
+        { id: 'glamping', name: 'Glamping & Camp', icon: 'fa-campground' },
+        { id: 'homestay', name: 'Homestay Rombongan', icon: 'fa-people-roof' }
+      ]
+    };
+    const updated = [...regions, newReg];
+    setRegions(updated);
+    storage.saveRegions(updated);
+    onDataChanged();
+    setNewRegionName('');
+    setNewRegionBadge('');
+    triggerToast(`✅ Daerah "${newReg.name}" berhasil ditambahkan!`);
+  };
+
+  const handleAddTypeToRegion = (e) => {
+    e.preventDefault();
+    if (!newTypeName.trim()) return;
+    const tId = newTypeName.toLowerCase().replace(/[^a-z0-9]/g, '-').trim() || ('type-' + Date.now());
+    const updated = regions.map(r => {
+      if (r.id === selectedRegionForType) {
+        return {
+          ...r,
+          types: [...r.types, { id: tId, name: newTypeName.trim(), icon: newTypeIcon }]
+        };
+      }
+      return r;
+    });
+    setRegions(updated);
+    storage.saveRegions(updated);
+    onDataChanged();
+    setNewTypeName('');
+    triggerToast(`✅ Tipe akomodasi "${newTypeName}" berhasil ditambahkan ke daerah!`);
+  };
+
+  const handleDeleteTypeFromRegion = (regId, typeId) => {
+    if (!confirm('Hapus tipe akomodasi ini dari daerah?')) return;
+    const updated = regions.map(r => {
+      if (r.id === regId) {
+        return {
+          ...r,
+          types: r.types.filter(t => t.id !== typeId)
+        };
+      }
+      return r;
+    });
+    setRegions(updated);
+    storage.saveRegions(updated);
+    onDataChanged();
+    triggerToast('Tipe akomodasi dihapus.');
   };
 
   // BANNER HANDLERS
@@ -369,7 +438,8 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
 
   // TABS CONFIGURATION
   const tabs = [
-    { id: 'villas', label: 'Katalog Villa, Glamping & Homestay', icon: 'fa-house-chimney-window' },
+    { id: 'villas', label: 'Katalog Unit Akomodasi', icon: 'fa-house-chimney-window' },
+    { id: 'regions', label: 'Kelola Daerah & Tipe (Sub-Admin)', icon: 'fa-map-location-dot' },
     { id: 'banners', label: 'Banner Iklan Slider', icon: 'fa-image' },
     { id: 'promo', label: 'Pengaturan Popup Promo', icon: 'fa-tags' },
     { id: 'whatsapp', label: 'Template WhatsApp', icon: 'fa-whatsapp', brand: true },
@@ -594,6 +664,171 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
         {/* ========================================================= */}
         {/* TAB 2: BANNER IKLAN SLIDER                                */}
         {/* ========================================================= */}
+                {/* ========================================================= */}
+        {/* TAB SUB-ADMIN: KELOLA DAERAH & TIPE AKOMODASI             */}
+        {/* ========================================================= */}
+        {activeTab === 'regions' && (
+          <div className="space-y-6">
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="bg-brand-100 text-brand-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-1">
+                  Sub-Admin Pengaturan Daerah
+                </span>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-brand-900">
+                  Kelola Tipe Akomodasi per Daerah
+                </h2>
+                <p className="text-xs text-sand-800 mt-1">
+                  Atur daerah (Tawangmangu, Jogja, dll) dan sub-tipe akomodasi (Villa, Glamping, Homestay). Setiap kombinasi otomatis memiliki halaman khusus (New Page) dan sub-menu di katalog.
+                </p>
+              </div>
+            </div>
+
+            {/* FORM 1: TAMBAH DAERAH BARU */}
+            <div className="bg-white p-6 rounded-3xl border border-sand-200 shadow-sm space-y-4">
+              <h3 className="font-serif font-bold text-base text-brand-900 flex items-center gap-2">
+                <i className="fa-solid fa-location-dot text-rose-600"></i>
+                <span>Tambah Daerah Baru</span>
+              </h3>
+              <form onSubmit={handleAddRegion} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Nama Daerah *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newRegionName}
+                    onChange={e => setNewRegionName(e.target.value)}
+                    placeholder="Contoh: Malang & Batu"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Badge Tag Wilayah</label>
+                  <input
+                    type="text"
+                    value={newRegionBadge}
+                    onChange={e => setNewRegionBadge(e.target.value)}
+                    placeholder="Contoh: Dingin & Pegunungan"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <button
+                    type="submit"
+                    className="w-full bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2"
+                  >
+                    <i className="fa-solid fa-plus"></i> Tambah Daerah
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* FORM 2: TAMBAH TIPE AKOMODASI KE DAERAH */}
+            <div className="bg-white p-6 rounded-3xl border border-sand-200 shadow-sm space-y-4">
+              <h3 className="font-serif font-bold text-base text-brand-900 flex items-center gap-2">
+                <i className="fa-solid fa-tags text-amber-500"></i>
+                <span>Tambah Tipe Akomodasi Khusus ke Daerah</span>
+              </h3>
+              <form onSubmit={handleAddTypeToRegion} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Pilih Daerah Target *</label>
+                  <select
+                    value={selectedRegionForType}
+                    onChange={e => setSelectedRegionForType(e.target.value)}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  >
+                    {regions.map(r => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Nama Tipe Akomodasi *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newTypeName}
+                    onChange={e => setNewTypeName(e.target.value)}
+                    placeholder="Contoh: Cabin Kayu / Treehouse"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Pilih Ikon FontAwesome</label>
+                  <select
+                    value={newTypeIcon}
+                    onChange={e => setNewTypeIcon(e.target.value)}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  >
+                    <option value="fa-house-chimney-window">Villa (Rumah Mewah)</option>
+                    <option value="fa-campground">Glamping (Tenda Camp)</option>
+                    <option value="fa-people-roof">Homestay (Rombongan)</option>
+                    <option value="fa-tree">Cabin / Alam</option>
+                    <option value="fa-bed">Kamar / Suite</option>
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    type="submit"
+                    className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2"
+                  >
+                    <i className="fa-solid fa-plus"></i> Tambah Tipe
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* DAFTAR DAERAH & TIPE YANG SUDAH ADA */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {regions.map(r => (
+                <div key={r.id} className="bg-white rounded-3xl border border-sand-200 p-5 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-sand-100 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-8 h-8 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-sm font-bold shadow-xs">
+                        <i className="fa-solid fa-location-dot"></i>
+                      </span>
+                      <div>
+                        <h4 className="font-serif font-bold text-base text-brand-900 leading-snug">{r.name}</h4>
+                        <span className="text-[10px] text-sand-500 font-semibold">{r.badge}</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] bg-sand-100 text-sand-800 font-bold px-2 py-0.5 rounded-md">
+                      {r.types.length} Tipe
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-extrabold text-sand-400 uppercase tracking-wider block">
+                      Sub-Tipe Akomodasi di Daerah Ini:
+                    </span>
+                    <div className="grid grid-cols-1 gap-2">
+                      {r.types.map(t => (
+                        <div
+                          key={t.id}
+                          className="flex items-center justify-between p-2.5 rounded-xl bg-sand-50 border border-sand-200 text-xs"
+                        >
+                          <span className="flex items-center gap-2 font-bold text-brand-900">
+                            <i className={`fa-solid ${t.icon} text-brand-700 w-4`}></i>
+                            <span>{t.name}</span>
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTypeFromRegion(r.id, t.id)}
+                            className="text-sand-400 hover:text-rose-600 p-1 text-xs transition"
+                            title="Hapus tipe ini"
+                          >
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'banners' && (
           <div className="space-y-6">
             <div className="bg-white p-5 sm:p-6 rounded-3xl border border-sand-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
