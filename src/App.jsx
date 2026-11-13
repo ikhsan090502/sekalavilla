@@ -23,11 +23,10 @@ export default function App() {
   };
 
   const [view, setView] = useState(checkIsAdminURL() ? 'admin' : 'site');
-  // State Halaman Daerah (New Page): { active: boolean, regionId: 'tawangmangu', typeId: 'villa' }
+  // State Halaman Daerah (New Page): { active: boolean, regionId: 'tawangmangu' }
   const [regionPage, setRegionPage] = useState({
     active: false,
-    regionId: 'tawangmangu',
-    typeId: 'villa'
+    regionId: 'tawangmangu'
   });
 
   const [banners, setBanners] = useState(storage.getBanners());
@@ -153,12 +152,11 @@ export default function App() {
     setRegionPage(prev => ({ ...prev, active: false }));
   };
 
-  // BUKA HALAMAN BARU BERDASARKAN DAERAH & SUB-TIPE
-  const handleOpenRegionPage = (regionId, typeId) => {
+  // BUKA HALAMAN BARU BERDASARKAN DAERAH (Langsung menampilkan Villa & Glamping)
+  const handleOpenRegionPage = (regionId) => {
     setRegionPage({
       active: true,
-      regionId,
-      typeId
+      regionId
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -242,12 +240,11 @@ export default function App() {
         <main>
           <RegionCatalogPage
             regionId={regionPage.regionId}
-            typeId={regionPage.typeId}
             villas={villas}
             regions={regions}
             onSelectVilla={setSelectedVilla}
             onBack={handleCloseRegionPage}
-            onNavigate={(rId, tId) => setRegionPage({ active: true, regionId: rId, typeId: tId })}
+            onNavigate={(rId) => setRegionPage({ active: true, regionId: rId })}
           />
         </main>
         <Footer />

@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import VillaCard from '../components/VillaCard';
 
 export default function RegionCatalogPage({ 
   regionId, 
-  typeId, 
   villas, 
   regions, 
   onSelectVilla, 
@@ -11,17 +10,26 @@ export default function RegionCatalogPage({
   onNavigate 
 }) {
   const currentRegion = regions.find(r => r.id === regionId) || regions[0];
-  const types = currentRegion?.types || [];
-  const currentType = types.find(t => t.id === typeId) || types[0];
+  const [activeTab, setActiveTab] = useState('all'); // 'all' | 'villa' | 'glamping'
 
-  // Filter unit yang spesifik untuk daerah & tipe ini
+  // Filter unit berdasarkan daerah target
   const locTarget = regionId === 'tawangmangu' ? 'Tawangmangu' : 'Yogyakarta';
-  const filteredList = villas.filter(v => {
+  const regionVillas = villas.filter(v => {
     const matchLoc = (v.location || '').toLowerCase().includes(locTarget.toLowerCase());
-    const pType = (v.propertyType || 'villa').toLowerCase();
-    const matchType = pType === (currentType?.id || 'villa').toLowerCase();
-    return matchLoc && matchType;
+    return matchLoc;
   });
+
+  // Filter tab tipe (Semua, Villa, Glamping)
+  const displayList = regionVillas.filter(v => {
+    if (activeTab === 'all') return true;
+    const pType = (v.propertyType || 'villa').toLowerCase();
+    return pType === activeTab.toLowerCase();
+  });
+
+  // Hitung jumlah masing-masing
+  const countAll = regionVillas.length;
+  const countVilla = regionVillas.filter(v => (v.propertyType || 'villa').toLowerCase() === 'villa').length;
+  const countGlamping = regionVillas.filter(v => (v.propertyType || 'villa').toLowerCase() === 'glamping').length;
 
   return (
     <div className="min-h-screen bg-sand-50 py-8 sm:py-12 animate-in fade-in duration-200">
@@ -38,8 +46,6 @@ export default function RegionCatalogPage({
             </button>
             <span className="text-sand-400">/</span>
             <span className="text-terracotta-600 font-bold">{currentRegion?.name}</span>
-            <span className="text-sand-400">/</span>
-            <span className="text-brand-900 font-extrabold">{currentType?.name}</span>
           </div>
 
           <span className="hidden sm:inline-block bg-amber-400 text-slate-950 font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
@@ -54,10 +60,10 @@ export default function RegionCatalogPage({
               Eksklusif Area • {currentRegion?.badge}
             </span>
             <h1 className="font-serif text-2xl sm:text-4xl font-bold text-amber-50 leading-tight">
-              Katalog {currentType?.name} di {currentRegion?.name}
+              Katalog Villa & Glamping di {currentRegion?.name}
             </h1>
             <p className="text-sand-200 text-xs sm:text-sm leading-relaxed pt-1">
-              Pilihan akomodasi terverifikasi dengan suasana nyaman, fasilitas lengkap, dan harga terbaik langsung dari Sekala Villa.
+              Jelajahi seluruh pilihan villa private pool dan glamping di daerah {currentRegion?.name}. Semua unit terverifikasi langsung oleh Sekala Villa.
             </p>
           </div>
 
@@ -66,57 +72,89 @@ export default function RegionCatalogPage({
           </div>
         </div>
 
-        {/* SUB-MENU TIPE AKOMODASI (VILLA, GLAMPING, HOMESTAY) UNTUK DAERAH INI */}
-        <div className="bg-white rounded-2xl p-2 sm:p-3 shadow-md border border-sand-200 mb-8 flex flex-wrap gap-2">
-          {types.map(t => {
-            const isActive = t.id === currentType?.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => onNavigate(regionId, t.id)}
-                className={`flex-1 sm:flex-initial px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 border ${
-                  isActive
-                    ? 'bg-brand-900 text-amber-300 border-brand-900 shadow'
-                    : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
-                }`}
-              >
-                <i className={`fa-solid ${t.icon} ${isActive ? 'text-amber-400' : 'text-brand-700'}`}></i>
-                <span>{t.name}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* SWITCH DAERAH LAIN */}
-        <div className="flex items-center gap-2 pb-6">
-          <span className="text-xs font-bold text-sand-600">Pilih Daerah Lain:</span>
-          {regions.map(r => (
+        {/* FILTER TAB: SEMUA / VILLA / GLAMPING */}
+        <div className="bg-white rounded-2xl p-2 sm:p-2.5 shadow-md border border-sand-200 mb-8 flex flex-wrap gap-2 items-center justify-between">
+          <div className="flex flex-wrap gap-2">
             <button
-              key={r.id}
-              onClick={() => onNavigate(r.id, r.types[0]?.id || 'villa')}
-              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
-                r.id === regionId 
-                  ? 'bg-terracotta-500 text-white shadow-xs' 
-                  : 'bg-sand-200/80 text-sand-800 hover:bg-sand-300'
+              onClick={() => setActiveTab('all')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-2 border ${
+                activeTab === 'all'
+                  ? 'bg-brand-900 text-amber-300 border-brand-900 shadow'
+                  : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
               }`}
             >
-              📍 {r.name}
+              <i className="fa-solid fa-layer-group"></i>
+              <span>Semua Unit</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === 'all' ? 'bg-amber-400 text-slate-950' : 'bg-sand-200 text-sand-700'}`}>
+                {countAll}
+              </span>
             </button>
-          ))}
+
+            <button
+              onClick={() => setActiveTab('villa')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-2 border ${
+                activeTab === 'villa'
+                  ? 'bg-brand-900 text-amber-300 border-brand-900 shadow'
+                  : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
+              }`}
+            >
+              <i className="fa-solid fa-house-chimney-window"></i>
+              <span>Villa Private Pool</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === 'villa' ? 'bg-amber-400 text-slate-950' : 'bg-sand-200 text-sand-700'}`}>
+                {countVilla}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('glamping')}
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-2 border ${
+                activeTab === 'glamping'
+                  ? 'bg-brand-900 text-amber-300 border-brand-900 shadow'
+                  : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
+              }`}
+            >
+              <i className="fa-solid fa-campground"></i>
+              <span>Glamping & Camp</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeTab === 'glamping' ? 'bg-amber-400 text-slate-950' : 'bg-sand-200 text-sand-700'}`}>
+                {countGlamping}
+              </span>
+            </button>
+          </div>
+
+          {/* GANTI KE DAERAH LAIN */}
+          <div className="flex items-center gap-2 px-2 py-1">
+            <span className="text-xs font-bold text-sand-500 hidden md:inline">Ganti Wilayah:</span>
+            {regions.map(r => (
+              <button
+                key={r.id}
+                onClick={() => {
+                  setActiveTab('all');
+                  if (onNavigate) onNavigate(r.id);
+                }}
+                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition border ${
+                  r.id === regionId 
+                    ? 'bg-terracotta-500 text-white border-terracotta-500 shadow-xs' 
+                    : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
+                }`}
+              >
+                📍 {r.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* LIST UNIT YANG DITAMPILKAN */}
-        {filteredList.length === 0 ? (
+        {displayList.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-sand-200 shadow-sm space-y-3">
             <i className="fa-solid fa-house-chimney-crack text-4xl text-sand-400"></i>
             <h3 className="text-base font-bold text-brand-900">Belum Ada Unit di Kategori Ini</h3>
             <p className="text-xs text-sand-800 max-w-md mx-auto">
-              Belum ada unit {currentType?.name} yang terdaftar di daerah {currentRegion?.name}. Silakan cek tipe akomodasi lainnya.
+              Belum ada unit {activeTab === 'villa' ? 'Villa' : (activeTab === 'glamping' ? 'Glamping' : '')} yang tersedia di {currentRegion?.name}.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredList.map(item => (
+            {displayList.map(item => (
               <VillaCard
                 key={item.id}
                 villa={item}

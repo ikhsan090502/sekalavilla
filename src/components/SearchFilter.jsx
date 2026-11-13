@@ -241,31 +241,31 @@ export default function SearchFilter({
                 Atau Jelajahi Halaman Khusus per Daerah:
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {regions.map(r => (
-                <div key={r.id} className="bg-sand-50 border border-sand-200 rounded-xl p-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-brand-900 text-amber-300 flex items-center justify-center text-[10px]">
+                <button 
+                  key={r.id} 
+                  onClick={() => onOpenRegionPage(r.id)}
+                  className="bg-sand-50 hover:bg-brand-900 border border-sand-200 hover:border-brand-900 rounded-2xl p-3 flex items-center justify-between group transition text-left shadow-xs"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-xl bg-brand-900 group-hover:bg-amber-400 text-amber-300 group-hover:text-slate-950 flex items-center justify-center text-xs transition-colors">
                       <i className="fa-solid fa-location-dot"></i>
                     </span>
                     <div>
-                      <span className="font-bold text-xs text-brand-900 block">{r.name}</span>
-                      <span className="text-[10px] text-sand-500">{r.badge}</span>
+                      <span className="font-bold text-xs sm:text-sm text-brand-900 group-hover:text-white block transition-colors">
+                        {r.name}
+                      </span>
+                      <span className="text-[10px] text-sand-500 group-hover:text-amber-200 transition-colors">
+                        Lihat Semua Villa & Glamping ({r.badge})
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    {(r.types || []).filter(t => t.id === 'villa' || t.id === 'glamping').map(t => (
-                      <button
-                        key={t.id}
-                        onClick={() => onOpenRegionPage(r.id, t.id)}
-                        className="text-[11px] font-bold bg-white hover:bg-brand-900 hover:text-amber-300 text-brand-900 px-2.5 py-1 rounded-lg border border-sand-200 transition flex items-center gap-1"
-                      >
-                        <i className={`fa-solid ${t.icon} text-[10px]`}></i>
-                        <span>{t.id === 'villa' ? 'Villa' : 'Glamping'}</span>
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-terracotta-600 group-hover:text-amber-300 transition-colors">
+                    <span>Buka Halaman</span>
+                    <i className="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1 transition-transform"></i>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
