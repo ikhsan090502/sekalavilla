@@ -14,6 +14,7 @@ import MobileBottomNav from './components/MobileBottomNav';
 import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
 import RegionCatalogPage from './pages/RegionCatalogPage';
+import ArticlePage from './pages/ArticlePage';
 
 export default function App() {
   const checkIsAdminURL = () => {
@@ -24,7 +25,13 @@ export default function App() {
     );
   };
 
+  const getArticleSlugFromURL = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('article');
+  };
+
   const [view, setView] = useState(checkIsAdminURL() ? 'admin' : 'site');
+  const [currentArticleSlug, setCurrentArticleSlug] = useState(getArticleSlugFromURL());
   // State Halaman Daerah (New Page): { active: boolean, regionId: 'tawangmangu' }
   const [regionPage, setRegionPage] = useState({
     active: false,
@@ -52,9 +59,12 @@ export default function App() {
     search: ''
   });
 
-  // Listener URL Routing (#admin atau /admin)
+  // Listener URL Routing (#admin, ?article=slug)
   useEffect(() => {
     const handleUrlChange = () => {
+      const artSlug = getArticleSlugFromURL();
+      setCurrentArticleSlug(artSlug);
+
       if (checkIsAdminURL()) {
         setView('admin');
         setRegionPage(prev => ({ ...prev, active: false }));
@@ -229,6 +239,28 @@ export default function App() {
       <AdminDashboard 
         onBackToSite={handleBackToSite} 
         onDataChanged={reloadData}
+      />
+    );
+  }
+
+  // 1B. TAMPILKAN HALAMAN ARTIKEL SENDIRI (JIKA DIBUKA DI TAB BARU ?article=slug)
+  if (currentArticleSlug) {
+    const matchedArticle = articles.find(
+      a => a.slug === currentArticleSlug || a.id === currentArticleSlug
+    ) || articles[0];
+
+    return (
+      <ArticlePage
+        article={matchedArticle}
+        settings={settings}
+        onBack={() => {
+          window.history.pushState(null, '', window.location.pathname);
+          setCurrentArticleSlug(null);
+        }}
+        onNavigateHome={() => {
+          window.history.pushState(null, '', window.location.pathname);
+          setCurrentArticleSlug(null);
+        }}
       />
     );
   }
