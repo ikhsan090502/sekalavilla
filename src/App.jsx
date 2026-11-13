@@ -15,6 +15,7 @@ import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
 import RegionCatalogPage from './pages/RegionCatalogPage';
 import ArticlePage from './pages/ArticlePage';
+import LandingGateway from './pages/LandingGateway';
 
 export default function App() {
   const checkIsAdminURL = () => {
@@ -30,7 +31,14 @@ export default function App() {
     return params.get('article');
   };
 
+  const checkHasEnteredSite = () => {
+    // Jika ada parameter pencarian atau hash langsung, lewati landing gateway
+    if (window.location.hash || window.location.search) return true;
+    return sessionStorage.getItem('SEKALA_ENTERED_GATEWAY') === 'true';
+  };
+
   const [view, setView] = useState(checkIsAdminURL() ? 'admin' : 'site');
+  const [showLandingGateway, setShowLandingGateway] = useState(!checkHasEnteredSite());
   const [currentArticleSlug, setCurrentArticleSlug] = useState(getArticleSlugFromURL());
   // State Halaman Daerah (New Page): { active: boolean, regionId: 'tawangmangu' }
   const [regionPage, setRegionPage] = useState({
@@ -239,6 +247,31 @@ export default function App() {
       <AdminDashboard 
         onBackToSite={handleBackToSite} 
         onDataChanged={reloadData}
+      />
+    );
+  }
+
+  // 1A. TAMPILKAN LANDING GATEWAY INTERAKTIF (SEBELUM MASUK HALAMAN UTAMA)
+  if (showLandingGateway && !currentArticleSlug && !regionPage.active) {
+    return (
+      <LandingGateway
+        settings={settings}
+        onComplete={(chosenFilters) => {
+          setFilters(prev => ({
+            ...prev,
+            location: chosenFilters.location || 'all',
+            capacity: chosenFilters.capacity || 0,
+            propertyType: chosenFilters.propertyType || 'all'
+          }));
+          sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
+          setShowLandingGateway(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onSkip={() => {
+          sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
+          setShowLandingGateway(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
     );
   }
