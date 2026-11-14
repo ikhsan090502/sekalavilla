@@ -87,6 +87,7 @@ export default function SearchFilter({
                            (filters.capacity && filters.capacity > 0) || 
                            (filters.maxCapacity && filters.maxCapacity > 0) || 
                            (filters.bedrooms && filters.bedrooms > 0) || 
+                           (filters.maxBedrooms && filters.maxBedrooms > 0) || 
                            (filters.minPrice && filters.minPrice > 0) || 
                            (filters.budget && filters.budget < 5000000) ||
                            (filters.propertyType && filters.propertyType !== 'all');
@@ -126,9 +127,13 @@ export default function SearchFilter({
                             : `Maks. ${filters.maxCapacity} Orang`}
                     </span>
                   )}
-                  {filters.bedrooms > 0 && (
+                  {(filters.bedrooms > 0 || filters.maxBedrooms > 0) && (
                     <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
-                      🛏️ Min. {filters.bedrooms} Kamar
+                      🛏️ {filters.bedrooms > 0 && filters.maxBedrooms > 0 
+                          ? `${filters.bedrooms} - ${filters.maxBedrooms} Kamar`
+                          : filters.bedrooms > 0 
+                            ? `Min. ${filters.bedrooms} Kamar`
+                            : `Maks. ${filters.maxBedrooms} Kamar`}
                     </span>
                   )}
                   {(filters.minPrice > 0 || filters.budget < 5000000) && (
@@ -295,26 +300,56 @@ export default function SearchFilter({
             </div>
           </div>
 
-          {/* 3. JUMLAH KAMAR TIDUR (KETIK BEBAS) */}
+          {/* 3. JUMLAH KAMAR TIDUR (RANGE MIN - MAX KAMAR) */}
           <div>
             <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-bed text-brand-700 mr-1"></i> Kamar Tidur (Ketik)
+              <i className="fa-solid fa-bed text-brand-700 mr-1"></i> Kamar Tidur (Min - Max)
             </label>
-            <div className="relative">
-              <input
-                type="number"
-                min="0"
-                placeholder="Semua (Misal: 3)"
-                value={filters.bedrooms > 0 ? filters.bedrooms : ''}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  setFilters(prev => ({ ...prev, bedrooms: isNaN(val) ? 0 : val }));
-                }}
-                className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
-                Kamar
-              </span>
+            <div className="grid grid-cols-2 gap-1.5">
+              {/* Min Kamar */}
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Min (Misal: 2)"
+                  value={filters.bedrooms > 0 ? filters.bedrooms : ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setFilters(prev => ({ ...prev, bedrooms: isNaN(val) ? 0 : val }));
+                  }}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  Min
+                </span>
+              </div>
+
+              {/* Max Kamar */}
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Max (Misal: 4)"
+                  value={filters.maxBedrooms > 0 ? filters.maxBedrooms : ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setFilters(prev => ({ ...prev, maxBedrooms: isNaN(val) ? 0 : val }));
+                  }}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  Max
+                </span>
+              </div>
+            </div>
+            <div className="text-[9px] text-sand-400 mt-1 font-semibold">
+              {filters.bedrooms > 0 && filters.maxBedrooms > 0
+                ? `${filters.bedrooms} s/d ${filters.maxBedrooms} Kamar`
+                : filters.bedrooms > 0
+                  ? `Min. ${filters.bedrooms} Kamar`
+                  : filters.maxBedrooms > 0
+                    ? `Maks. ${filters.maxBedrooms} Kamar`
+                    : 'Semua Kamar'}
             </div>
           </div>
 

@@ -9,7 +9,8 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
   // Custom Typed Inputs
   const [minCapacity, setMinCapacity] = useState(''); // Min orang (bebas ketik)
   const [maxCapacity, setMaxCapacity] = useState(''); // Max orang (bebas ketik)
-  const [bedrooms, setBedrooms] = useState(''); // Berapa kamar yang diinginkan (bebas ketik)
+  const [minBedrooms, setMinBedrooms] = useState(''); // Min kamar tidur (bebas ketik)
+  const [maxBedrooms, setMaxBedrooms] = useState(''); // Max kamar tidur (bebas ketik)
   const [minPriceDisplay, setMinPriceDisplay] = useState(''); // Teks format titik Rp
   const [maxPriceDisplay, setMaxPriceDisplay] = useState(''); // Teks format titik Rp
 
@@ -44,7 +45,8 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
       propertyType: propertyType,
       capacity: parseInt(minCapacity) || 0,
       maxCapacity: parseInt(maxCapacity) || 0,
-      bedrooms: parseInt(bedrooms) || 0,
+      bedrooms: parseInt(minBedrooms) || 0,
+      maxBedrooms: parseInt(maxBedrooms) || 0,
       minPrice: getRawNumber(minPriceDisplay),
       maxPrice: getRawNumber(maxPriceDisplay)
     });
@@ -219,10 +221,10 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
             </div>
           </div>
 
-          {/* STEP 3: INPUT KAPASITAS ORANG (RANGE MIN - MAX) & JUMLAH KAMAR (DIKETIK SENDIRI) */}
+          {/* STEP 3: INPUT RANGE KAPASITAS ORANG & RANGE JUMLAH KAMAR (DIKETIK SENDIRI) */}
           <div className="space-y-1.5 sm:space-y-2">
             <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-200 block">
-              3. Kapasitas Tamu (Range Orang) & Jumlah Kamar
+              3. Kapasitas Tamu (Range Orang) & Jumlah Kamar (Range Kamar)
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
               {/* Range Berapa Orang (Min Orang & Max Orang) */}
@@ -263,23 +265,41 @@ export default function LandingGateway({ onComplete, onSkip, settings }) {
                 </div>
               </div>
 
-              {/* Input Berapa Kamar Tidur */}
+              {/* Range Berapa Kamar Tidur (Min Kamar & Max Kamar) */}
               <div>
                 <label className="text-[10px] sm:text-[11px] text-sand-300 font-semibold block mb-1 truncate">
-                  <i className="fa-solid fa-bed text-amber-400 mr-1"></i> Jumlah Kamar Tidur?
+                  <i className="fa-solid fa-bed text-amber-400 mr-1"></i> Berapa Kamar Tidur? (Min - Max)
                 </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="Contoh: 3 Kamar (Opsional)"
-                    value={bedrooms}
-                    onChange={(e) => setBedrooms(e.target.value)}
-                    className="w-full bg-slate-900/80 border border-white/20 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                  <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-sand-400 font-semibold">
-                    Kamar
-                  </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {/* Min Kamar */}
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="Min (2)"
+                      value={minBedrooms}
+                      onChange={(e) => setMinBedrooms(e.target.value)}
+                      className="w-full bg-slate-900/80 border border-white/20 rounded-xl sm:rounded-2xl pl-3 pr-8 py-2.5 sm:py-3 text-xs sm:text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] text-sand-400 font-semibold">
+                      Kmr
+                    </span>
+                  </div>
+
+                  {/* Max Kamar */}
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="Max (4)"
+                      value={maxBedrooms}
+                      onChange={(e) => setMaxBedrooms(e.target.value)}
+                      className="w-full bg-slate-900/80 border border-white/20 rounded-xl sm:rounded-2xl pl-3 pr-8 py-2.5 sm:py-3 text-xs sm:text-sm text-amber-300 font-bold placeholder-sand-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] text-sand-400 font-semibold">
+                      Kmr
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

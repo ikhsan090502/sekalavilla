@@ -63,7 +63,8 @@ export default function App() {
     category: 'all',
     capacity: 0, // Min kapasitas orang
     maxCapacity: 0, // Max kapasitas orang
-    bedrooms: 0,
+    bedrooms: 0, // Min kamar tidur
+    maxBedrooms: 0, // Max kamar tidur
     minPrice: 0,
     budget: 5000000,
     facilities: [], // multi-select fasilitas
@@ -158,6 +159,7 @@ export default function App() {
       capacity: 0,
       maxCapacity: 0,
       bedrooms: 0,
+      maxBedrooms: 0,
       minPrice: 0,
       budget: 5000000,
       facilities: [],
@@ -229,9 +231,12 @@ export default function App() {
       // kita berikan toleransi fleksibel agar villa berkapasitas pas atau sedikit di atasnya tetap tampil
       if ((v.capacity || 0) > filters.maxCapacity) return false;
     }
-    // 5B. Bedrooms (berapa kamar)
+    // 5B. Bedrooms (range kamar tidur: min & max kamar)
     if (filters.bedrooms && filters.bedrooms > 0) {
       if ((v.bedrooms || 1) < filters.bedrooms) return false;
+    }
+    if (filters.maxBedrooms && filters.maxBedrooms > 0) {
+      if ((v.bedrooms || 1) > filters.maxBedrooms) return false;
     }
     // 6. Range Harga: Fleksibel dengan toleransi harga mendekati (±15% atau 150rb)
     // Jika tamu mencari minPrice (misal 1jt), unit yang harganya mendekati (misal 850rb - 900rb) tetap dimasukkan
@@ -289,6 +294,7 @@ export default function App() {
             capacity: chosenFilters.capacity || 0,
             maxCapacity: chosenFilters.maxCapacity || 0,
             bedrooms: chosenFilters.bedrooms || 0,
+            maxBedrooms: chosenFilters.maxBedrooms || 0,
             propertyType: chosenFilters.propertyType || 'all',
             minPrice: chosenFilters.minPrice || 0,
             budget: chosenFilters.maxPrice > 0 ? chosenFilters.maxPrice : 5000000
