@@ -85,6 +85,7 @@ export default function SearchFilter({
   // Hitung berapa kriteria aktif dari landing matcher
   const hasCustomMatcher = (filters.location && filters.location !== 'all') || 
                            (filters.capacity && filters.capacity > 0) || 
+                           (filters.maxCapacity && filters.maxCapacity > 0) || 
                            (filters.bedrooms && filters.bedrooms > 0) || 
                            (filters.minPrice && filters.minPrice > 0) || 
                            (filters.budget && filters.budget < 5000000) ||
@@ -116,9 +117,13 @@ export default function SearchFilter({
                       🏡 {filters.propertyType}
                     </span>
                   )}
-                  {filters.capacity > 0 && (
+                  {(filters.capacity > 0 || filters.maxCapacity > 0) && (
                     <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
-                      👥 Min. {filters.capacity} Orang
+                      👥 {filters.capacity > 0 && filters.maxCapacity > 0 
+                          ? `${filters.capacity} - ${filters.maxCapacity} Orang`
+                          : filters.capacity > 0 
+                            ? `Min. ${filters.capacity} Orang`
+                            : `Maks. ${filters.maxCapacity} Orang`}
                     </span>
                   )}
                   {filters.bedrooms > 0 && (
@@ -237,26 +242,56 @@ export default function SearchFilter({
             </select>
           </div>
 
-          {/* 2. KAPASITAS TAMU (KETIK BEBAS) */}
+          {/* 2. KAPASITAS TAMU (RANGE MIN - MAX ORANG) */}
           <div>
             <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-user-group text-brand-700 mr-1"></i> Kapasitas Orang (Ketik)
+              <i className="fa-solid fa-user-group text-brand-700 mr-1"></i> Kapasitas Orang (Min - Max)
             </label>
-            <div className="relative">
-              <input
-                type="number"
-                min="0"
-                placeholder="Semua (Misal: 8)"
-                value={filters.capacity > 0 ? filters.capacity : ''}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  setFilters(prev => ({ ...prev, capacity: isNaN(val) ? 0 : val }));
-                }}
-                className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
-                Orang
-              </span>
+            <div className="grid grid-cols-2 gap-1.5">
+              {/* Min Orang */}
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Min (Misal: 4)"
+                  value={filters.capacity > 0 ? filters.capacity : ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setFilters(prev => ({ ...prev, capacity: isNaN(val) ? 0 : val }));
+                  }}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  Min
+                </span>
+              </div>
+
+              {/* Max Orang */}
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Max (Misal: 10)"
+                  value={filters.maxCapacity > 0 ? filters.maxCapacity : ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setFilters(prev => ({ ...prev, maxCapacity: isNaN(val) ? 0 : val }));
+                  }}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  Max
+                </span>
+              </div>
+            </div>
+            <div className="text-[9px] text-sand-400 mt-1 font-semibold">
+              {filters.capacity > 0 && filters.maxCapacity > 0
+                ? `${filters.capacity} s/d ${filters.maxCapacity} Orang`
+                : filters.capacity > 0
+                  ? `Min. ${filters.capacity} Orang`
+                  : filters.maxCapacity > 0
+                    ? `Maks. ${filters.maxCapacity} Orang`
+                    : 'Semua Kapasitas'}
             </div>
           </div>
 

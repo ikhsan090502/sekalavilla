@@ -61,7 +61,8 @@ export default function App() {
     propertyType: 'all', // 'all' | 'villa' | 'glamping'
     location: 'all',
     category: 'all',
-    capacity: 0,
+    capacity: 0, // Min kapasitas orang
+    maxCapacity: 0, // Max kapasitas orang
     bedrooms: 0,
     minPrice: 0,
     budget: 5000000,
@@ -155,6 +156,7 @@ export default function App() {
       location: 'all',
       category: 'all',
       capacity: 0,
+      maxCapacity: 0,
       bedrooms: 0,
       minPrice: 0,
       budget: 5000000,
@@ -218,9 +220,14 @@ export default function App() {
     if (filters.category && filters.category !== 'all') {
       if ((v.category || 'Standard') !== filters.category) return false;
     }
-    // 5. Capacity (berapa orang)
+    // 5. Capacity (range orang: min kapasitas & max kapasitas)
     if (filters.capacity && filters.capacity > 0) {
       if ((v.capacity || 0) < filters.capacity) return false;
+    }
+    if (filters.maxCapacity && filters.maxCapacity > 0) {
+      // Jika tamu mencari maksimal kapasitas (misal: rombongan maks 10 orang),
+      // kita berikan toleransi fleksibel agar villa berkapasitas pas atau sedikit di atasnya tetap tampil
+      if ((v.capacity || 0) > filters.maxCapacity) return false;
     }
     // 5B. Bedrooms (berapa kamar)
     if (filters.bedrooms && filters.bedrooms > 0) {
@@ -280,6 +287,7 @@ export default function App() {
             ...prev,
             location: chosenFilters.location || 'all',
             capacity: chosenFilters.capacity || 0,
+            maxCapacity: chosenFilters.maxCapacity || 0,
             bedrooms: chosenFilters.bedrooms || 0,
             propertyType: chosenFilters.propertyType || 'all',
             minPrice: chosenFilters.minPrice || 0,
