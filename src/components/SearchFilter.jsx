@@ -23,10 +23,12 @@ export default function SearchFilter({
   filters, 
   setFilters, 
   onReset,
-  onOpenGateway
+  onOpenGateway,
+  settings
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchFacility, setSearchFacility] = useState('');
+  const [showCriteriaForm, setShowCriteriaForm] = useState(false);
 
   // 6 Fasilitas Favorit Utama yang selalu tampil di baris depan
   const TOP_FACILITIES = POPULAR_FACILITIES.slice(0, 6);
@@ -43,6 +45,32 @@ export default function SearchFilter({
     if (!str) return 0;
     const cleanDigits = str.toString().replace(/\D/g, '');
     return parseInt(cleanDigits, 10) || 0;
+  };
+
+  const waPhone = filters.location === 'Yogyakarta' 
+    ? (settings?.whatsappPhoneJogja || settings?.whatsappPhone || '6281381669735')
+    : (settings?.whatsappPhoneTawangmangu || settings?.whatsappPhone || '6281381669735');
+
+  // Kirim Hasil Filter dari Card Putih ke WhatsApp
+  const handleSendFilterToWA = () => {
+    const locText = filters.location !== 'all' ? filters.location : 'Semua Lokasi (Tawangmangu/Jogja)';
+    const typeText = filters.propertyType !== 'all' ? filters.propertyType : 'Semua Tipe';
+    const capText = filters.capacity > 0 || filters.maxCapacity > 0
+      ? `${filters.capacity || 1} - ${filters.maxCapacity || 'bebas'} orang`
+      : 'Semua Kapasitas';
+    const bedText = filters.bedrooms > 0 || filters.maxBedrooms > 0
+      ? `${filters.bedrooms || 1} - ${filters.maxBedrooms || 'bebas'} kamar`
+      : 'Semua Kamar';
+    const budgetText = (filters.minPrice > 0 || filters.budget < 5000000)
+      ? `${filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} s/d ${formatRupiah(filters.budget || 5000000)}`
+      : 'Semua Rentang Harga';
+    const facText = (filters.facilities && filters.facilities.length > 0)
+      ? filters.facilities.join(', ')
+      : 'Fasilitas Bebas';
+
+    const message = `Halo Admin Sekala Villa,%0A%0ASaya sedang memfilter unit di katalog website Sekala Villa dengan hasil kriteria:%0A- *Destinasi*: ${encodeURIComponent(locText)}%0A- *Konsep*: ${encodeURIComponent(typeText)}%0A- *Kapasitas Tamu*: ${encodeURIComponent(capText)}%0A- *Jumlah Kamar*: ${encodeURIComponent(bedText)}%0A- *Budget per Malam*: ${encodeURIComponent(budgetText)}%0A- *Fasilitas Pilihan*: ${encodeURIComponent(facText)}%0A%0AMohon rekomendasi unit yang sedang tersedia dan promo terbarunya ya kak. Terima kasih!`;
+
+    window.open(`https://wa.me/${waPhone}?text=${message}`, '_blank');
   };
 
   // Toggle pilihan fasilitas (Multi-select)
@@ -93,77 +121,115 @@ export default function SearchFilter({
                            (filters.propertyType && filters.propertyType !== 'all');
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
-      <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4 sm:space-y-5">
-        
-        {/* BANNER NOTIFIKASI FILTER DARI TRIP MATCHER */}
-        {hasCustomMatcher && (
-          <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
-            <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xs shrink-0 shadow-xs">
-                <i className="fa-solid fa-sliders"></i>
+    <section id="search-filter-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
+      
+      {/* JUDUL STATUS FILTER AKTIF DI LUAR CARD KUNING */}
+      {hasCustomMatcher && (
+        <div className="mb-2.5 px-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <span className="text-xs sm:text-sm font-serif font-bold text-brand-900 tracking-wide">
+              Filter Pencarian Anda Sedang Aktif
+            </span>
+          </div>
+          <button
+            onClick={onReset}
+            className="text-xs font-bold text-terracotta-600 hover:text-terracotta-700 hover:underline flex items-center gap-1 bg-white/80 backdrop-blur px-2.5 py-1 rounded-lg border border-sand-200 shadow-2xs"
+          >
+            <i className="fa-solid fa-trash-can text-[11px]"></i>
+            <span>Hapus Filter</span>
+          </button>
+        </div>
+      )}
+
+      {/* CARD KUNING NOTIFIKASI FILTER DARI TRIP MATCHER */}
+      {hasCustomMatcher && (
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-3xl p-4 sm:p-5 mb-4 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+          <div className="flex items-start sm:items-center gap-3">
+            <span className="w-9 h-9 rounded-2xl bg-brand-900 text-amber-300 flex items-center justify-center text-sm shrink-0 shadow-xs">
+              <i className="fa-solid fa-sliders"></i>
+            </span>
+            <div>
+              <span className="text-xs sm:text-sm font-bold text-brand-900 block leading-tight">
+                Kriteria Menginap Sesuai Inputan Anda
               </span>
-              <div>
-                <span className="text-xs font-bold text-brand-900 block">
-                  Filter Sesuai Pencarian Anda Aktif
-                </span>
-                <div className="flex flex-wrap gap-1.5 mt-0.5">
-                  {filters.location !== 'all' && (
-                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
-                      📍 {filters.location}
-                    </span>
-                  )}
-                  {filters.propertyType !== 'all' && (
-                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200 capitalize">
-                      🏡 {filters.propertyType}
-                    </span>
-                  )}
-                  {(filters.capacity > 0 || filters.maxCapacity > 0) && (
-                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
-                      👥 {filters.capacity > 0 && filters.maxCapacity > 0 
-                          ? `${filters.capacity} - ${filters.maxCapacity} Orang`
-                          : filters.capacity > 0 
-                            ? `Min. ${filters.capacity} Orang`
-                            : `Maks. ${filters.maxCapacity} Orang`}
-                    </span>
-                  )}
-                  {(filters.bedrooms > 0 || filters.maxBedrooms > 0) && (
-                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
-                      🛏️ {filters.bedrooms > 0 && filters.maxBedrooms > 0 
-                          ? `${filters.bedrooms} - ${filters.maxBedrooms} Kamar`
-                          : filters.bedrooms > 0 
-                            ? `Min. ${filters.bedrooms} Kamar`
-                            : `Maks. ${filters.maxBedrooms} Kamar`}
-                    </span>
-                  )}
-                  {(filters.minPrice > 0 || filters.budget < 5000000) && (
-                    <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
-                      💰 {filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} - {formatRupiah(filters.budget)}
-                    </span>
-                  )}
-                </div>
+              <div className="flex flex-wrap gap-1.5 mt-1.5">
+                {filters.location !== 'all' && (
+                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs">
+                    📍 {filters.location}
+                  </span>
+                )}
+                {filters.propertyType !== 'all' && (
+                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 capitalize shadow-2xs">
+                    🏡 {filters.propertyType}
+                  </span>
+                )}
+                {(filters.capacity > 0 || filters.maxCapacity > 0) && (
+                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs">
+                    👥 {filters.capacity > 0 && filters.maxCapacity > 0 
+                        ? `${filters.capacity} - ${filters.maxCapacity} Orang`
+                        : filters.capacity > 0 
+                          ? `Min. ${filters.capacity} Orang`
+                          : `Maks. ${filters.maxCapacity} Orang`}
+                  </span>
+                )}
+                {(filters.bedrooms > 0 || filters.maxBedrooms > 0) && (
+                  <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200 shadow-2xs">
+                    🛏️ {filters.bedrooms > 0 && filters.maxBedrooms > 0 
+                        ? `${filters.bedrooms} - ${filters.maxBedrooms} Kamar`
+                        : filters.bedrooms > 0 
+                          ? `Min. ${filters.bedrooms} Kamar`
+                          : `Maks. ${filters.maxBedrooms} Kamar`}
+                  </span>
+                )}
+                {(filters.minPrice > 0 || filters.budget < 5000000) && (
+                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs">
+                    💰 {filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} - {formatRupiah(filters.budget)}
+                  </span>
+                )}
               </div>
             </div>
-
-            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-              {onOpenGateway && (
-                <button
-                  onClick={onOpenGateway}
-                  className="text-xs font-bold text-brand-900 hover:text-terracotta-600 bg-white hover:bg-sand-100 px-3 py-1.5 rounded-xl border border-sand-300 transition flex items-center gap-1 shadow-xs"
-                >
-                  <i className="fa-solid fa-arrow-rotate-left text-[10px]"></i> Ubah Kriteria
-                </button>
-              )}
-              <button
-                onClick={onReset}
-                className="text-xs font-bold text-terracotta-600 hover:underline px-2 py-1"
-              >
-                Reset Filter
-              </button>
-            </div>
           </div>
-        )}
 
+          <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-amber-200">
+            {/* Tombol Ubah Kriteria Buka Formulir Bawah */}
+            <button
+              type="button"
+              onClick={() => setShowCriteriaForm(prev => !prev)}
+              className="text-xs font-bold text-brand-900 hover:text-brand-950 bg-amber-400 hover:bg-amber-300 px-3.5 py-2 rounded-xl border border-amber-500 transition flex items-center gap-1.5 shadow-sm active:scale-95"
+            >
+              <i className={`fa-solid ${showCriteriaForm ? 'fa-chevron-up' : 'fa-sliders'} text-[11px]`}></i>
+              <span>{showCriteriaForm ? 'Tutup Formulir Kriteria' : 'Ubah Kriteria'}</span>
+            </button>
+
+            {/* Tombol Ubah di Landing Page (History Tetap Tersimpan) */}
+            {onOpenGateway && (
+              <button
+                type="button"
+                onClick={onOpenGateway}
+                className="text-xs font-bold text-sand-800 hover:text-brand-900 bg-white hover:bg-sand-100 px-3 py-2 rounded-xl border border-sand-300 transition flex items-center gap-1 shadow-2xs"
+                title="Buka kembali Landing Page Matcher dengan data yang sudah Anda isi"
+              >
+                <i className="fa-solid fa-arrow-rotate-left text-[10px]"></i>
+                <span>Ke Halaman Depan</span>
+              </button>
+            )}
+
+            <button
+              onClick={onReset}
+              className="text-xs font-bold text-terracotta-600 hover:underline px-2 py-1"
+            >
+              Hapus Filter
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* CARD PUTIH: UTAMA FILTER KATALOG */}
+      <div className={`bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4 sm:space-y-5 transition-all duration-300 ${
+        hasCustomMatcher ? 'ring-2 ring-brand-900/10' : ''
+      }`}>
+        
         {/* HEADER: PILIH TIPE AKOMODASI (HANYA VILLA & GLAMPING) */}
         <div>
           <div className="flex items-center justify-between mb-2.5">
@@ -175,15 +241,18 @@ export default function SearchFilter({
                 Temukan Villa & Glamping Pilihan
               </h3>
             </div>
-            {/* Tampilkan tombol reset utama di sini hanya jika banner kriteria atas tidak sedang aktif */}
-            {!hasCustomMatcher && (
-              <button 
-                onClick={onReset}
-                className="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-terracotta-50 transition"
-              >
-                <i className="fa-solid fa-rotate-left text-[11px]"></i> Reset Filter
-              </button>
-            )}
+            
+            <div className="flex items-center gap-2">
+              {/* Tombol Hapus Filter Naik ke Atas Semua */}
+              {hasCustomMatcher && (
+                <button 
+                  onClick={onReset}
+                  className="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-terracotta-50 transition"
+                >
+                  <i className="fa-solid fa-trash-can text-[11px]"></i> Hapus Filter
+                </button>
+              )}
+            </div>
           </div>
 
           {/* TAB TIPE AKOMODASI: SEMUA / VILLA / GLAMPING */}
@@ -229,178 +298,186 @@ export default function SearchFilter({
           )}
         </div>
 
-        {/* BARIS FILTER UTAMA: LOKASI, KAPASITAS ORANG (KETIK), KAMAR (KETIK), RENTANG BUDGET (RP MIN - RP MAX) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* 1. LOKASI */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-location-dot text-brand-700 mr-1"></i> Lokasi Destinasi
-            </label>
-            <select
-              value={filters.location}
-              onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-              className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700"
-            >
-              <option value="all">Semua Lokasi</option>
-              <option value="Tawangmangu">Tawangmangu & Kemuning</option>
-              <option value="Yogyakarta">Yogyakarta & Sleman</option>
-            </select>
+        {/* BARIS FILTER FORMULIR (LOKASI, ORANG, KAMAR, HARGA):
+            Jika dari matcher kriteria aktif, bisa dibuka-tutup lewat tombol Ubah Kriteria;
+            Jika default tanpa matcher, otomatis selalu terbuka */}
+        {(!hasCustomMatcher || showCriteriaForm) && (
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 ${
+            showCriteriaForm && hasCustomMatcher 
+              ? 'p-4 rounded-2xl bg-sand-50 border-2 border-brand-900/30 animate-in fade-in' 
+              : ''
+          }`}>
+            {/* 1. LOKASI */}
+            <div>
+              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+                <i className="fa-solid fa-location-dot text-brand-700 mr-1"></i> Lokasi Destinasi
+              </label>
+              <select
+                value={filters.location}
+                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700"
+              >
+                <option value="all">Semua Lokasi</option>
+                <option value="Tawangmangu">Tawangmangu & Kemuning</option>
+                <option value="Yogyakarta">Yogyakarta & Sleman</option>
+              </select>
+            </div>
+
+            {/* 2. KAPASITAS TAMU (RANGE MIN - MAX ORANG) */}
+            <div>
+              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+                <i className="fa-solid fa-user-group text-brand-700 mr-1"></i> Kapasitas Orang (Min - Max)
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {/* Min Orang */}
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Min (4)"
+                    value={filters.capacity > 0 ? filters.capacity : ''}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setFilters(prev => ({ ...prev, capacity: isNaN(val) ? 0 : val }));
+                    }}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                    Min
+                  </span>
+                </div>
+
+                {/* Max Orang */}
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Max (10)"
+                    value={filters.maxCapacity > 0 ? filters.maxCapacity : ''}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setFilters(prev => ({ ...prev, maxCapacity: isNaN(val) ? 0 : val }));
+                    }}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                    Max
+                  </span>
+                </div>
+              </div>
+              <div className="text-[9px] text-sand-400 mt-1 font-semibold">
+                {filters.capacity > 0 && filters.maxCapacity > 0
+                  ? `${filters.capacity} s/d ${filters.maxCapacity} Orang`
+                  : filters.capacity > 0
+                    ? `Min. ${filters.capacity} Orang`
+                    : filters.maxCapacity > 0
+                      ? `Maks. ${filters.maxCapacity} Orang`
+                      : 'Semua Kapasitas'}
+              </div>
+            </div>
+
+            {/* 3. JUMLAH KAMAR TIDUR (RANGE MIN - MAX KAMAR) */}
+            <div>
+              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+                <i className="fa-solid fa-bed text-brand-700 mr-1"></i> Kamar Tidur (Min - Max)
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {/* Min Kamar */}
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Min (2)"
+                    value={filters.bedrooms > 0 ? filters.bedrooms : ''}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setFilters(prev => ({ ...prev, bedrooms: isNaN(val) ? 0 : val }));
+                    }}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                    Min
+                  </span>
+                </div>
+
+                {/* Max Kamar */}
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Max (4)"
+                    value={filters.maxBedrooms > 0 ? filters.maxBedrooms : ''}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setFilters(prev => ({ ...prev, maxBedrooms: isNaN(val) ? 0 : val }));
+                    }}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                    Max
+                  </span>
+                </div>
+              </div>
+              <div className="text-[9px] text-sand-400 mt-1 font-semibold">
+                {filters.bedrooms > 0 && filters.maxBedrooms > 0
+                  ? `${filters.bedrooms} s/d ${filters.maxBedrooms} Kamar`
+                  : filters.bedrooms > 0
+                    ? `Min. ${filters.bedrooms} Kamar`
+                    : filters.maxBedrooms > 0
+                      ? `Maks. ${filters.maxBedrooms} Kamar`
+                      : 'Semua Kamar'}
+              </div>
+            </div>
+
+            {/* 4. RENTANG BUDGET SEWA (RP MINIMAL - RP MAKSIMAL DENGAN TITIK OTOMATIS) */}
+            <div>
+              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+                <i className="fa-solid fa-tag text-brand-700 mr-1"></i> Rentang Budget / Malam
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {/* Min Rp */}
+                <div className="relative">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
+                    Min
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Rp 0"
+                    value={filters.minPrice > 0 ? formatNumberWithDots(filters.minPrice) : ''}
+                    onChange={(e) => {
+                      const raw = getRawNumber(e.target.value);
+                      setFilters(prev => ({ ...prev, minPrice: raw }));
+                    }}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+
+                {/* Max Rp */}
+                <div className="relative">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
+                    Max
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Maksimal"
+                    value={filters.budget && filters.budget < 5000000 ? formatNumberWithDots(filters.budget) : ''}
+                    onChange={(e) => {
+                      const raw = getRawNumber(e.target.value);
+                      setFilters(prev => ({ ...prev, budget: raw > 0 ? raw : 5000000 }));
+                    }}
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-between text-[9px] text-sand-400 mt-1 font-semibold">
+                <span>{filters.minPrice > 0 ? `Min: ${formatRupiah(filters.minPrice)}` : 'Mulai Rp 0'}</span>
+                <span>{filters.budget && filters.budget < 5000000 ? `Max: ${formatRupiah(filters.budget)}` : 'Semua Harga'}</span>
+              </div>
+            </div>
           </div>
-
-          {/* 2. KAPASITAS TAMU (RANGE MIN - MAX ORANG) */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-user-group text-brand-700 mr-1"></i> Kapasitas Orang (Min - Max)
-            </label>
-            <div className="grid grid-cols-2 gap-1.5">
-              {/* Min Orang */}
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="Min (Misal: 4)"
-                  value={filters.capacity > 0 ? filters.capacity : ''}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    setFilters(prev => ({ ...prev, capacity: isNaN(val) ? 0 : val }));
-                  }}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
-                  Min
-                </span>
-              </div>
-
-              {/* Max Orang */}
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="Max (Misal: 10)"
-                  value={filters.maxCapacity > 0 ? filters.maxCapacity : ''}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    setFilters(prev => ({ ...prev, maxCapacity: isNaN(val) ? 0 : val }));
-                  }}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
-                  Max
-                </span>
-              </div>
-            </div>
-            <div className="text-[9px] text-sand-400 mt-1 font-semibold">
-              {filters.capacity > 0 && filters.maxCapacity > 0
-                ? `${filters.capacity} s/d ${filters.maxCapacity} Orang`
-                : filters.capacity > 0
-                  ? `Min. ${filters.capacity} Orang`
-                  : filters.maxCapacity > 0
-                    ? `Maks. ${filters.maxCapacity} Orang`
-                    : 'Semua Kapasitas'}
-            </div>
-          </div>
-
-          {/* 3. JUMLAH KAMAR TIDUR (RANGE MIN - MAX KAMAR) */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-bed text-brand-700 mr-1"></i> Kamar Tidur (Min - Max)
-            </label>
-            <div className="grid grid-cols-2 gap-1.5">
-              {/* Min Kamar */}
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="Min (Misal: 2)"
-                  value={filters.bedrooms > 0 ? filters.bedrooms : ''}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    setFilters(prev => ({ ...prev, bedrooms: isNaN(val) ? 0 : val }));
-                  }}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
-                  Min
-                </span>
-              </div>
-
-              {/* Max Kamar */}
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="Max (Misal: 4)"
-                  value={filters.maxBedrooms > 0 ? filters.maxBedrooms : ''}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    setFilters(prev => ({ ...prev, maxBedrooms: isNaN(val) ? 0 : val }));
-                  }}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
-                  Max
-                </span>
-              </div>
-            </div>
-            <div className="text-[9px] text-sand-400 mt-1 font-semibold">
-              {filters.bedrooms > 0 && filters.maxBedrooms > 0
-                ? `${filters.bedrooms} s/d ${filters.maxBedrooms} Kamar`
-                : filters.bedrooms > 0
-                  ? `Min. ${filters.bedrooms} Kamar`
-                  : filters.maxBedrooms > 0
-                    ? `Maks. ${filters.maxBedrooms} Kamar`
-                    : 'Semua Kamar'}
-            </div>
-          </div>
-
-          {/* 4. RENTANG BUDGET SEWA (RP MINIMAL - RP MAKSIMAL DENGAN TITIK OTOMATIS) */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
-              <i className="fa-solid fa-tag text-brand-700 mr-1"></i> Rentang Budget / Malam
-            </label>
-            <div className="grid grid-cols-2 gap-1.5">
-              {/* Min Rp */}
-              <div className="relative">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
-                  Min
-                </span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Rp 0"
-                  value={filters.minPrice > 0 ? formatNumberWithDots(filters.minPrice) : ''}
-                  onChange={(e) => {
-                    const raw = getRawNumber(e.target.value);
-                    setFilters(prev => ({ ...prev, minPrice: raw }));
-                  }}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-              </div>
-
-              {/* Max Rp */}
-              <div className="relative">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
-                  Max
-                </span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Maksimal"
-                  value={filters.budget && filters.budget < 5000000 ? formatNumberWithDots(filters.budget) : ''}
-                  onChange={(e) => {
-                    const raw = getRawNumber(e.target.value);
-                    setFilters(prev => ({ ...prev, budget: raw > 0 ? raw : 5000000 }));
-                  }}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-              </div>
-            </div>
-            <div className="flex justify-between text-[9px] text-sand-400 mt-1 font-semibold">
-              <span>{filters.minPrice > 0 ? `Min: ${formatRupiah(filters.minPrice)}` : 'Mulai Rp 0'}</span>
-              <span>{filters.budget && filters.budget < 5000000 ? `Max: ${formatRupiah(filters.budget)}` : 'Semua Harga'}</span>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* BARIS FASILITAS: TAMPILKAN 6 UTAMA + TOMBOL MODAL SEMUA FASILITAS */}
         <div className="pt-3 border-t border-sand-100">
@@ -426,53 +503,68 @@ export default function SearchFilter({
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             {/* 6 FASILITAS UTAMA DI TAMPILAN DEPAN */}
-            {TOP_FACILITIES.map(fac => {
-              const isSelected = selectedFacilities.includes(fac.id);
-              return (
-                <button
-                  key={fac.id}
-                  type="button"
-                  onClick={() => toggleFacility(fac.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
-                    isSelected 
-                      ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm scale-105' 
-                      : 'bg-sand-100 text-sand-800 border-sand-200 hover:bg-sand-200 hover:text-brand-900'
-                  }`}
-                >
-                  <i className={`fa-solid ${isSelected ? 'fa-square-check text-amber-300' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
-                  <span>{fac.label}</span>
-                </button>
-              );
-            })}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {TOP_FACILITIES.map(fac => {
+                const isSelected = selectedFacilities.includes(fac.id);
+                return (
+                  <button
+                    key={fac.id}
+                    type="button"
+                    onClick={() => toggleFacility(fac.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                      isSelected 
+                        ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm scale-105' 
+                        : 'bg-sand-100 text-sand-800 border-sand-200 hover:bg-sand-200 hover:text-brand-900'
+                    }`}
+                  >
+                    <i className={`fa-solid ${isSelected ? 'fa-square-check text-amber-300' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
+                    <span>{fac.label}</span>
+                  </button>
+                );
+              })}
 
-            {/* TOMBOL LIHAT SEMUA FASILITAS (+MODAL POPUP) */}
-            <button
-              type="button"
-              onClick={() => {
-                setSearchFacility('');
-                setModalOpen(true);
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
-                extraSelectedCount > 0
-                  ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-sm'
-                  : 'bg-sand-200/80 hover:bg-sand-300 text-sand-900 border-sand-300'
-              }`}
-              title="Buka daftar semua fasilitas lengkap"
-            >
-              <i className="fa-solid fa-sliders text-xs"></i>
-              <span>Semua Fasilitas</span>
-              {extraSelectedCount > 0 ? (
-                <span className="bg-brand-900 text-amber-300 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
-                  +{extraSelectedCount}
-                </span>
-              ) : (
-                <span className="text-[10px] text-sand-500 font-extrabold">
-                  ({POPULAR_FACILITIES.length})
-                </span>
-              )}
-            </button>
+              {/* Kirim Hasil Filter ke WA */}
+              <button
+                type="button"
+                onClick={handleSendFilterToWA}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300"
+                title="Kirim hasil filter ini ke CS WhatsApp"
+              >
+                <i className="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
+                <span>Kirim Hasil ke WA</span>
+              </button>
+            </div>
+
+            {/* BUTTON DI POJOK KANAN BAWAH DI CARD PUTIH DIKASIH 'SEMUA FILTER' */}
+            <div className="self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchFacility('');
+                  setModalOpen(true);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                  extraSelectedCount > 0
+                    ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-sm'
+                    : 'bg-brand-900 hover:bg-brand-800 text-amber-300 border-brand-900 shadow-xs'
+                }`}
+                title="Buka popup semua filter fasilitas lengkap"
+              >
+                <i className="fa-solid fa-sliders text-xs"></i>
+                <span>Semua Filter</span>
+                {extraSelectedCount > 0 ? (
+                  <span className="bg-brand-900 text-amber-300 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
+                    +{extraSelectedCount}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-amber-200 font-extrabold">
+                    ({POPULAR_FACILITIES.length})
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 

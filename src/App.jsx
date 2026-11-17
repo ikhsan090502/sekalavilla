@@ -287,6 +287,7 @@ export default function App() {
     return (
       <LandingGateway
         settings={settings}
+        initialFilters={filters}
         onComplete={(chosenFilters) => {
           setFilters(prev => ({
             ...prev,
@@ -297,7 +298,8 @@ export default function App() {
             maxBedrooms: chosenFilters.maxBedrooms || 0,
             propertyType: chosenFilters.propertyType || 'all',
             minPrice: chosenFilters.minPrice || 0,
-            budget: chosenFilters.maxPrice > 0 ? chosenFilters.maxPrice : 5000000
+            budget: chosenFilters.maxPrice > 0 ? chosenFilters.maxPrice : 5000000,
+            facilities: chosenFilters.facilities || []
           }));
           sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
           setShowLandingGateway(false);
@@ -395,6 +397,7 @@ export default function App() {
           filters={filters} 
           setFilters={setFilters} 
           onReset={handleResetFilters}
+          settings={settings}
           onOpenGateway={() => {
             setShowLandingGateway(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -425,18 +428,43 @@ export default function App() {
               <p className="text-xs font-bold text-sand-800">Memuat data unit akomodasi...</p>
             </div>
           ) : displayVillas.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-3xl border border-sand-200 p-6">
-              <i className="fa-solid fa-building-circle-exclamation text-4xl text-sand-400 mb-3 block"></i>
-              <h3 className="text-base font-bold text-sand-900">Unit Tidak Ditemukan</h3>
-              <p className="text-sand-800 text-xs mb-4 max-w-md mx-auto">
-                Tidak ada unit yang cocok dengan filter yang dipilih. Silakan klik tombol di bawah untuk melihat semua unit.
+            <div className="text-center py-12 bg-white rounded-3xl border border-sand-200 p-6 sm:p-8 shadow-sm">
+              <i className="fa-solid fa-building-circle-exclamation text-4xl text-amber-500 mb-3 block"></i>
+              <h3 className="text-base sm:text-lg font-serif font-bold text-sand-900">Unit Tidak Ditemukan</h3>
+              <p className="text-sand-600 text-xs sm:text-sm mt-1 mb-4 max-w-md mx-auto leading-relaxed">
+                Belum ada villa atau glamping yang cocok dengan budget atau kriteria ini. <strong>Silakan coba rubah rentang harga/kamar</strong> atau konsultasikan langsung ke CS kami.
               </p>
-              <button 
-                onClick={handleResetFilters}
-                className="bg-brand-900 hover:bg-brand-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition"
-              >
-                Lihat Semua Unit
-              </button>
+              
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                <button 
+                  onClick={() => {
+                    const el = document.getElementById('search-filter-section');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center gap-1.5"
+                >
+                  <i className="fa-solid fa-sliders text-xs"></i>
+                  <span>Rubah Kriteria & Harga</span>
+                </button>
+
+                <button 
+                  onClick={handleResetFilters}
+                  className="bg-sand-100 hover:bg-sand-200 text-sand-800 font-bold text-xs px-4 py-2.5 rounded-xl border border-sand-300 transition"
+                >
+                  Hapus Filter
+                </button>
+
+                {/* Kirim konsultasi ke WA ketika unit tidak ditemukan */}
+                <a
+                  href={`https://wa.me/${filters.location === 'Yogyakarta' ? (settings?.whatsappPhoneJogja || settings?.whatsappPhone || '6281381669735') : (settings?.whatsappPhoneTawangmangu || settings?.whatsappPhone || '6281381669735')}?text=${encodeURIComponent(`Halo Admin Sekala Villa, saya cari unit di ${filters.location !== 'all' ? filters.location : 'Tawangmangu/Jogja'} dengan budget Rp ${filters.minPrice || 0} - Rp ${filters.budget || 5000000} dan kapasitas ${filters.capacity || 1} orang belum ada yang pas di katalog. Boleh minta rekomendasi alternatif atau promo terbaru?`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5"
+                >
+                  <i className="fa-brands fa-whatsapp text-sm"></i>
+                  <span>Tanya Rekomendasi ke WA</span>
+                </a>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -496,6 +524,33 @@ export default function App() {
 
       {/* Mobile Nav */}
       <MobileBottomNav settings={settings} />
+
+      {/* Floating Action Button di Pojok Kanan Bawah: Scroll Naik ke Filter dengan tulisan 'Sesuaikan Pilihan Villa Anda' */}
+      <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 animate-in fade-in">
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById('search-filter-section');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth' });
+            } else {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
+          className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-4 py-3 rounded-2xl shadow-2xl border-2 border-amber-300/40 transition-all flex items-center gap-2 hover:scale-105 active:scale-95 group"
+          title="Sesuaikan Pilihan Villa Anda"
+        >
+          <span className="w-6 h-6 rounded-lg bg-amber-400 text-brand-900 flex items-center justify-center text-xs group-hover:-translate-y-0.5 transition-transform">
+            <i className="fa-solid fa-arrow-up"></i>
+          </span>
+          <span className="hidden xs:inline sm:inline text-xs font-serif font-bold">
+            Sesuaikan Pilihan Villa Anda
+          </span>
+          <span className="inline xs:hidden sm:hidden text-[11px] font-bold">
+            Filter Villa
+          </span>
+        </button>
+      </div>
 
       {/* Villa Detail Modal (1:1 aspect ratio) */}
       {selectedVilla && (
