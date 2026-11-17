@@ -123,113 +123,113 @@ export default function SearchFilter({
   return (
     <section id="search-filter-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
       
-      {/* JUDUL STATUS FILTER AKTIF DI LUAR CARD KUNING */}
-      {hasCustomMatcher && (
-        <div className="mb-2.5 px-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            <span className="text-xs sm:text-sm font-serif font-bold text-brand-900 tracking-wide">
-              Filter Pencarian Anda Sedang Aktif
-            </span>
-          </div>
-          <button
-            onClick={onReset}
-            className="text-xs font-bold text-terracotta-600 hover:text-terracotta-700 hover:underline flex items-center gap-1 bg-white/80 backdrop-blur px-2.5 py-1 rounded-lg border border-sand-200 shadow-2xs"
-          >
-            <i className="fa-solid fa-trash-can text-[11px]"></i>
-            <span>Hapus Filter</span>
-          </button>
-        </div>
-      )}
-
-      {/* CARD KUNING NOTIFIKASI FILTER DARI TRIP MATCHER */}
-      {hasCustomMatcher && (
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-3xl p-4 sm:p-5 mb-4 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
-          <div className="flex items-start sm:items-center gap-3">
-            <span className="w-9 h-9 rounded-2xl bg-brand-900 text-amber-300 flex items-center justify-center text-sm shrink-0 shadow-xs">
-              <i className="fa-solid fa-sliders"></i>
-            </span>
-            <div>
-              <span className="text-xs sm:text-sm font-bold text-brand-900 block leading-tight">
-                Kriteria Menginap Sesuai Inputan Anda
+      {/* CARD PUTIH UTAMA (MEMBUNGKUS SEMUA FILTER TERMASUK STATUS & CARD KUNING) */}
+      <div className={`bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4 sm:space-y-5 transition-all duration-300 ${
+        hasCustomMatcher ? 'ring-2 ring-amber-300/50' : ''
+      }`}>
+        
+        {/* BAGIAN FILTER AKTIF: JUDUL & CARD KUNING DIMASUKKAN KE DALAM CARD PUTIH */}
+        {hasCustomMatcher && (
+          <div className="space-y-2.5 pb-3 border-b border-sand-100">
+            {/* 1. Judul Filter Pencarian Anda Sedang Aktif */}
+            <div className="flex items-center gap-2 px-1">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
-              <div className="flex flex-wrap gap-1.5 mt-1.5">
-                {filters.location !== 'all' && (
-                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs">
-                    📍 {filters.location}
+              <span className="text-xs sm:text-sm font-serif font-bold text-brand-900 tracking-wide">
+                Filter Pencarian Anda Sedang Aktif
+              </span>
+            </div>
+
+            {/* 2. Card Kuning Kriteria Menginap */}
+            <div className="bg-amber-50/90 border-2 border-amber-300 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+              <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
+                <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xs sm:text-sm shrink-0 shadow-xs">
+                  <i className="fa-solid fa-sliders"></i>
+                </span>
+                <div>
+                  <span className="text-xs sm:text-sm font-bold text-brand-900 block leading-tight">
+                    Kriteria Menginap Sesuai Inputan Anda
                   </span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {filters.location !== 'all' && (
+                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                        📍 {filters.location}
+                      </span>
+                    )}
+                    {filters.propertyType !== 'all' && (
+                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 capitalize shadow-2xs">
+                        🏡 {filters.propertyType}
+                      </span>
+                    )}
+                    {(filters.capacity > 0 || filters.maxCapacity > 0) && (
+                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                        👥 {filters.capacity > 0 && filters.maxCapacity > 0 
+                            ? `${filters.capacity} - ${filters.maxCapacity} Orang`
+                            : filters.capacity > 0 
+                              ? `Min. ${filters.capacity} Orang`
+                              : `Maks. ${filters.maxCapacity} Orang`}
+                      </span>
+                    )}
+                    {(filters.bedrooms > 0 || filters.maxBedrooms > 0) && (
+                      <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200 shadow-2xs">
+                        🛏️ {filters.bedrooms > 0 && filters.maxBedrooms > 0 
+                            ? `${filters.bedrooms} - ${filters.maxBedrooms} Kamar`
+                            : filters.bedrooms > 0 
+                              ? `Min. ${filters.bedrooms} Kamar`
+                              : `Maks. ${filters.maxBedrooms} Kamar`}
+                      </span>
+                    )}
+                    {(filters.minPrice > 0 || filters.budget < 5000000) && (
+                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                        💰 {filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} - {formatRupiah(filters.budget)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* SATU TEMPAT TOMBOL AKSI: UBAH KRITERIA, KE HALAMAN DEPAN, & HAPUS FILTER */}
+              <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-amber-200">
+                {/* Tombol Ubah Kriteria Buka Formulir Bawah */}
+                <button
+                  type="button"
+                  onClick={() => setShowCriteriaForm(prev => !prev)}
+                  className="text-xs font-bold text-brand-900 hover:text-brand-950 bg-amber-400 hover:bg-amber-300 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-amber-500 transition flex items-center gap-1.5 shadow-sm active:scale-95"
+                >
+                  <i className={`fa-solid ${showCriteriaForm ? 'fa-chevron-up' : 'fa-sliders'} text-[11px]`}></i>
+                  <span>{showCriteriaForm ? 'Tutup Formulir' : 'Ubah Kriteria'}</span>
+                </button>
+
+                {/* Tombol Ke Halaman Depan */}
+                {onOpenGateway && (
+                  <button
+                    type="button"
+                    onClick={onOpenGateway}
+                    className="text-xs font-bold text-sand-800 hover:text-brand-900 bg-white hover:bg-sand-100 px-3 py-1.5 sm:py-2 rounded-xl border border-sand-300 transition flex items-center gap-1 shadow-2xs"
+                    title="Buka kembali Landing Page Matcher dengan data yang sudah Anda isi"
+                  >
+                    <i className="fa-solid fa-arrow-rotate-left text-[10px]"></i>
+                    <span>Ke Halaman Depan</span>
+                  </button>
                 )}
-                {filters.propertyType !== 'all' && (
-                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 capitalize shadow-2xs">
-                    🏡 {filters.propertyType}
-                  </span>
-                )}
-                {(filters.capacity > 0 || filters.maxCapacity > 0) && (
-                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs">
-                    👥 {filters.capacity > 0 && filters.maxCapacity > 0 
-                        ? `${filters.capacity} - ${filters.maxCapacity} Orang`
-                        : filters.capacity > 0 
-                          ? `Min. ${filters.capacity} Orang`
-                          : `Maks. ${filters.maxCapacity} Orang`}
-                  </span>
-                )}
-                {(filters.bedrooms > 0 || filters.maxBedrooms > 0) && (
-                  <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200 shadow-2xs">
-                    🛏️ {filters.bedrooms > 0 && filters.maxBedrooms > 0 
-                        ? `${filters.bedrooms} - ${filters.maxBedrooms} Kamar`
-                        : filters.bedrooms > 0 
-                          ? `Min. ${filters.bedrooms} Kamar`
-                          : `Maks. ${filters.maxBedrooms} Kamar`}
-                  </span>
-                )}
-                {(filters.minPrice > 0 || filters.budget < 5000000) && (
-                  <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs">
-                    💰 {filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} - {formatRupiah(filters.budget)}
-                  </span>
-                )}
+
+                {/* SATU-SATUNYA TOMBOL HAPUS FILTER (TIDAK DOBEL) */}
+                <button
+                  type="button"
+                  onClick={onReset}
+                  className="text-xs font-bold text-terracotta-600 hover:text-terracotta-700 hover:underline px-2.5 py-1.5 rounded-lg hover:bg-white/80 transition flex items-center gap-1"
+                  title="Hapus filter kriteria"
+                >
+                  <i className="fa-solid fa-trash-can text-[11px]"></i>
+                  <span>Hapus Filter</span>
+                </button>
               </div>
             </div>
           </div>
+        )}
 
-          <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-amber-200">
-            {/* Tombol Ubah Kriteria Buka Formulir Bawah */}
-            <button
-              type="button"
-              onClick={() => setShowCriteriaForm(prev => !prev)}
-              className="text-xs font-bold text-brand-900 hover:text-brand-950 bg-amber-400 hover:bg-amber-300 px-3.5 py-2 rounded-xl border border-amber-500 transition flex items-center gap-1.5 shadow-sm active:scale-95"
-            >
-              <i className={`fa-solid ${showCriteriaForm ? 'fa-chevron-up' : 'fa-sliders'} text-[11px]`}></i>
-              <span>{showCriteriaForm ? 'Tutup Formulir Kriteria' : 'Ubah Kriteria'}</span>
-            </button>
-
-            {/* Tombol Ubah di Landing Page (History Tetap Tersimpan) */}
-            {onOpenGateway && (
-              <button
-                type="button"
-                onClick={onOpenGateway}
-                className="text-xs font-bold text-sand-800 hover:text-brand-900 bg-white hover:bg-sand-100 px-3 py-2 rounded-xl border border-sand-300 transition flex items-center gap-1 shadow-2xs"
-                title="Buka kembali Landing Page Matcher dengan data yang sudah Anda isi"
-              >
-                <i className="fa-solid fa-arrow-rotate-left text-[10px]"></i>
-                <span>Ke Halaman Depan</span>
-              </button>
-            )}
-
-            <button
-              onClick={onReset}
-              className="text-xs font-bold text-terracotta-600 hover:underline px-2 py-1"
-            >
-              Hapus Filter
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* CARD PUTIH: UTAMA FILTER KATALOG */}
-      <div className={`bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4 sm:space-y-5 transition-all duration-300 ${
-        hasCustomMatcher ? 'ring-2 ring-brand-900/10' : ''
-      }`}>
-        
         {/* HEADER: PILIH TIPE AKOMODASI (HANYA VILLA & GLAMPING) */}
         <div>
           <div className="flex items-center justify-between mb-2.5">
@@ -240,18 +240,6 @@ export default function SearchFilter({
               <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight">
                 Temukan Villa & Glamping Pilihan
               </h3>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              {/* Tombol Hapus Filter Naik ke Atas Semua */}
-              {hasCustomMatcher && (
-                <button 
-                  onClick={onReset}
-                  className="text-xs text-terracotta-600 font-bold hover:underline flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-terracotta-50 transition"
-                >
-                  <i className="fa-solid fa-trash-can text-[11px]"></i> Hapus Filter
-                </button>
-              )}
             </div>
           </div>
 
