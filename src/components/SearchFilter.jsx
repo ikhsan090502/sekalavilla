@@ -19,6 +19,17 @@ export const POPULAR_FACILITIES = [
   { id: 'Balkon Rooftop', label: 'Balkon Rooftop', icon: 'fa-cloud-sun', category: 'Pemandangan' },
 ];
 
+export const FACILITY_CATEGORIES = [
+  { id: 'all', label: 'Semua Kategori' },
+  { id: 'Utama', label: 'Utama' },
+  { id: 'Pemandangan', label: 'Pemandangan' },
+  { id: 'Hiburan', label: 'Hiburan' },
+  { id: 'Kenyamanan', label: 'Kenyamanan' },
+  { id: 'Outdoor', label: 'Outdoor' },
+  { id: 'Fasilitas', label: 'Dapur / Masak' },
+  { id: 'Akses', label: 'Akses & Parkir' },
+];
+
 export default function SearchFilter({ 
   filters, 
   setFilters, 
@@ -28,6 +39,7 @@ export default function SearchFilter({
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchFacility, setSearchFacility] = useState('');
+  const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
   const [showCriteriaForm, setShowCriteriaForm] = useState(false);
 
   // 6 Fasilitas Favorit Utama yang selalu tampil di baris depan
@@ -51,25 +63,56 @@ export default function SearchFilter({
     ? (settings?.whatsappPhoneJogja || settings?.whatsappPhone || '6281381669735')
     : (settings?.whatsappPhoneTawangmangu || settings?.whatsappPhone || '6281381669735');
 
-  // Kirim Hasil Filter dari Card Putih ke WhatsApp
+  // Kirim Hasil Filter dari Card Putih ke WhatsApp sesuai format resmi yang diminta
   const handleSendFilterToWA = () => {
-    const locText = filters.location !== 'all' ? filters.location : 'Semua Lokasi (Tawangmangu/Jogja)';
-    const typeText = filters.propertyType !== 'all' ? filters.propertyType : 'Semua Tipe';
-    const capText = filters.capacity > 0 || filters.maxCapacity > 0
-      ? `${filters.capacity || 1} - ${filters.maxCapacity || 'bebas'} orang`
-      : 'Semua Kapasitas';
-    const bedText = filters.bedrooms > 0 || filters.maxBedrooms > 0
-      ? `${filters.bedrooms || 1} - ${filters.maxBedrooms || 'bebas'} kamar`
-      : 'Semua Kamar';
-    const budgetText = (filters.minPrice > 0 || filters.budget < 5000000)
-      ? `${filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} s/d ${formatRupiah(filters.budget || 5000000)}`
-      : 'Semua Rentang Harga';
+    const locName = filters.location !== 'all' ? filters.location : 'Tawangmangu & Yogyakarta';
+    const detailLoc = filters.subLocation 
+      ? `${locName} (${filters.subLocation})`
+      : (filters.location !== 'all' ? filters.location : 'Semua Lokasi');
+
+    let hargaText = 'Semua Rentang Harga';
+    if (filters.minPrice > 0 && filters.budget && filters.budget < 5000000) {
+      hargaText = `${formatRupiah(filters.minPrice)} - ${formatRupiah(filters.budget)}`;
+    } else if (filters.minPrice > 0) {
+      hargaText = `Mulai ${formatRupiah(filters.minPrice)}`;
+    } else if (filters.budget && filters.budget < 5000000) {
+      hargaText = `Maksimal ${formatRupiah(filters.budget)}`;
+    }
+
+    let capText = 'Bebas';
+    if (filters.capacity > 0 && filters.maxCapacity > 0) {
+      capText = `${filters.capacity} - ${filters.maxCapacity} orang`;
+    } else if (filters.capacity > 0) {
+      capText = `Min. ${filters.capacity} orang`;
+    } else if (filters.maxCapacity > 0) {
+      capText = `Maks. ${filters.maxCapacity} orang`;
+    }
+
+    let bedText = 'Bebas';
+    if (filters.bedrooms > 0 && filters.maxBedrooms > 0) {
+      bedText = `${filters.bedrooms} - ${filters.maxBedrooms} kamar`;
+    } else if (filters.bedrooms > 0) {
+      bedText = `Min. ${filters.bedrooms} kamar`;
+    } else if (filters.maxBedrooms > 0) {
+      bedText = `Maks. ${filters.maxBedrooms} kamar`;
+    }
+
     const facText = (filters.facilities && filters.facilities.length > 0)
       ? filters.facilities.join(', ')
-      : 'Fasilitas Bebas';
+      : 'Bebas';
 
-    const message = `Halo Admin Sekala Villa,%0A%0ASaya sedang memfilter unit di katalog website Sekala Villa dengan hasil kriteria:%0A- *Destinasi*: ${encodeURIComponent(locText)}%0A- *Konsep*: ${encodeURIComponent(typeText)}%0A- *Kapasitas Tamu*: ${encodeURIComponent(capText)}%0A- *Jumlah Kamar*: ${encodeURIComponent(bedText)}%0A- *Budget per Malam*: ${encodeURIComponent(budgetText)}%0A- *Fasilitas Pilihan*: ${encodeURIComponent(facText)}%0A%0AMohon rekomendasi unit yang sedang tersedia dan promo terbarunya ya kak. Terima kasih!`;
+    const messageLines = [
+      'Halo Admin Sekala Villa',
+      `Rekomendasi villa di ${locName}`,
+      `- harga : ${hargaText}`,
+      `- kapasitas : ${capText}`,
+      `- kamar tidur : ${bedText}`,
+      `- lokasi : ${detailLoc}`,
+      `- fasilitas : ${facText}`,
+      'Boleh minta rekomendasi alternatif atau promo terbaru?'
+    ];
 
+    const message = encodeURIComponent(messageLines.join('\n'));
     window.open(`https://wa.me/${waPhone}?text=${message}`, '_blank');
   };
 
@@ -94,15 +137,21 @@ export default function SearchFilter({
 
   const selectedFacilities = filters.facilities || [];
 
-  // Filter fasilitas di dalam Pop-up modal berdasarkan input cari
+  // Filter fasilitas di dalam Pop-up modal berdasarkan Kategori dan Input Pencarian
   const filteredAllFacilities = useMemo(() => {
-    if (!searchFacility.trim()) return POPULAR_FACILITIES;
-    const q = searchFacility.toLowerCase().trim();
-    return POPULAR_FACILITIES.filter(f => 
-      f.label.toLowerCase().includes(q) || 
-      (f.category && f.category.toLowerCase().includes(q))
-    );
-  }, [searchFacility]);
+    let list = POPULAR_FACILITIES;
+    if (selectedFacilityCategory !== 'all') {
+      list = list.filter(f => f.category === selectedFacilityCategory);
+    }
+    if (searchFacility.trim()) {
+      const q = searchFacility.toLowerCase().trim();
+      list = list.filter(f => 
+        f.label.toLowerCase().includes(q) || 
+        (f.category && f.category.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [searchFacility, selectedFacilityCategory]);
 
   // Hitung fasilitas yang dipilih tapi berada di luar 6 teratas
   const extraSelectedCount = useMemo(() => {
@@ -112,6 +161,7 @@ export default function SearchFilter({
 
   // Hitung berapa kriteria aktif dari landing matcher
   const hasCustomMatcher = (filters.location && filters.location !== 'all') || 
+                           (filters.subLocation && filters.subLocation !== '') ||
                            (filters.capacity && filters.capacity > 0) || 
                            (filters.maxCapacity && filters.maxCapacity > 0) || 
                            (filters.bedrooms && filters.bedrooms > 0) || 
@@ -156,6 +206,11 @@ export default function SearchFilter({
                     {filters.location !== 'all' && (
                       <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
                         📍 {filters.location}
+                      </span>
+                    )}
+                    {filters.subLocation && (
+                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                        📌 Area: {filters.subLocation}
                       </span>
                     )}
                     {filters.propertyType !== 'all' && (
@@ -467,9 +522,9 @@ export default function SearchFilter({
           </div>
         )}
 
-        {/* BARIS FASILITAS: TAMPILKAN 6 UTAMA + TOMBOL MODAL SEMUA FASILITAS */}
-        <div className="pt-3 border-t border-sand-100">
-          <div className="flex items-center justify-between mb-2">
+        {/* BARIS FASILITAS: TAMPILKAN 6 UTAMA & BUTTON AKSI KANAN-KIRI TERPISAH */}
+        <div className="pt-3 border-t border-sand-100 space-y-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-extrabold text-sand-800 uppercase tracking-wider">
                 <i className="fa-solid fa-check-double text-emerald-600 mr-1"></i> 
@@ -483,6 +538,7 @@ export default function SearchFilter({
             </div>
             {selectedFacilities.length > 0 && (
               <button 
+                type="button"
                 onClick={clearFacilities}
                 className="text-[11px] text-sand-500 hover:text-terracotta-600 font-semibold"
               >
@@ -491,68 +547,65 @@ export default function SearchFilter({
             )}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            {/* 6 FASILITAS UTAMA DI TAMPILAN DEPAN */}
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              {TOP_FACILITIES.map(fac => {
-                const isSelected = selectedFacilities.includes(fac.id);
-                return (
-                  <button
-                    key={fac.id}
-                    type="button"
-                    onClick={() => toggleFacility(fac.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
-                      isSelected 
-                        ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm scale-105' 
-                        : 'bg-sand-100 text-sand-800 border-sand-200 hover:bg-sand-200 hover:text-brand-900'
-                    }`}
-                  >
-                    <i className={`fa-solid ${isSelected ? 'fa-square-check text-amber-300' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
-                    <span>{fac.label}</span>
-                  </button>
-                );
-              })}
+          {/* 6 FASILITAS UTAMA (CHIPS SAJA, TIDAK TERCAMPUR BUTTON AKSI) */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {TOP_FACILITIES.map(fac => {
+              const isSelected = selectedFacilities.includes(fac.id);
+              return (
+                <button
+                  key={fac.id}
+                  type="button"
+                  onClick={() => toggleFacility(fac.id)}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                    isSelected 
+                      ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm scale-105' 
+                      : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
+                  }`}
+                >
+                  <i className={`fa-solid ${isSelected ? 'fa-square-check text-amber-300' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
+                  <span>{fac.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
-              {/* Kirim Hasil Filter ke WA */}
-              <button
-                type="button"
-                onClick={handleSendFilterToWA}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300"
-                title="Kirim hasil filter ini ke CS WhatsApp"
-              >
-                <i className="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
-                <span>Kirim Hasil ke WA</span>
-              </button>
-            </div>
+          {/* BARIS TERPISAH KHUSUS BUTTON AKSI: WA (KIRI) & SEMUA FILTER (KANAN) 
+              Menyatu 50%-50% di HP sehingga jelas terlihat sebagai button interaktif */}
+          <div className="pt-3 border-t border-sand-100 grid grid-cols-2 gap-2.5 sm:flex sm:justify-between sm:items-center">
+            {/* KIRI: Kirim Hasil ke WA */}
+            <button
+              type="button"
+              onClick={handleSendFilterToWA}
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs border border-emerald-700"
+              title="Kirim hasil filter ini ke WhatsApp CS"
+            >
+              <i className="fa-brands fa-whatsapp text-base text-white"></i>
+              <span className="truncate">Kirim Hasil ke WA</span>
+            </button>
 
-            {/* BUTTON DI POJOK KANAN BAWAH DI CARD PUTIH DIKASIH 'SEMUA FILTER' */}
-            <div className="self-end sm:self-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchFacility('');
-                  setModalOpen(true);
-                }}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
-                  extraSelectedCount > 0
-                    ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-sm'
-                    : 'bg-brand-900 hover:bg-brand-800 text-amber-300 border-brand-900 shadow-xs'
-                }`}
-                title="Buka popup semua filter fasilitas lengkap"
-              >
-                <i className="fa-solid fa-sliders text-xs"></i>
-                <span>Semua Filter</span>
-                {extraSelectedCount > 0 ? (
-                  <span className="bg-brand-900 text-amber-300 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
-                    +{extraSelectedCount}
-                  </span>
-                ) : (
-                  <span className="text-[10px] text-amber-200 font-extrabold">
-                    ({POPULAR_FACILITIES.length})
-                  </span>
-                )}
-              </button>
-            </div>
+            {/* KANAN: Buka Popup Semua Filter Berdasarkan Kategori */}
+            <button
+              type="button"
+              onClick={() => {
+                setSearchFacility('');
+                setSelectedFacilityCategory('all');
+                setModalOpen(true);
+              }}
+              className="w-full sm:w-auto bg-brand-900 hover:bg-brand-800 active:scale-95 text-amber-300 font-bold py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs border border-brand-900"
+              title="Buka popup semua filter fasilitas lengkap berdasarkan kategori"
+            >
+              <i className="fa-solid fa-sliders text-xs"></i>
+              <span className="truncate">Semua Filter</span>
+              {extraSelectedCount > 0 ? (
+                <span className="bg-amber-400 text-brand-900 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full">
+                  +{extraSelectedCount}
+                </span>
+              ) : (
+                <span className="text-[10px] text-amber-200 font-extrabold">
+                  ({POPULAR_FACILITIES.length})
+                </span>
+              )}
+            </button>
           </div>
         </div>
 
@@ -576,11 +629,12 @@ export default function SearchFilter({
                     Pilih Fasilitas Unit
                   </h3>
                   <span className="text-[11px] text-sand-500">
-                    Centang fasilitas yang wajib ada di villa / glamping pilihan Anda
+                    Filter fasilitas berdasarkan kategori atau nama
                   </span>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setModalOpen(false)}
                 className="w-8 h-8 rounded-full bg-sand-100 hover:bg-sand-200 text-sand-800 flex items-center justify-center transition"
               >
@@ -589,7 +643,7 @@ export default function SearchFilter({
             </div>
 
             {/* Pencarian Fasilitas Cepat */}
-            <div className="py-3">
+            <div className="py-2.5">
               <div className="relative">
                 <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs"></i>
                 <input
@@ -601,6 +655,7 @@ export default function SearchFilter({
                 />
                 {searchFacility && (
                   <button
+                    type="button"
                     onClick={() => setSearchFacility('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-sand-400 hover:text-sand-700 text-xs"
                   >
@@ -608,6 +663,41 @@ export default function SearchFilter({
                   </button>
                 )}
               </div>
+            </div>
+
+            {/* TAB VIEW SEMUA KATEGORI FASILITAS */}
+            <div className="pb-3 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+              {FACILITY_CATEGORIES.map(cat => {
+                const isActive = selectedFacilityCategory === cat.id;
+                const countSelected = cat.id === 'all'
+                  ? selectedFacilities.length
+                  : selectedFacilities.filter(id => {
+                      const f = POPULAR_FACILITIES.find(item => item.id === id);
+                      return f && f.category === cat.id;
+                    }).length;
+
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedFacilityCategory(cat.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5 border shrink-0 ${
+                      isActive
+                        ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-xs'
+                        : 'bg-sand-50 hover:bg-sand-100 text-sand-800 border-sand-200'
+                    }`}
+                  >
+                    <span>{cat.label}</span>
+                    {countSelected > 0 && (
+                      <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${
+                        isActive ? 'bg-amber-400 text-brand-900' : 'bg-sand-200 text-sand-800'
+                      }`}>
+                        {countSelected}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* List Fasilitas (Scrollable Grid) */}

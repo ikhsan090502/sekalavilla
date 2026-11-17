@@ -60,6 +60,7 @@ export default function App() {
   const [filters, setFilters] = useState({
     propertyType: 'all', // 'all' | 'villa' | 'glamping'
     location: 'all',
+    subLocation: '', // Sekipan, Pancot, Blumbang, Kemuning, Kaliurang, dll
     category: 'all',
     capacity: 0, // Min kapasitas orang
     maxCapacity: 0, // Max kapasitas orang
@@ -155,6 +156,7 @@ export default function App() {
     setFilters({
       propertyType: 'all',
       location: 'all',
+      subLocation: '',
       category: 'all',
       capacity: 0,
       maxCapacity: 0,
@@ -217,6 +219,14 @@ export default function App() {
     if (filters.location !== 'all') {
       const loc = (v.location || '').toLowerCase();
       if (!loc.includes(filters.location.toLowerCase())) return false;
+    }
+    // 3B. Sub-location (Sekipan, Pancot, Blumbang, Kemuning, Kaliurang, dll)
+    if (filters.subLocation && filters.subLocation.trim() !== '') {
+      const sub = filters.subLocation.toLowerCase().trim();
+      const matchName = (v.name || '').toLowerCase().includes(sub);
+      const matchDesc = (v.desc || '').toLowerCase().includes(sub);
+      const matchLoc = (v.location || '').toLowerCase().includes(sub);
+      if (!matchName && !matchDesc && !matchLoc) return false;
     }
     // 4. Category
     if (filters.category && filters.category !== 'all') {
@@ -292,6 +302,7 @@ export default function App() {
           setFilters(prev => ({
             ...prev,
             location: chosenFilters.location || 'all',
+            subLocation: chosenFilters.subLocation || '',
             capacity: chosenFilters.capacity || 0,
             maxCapacity: chosenFilters.maxCapacity || 0,
             bedrooms: chosenFilters.bedrooms || 0,
@@ -456,7 +467,16 @@ export default function App() {
 
                 {/* Kirim konsultasi ke WA ketika unit tidak ditemukan */}
                 <a
-                  href={`https://wa.me/${filters.location === 'Yogyakarta' ? (settings?.whatsappPhoneJogja || settings?.whatsappPhone || '6281381669735') : (settings?.whatsappPhoneTawangmangu || settings?.whatsappPhone || '6281381669735')}?text=${encodeURIComponent(`Halo Admin Sekala Villa, saya cari unit di ${filters.location !== 'all' ? filters.location : 'Tawangmangu/Jogja'} dengan budget Rp ${filters.minPrice || 0} - Rp ${filters.budget || 5000000} dan kapasitas ${filters.capacity || 1} orang belum ada yang pas di katalog. Boleh minta rekomendasi alternatif atau promo terbaru?`)}`}
+                  href={`https://wa.me/${filters.location === 'Yogyakarta' ? (settings?.whatsappPhoneJogja || settings?.whatsappPhone || '6281381669735') : (settings?.whatsappPhoneTawangmangu || settings?.whatsappPhone || '6281381669735')}?text=${encodeURIComponent([
+                    'Halo Admin Sekala Villa',
+                    `Rekomendasi villa di ${filters.location !== 'all' ? filters.location : 'Tawangmangu & Yogyakarta'}`,
+                    `- harga : ${filters.minPrice > 0 ? (filters.budget < 5000000 ? `Rp ${filters.minPrice} - Rp ${filters.budget}` : `Mulai Rp ${filters.minPrice}`) : (filters.budget < 5000000 ? `Maksimal Rp ${filters.budget}` : 'Semua Rentang Harga')}`,
+                    `- kapasitas : ${filters.capacity > 0 ? (filters.maxCapacity > 0 ? `${filters.capacity} - ${filters.maxCapacity} orang` : `Min. ${filters.capacity} orang`) : (filters.maxCapacity > 0 ? `Maks. ${filters.maxCapacity} orang` : 'Bebas')}`,
+                    `- kamar tidur : ${filters.bedrooms > 0 ? (filters.maxBedrooms > 0 ? `${filters.bedrooms} - ${filters.maxBedrooms} kamar` : `Min. ${filters.bedrooms} kamar`) : (filters.maxBedrooms > 0 ? `Maks. ${filters.maxBedrooms} kamar` : 'Bebas')}`,
+                    `- lokasi : ${filters.subLocation ? `${filters.location} (${filters.subLocation})` : (filters.location !== 'all' ? filters.location : 'Semua Lokasi')}`,
+                    `- fasilitas : ${filters.facilities && filters.facilities.length > 0 ? filters.facilities.join(', ') : 'Bebas'}`,
+                    'Boleh minta rekomendasi alternatif atau promo terbaru?'
+                  ].join('\n'))}`}
                   target="_blank"
                   rel="noreferrer"
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5"

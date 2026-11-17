@@ -9,6 +9,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
       ? (initialFilters.location.toLowerCase().includes('tawangmangu') ? 'tawangmangu' : 'yogyakarta')
       : 'all'
   );
+  const [subLocation, setSubLocation] = useState(initialFilters.subLocation || '');
   const [propertyType, setPropertyType] = useState(initialFilters.propertyType || 'all');
   
   // Custom Typed Inputs (Persist dari history sebelumnya)
@@ -64,6 +65,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
     if (e) e.preventDefault();
     onComplete({
       location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
+      subLocation: subLocation || '',
       propertyType: propertyType,
       capacity: parseInt(minCapacity) || 0,
       maxCapacity: parseInt(maxCapacity) || 0,
@@ -79,28 +81,99 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
     ? (settings?.whatsappPhoneJogja || settings?.whatsappPhone || '6281381669735')
     : (settings?.whatsappPhoneTawangmangu || settings?.whatsappPhone || '6281381669735');
 
-  // Kirim Kriteria ke WhatsApp Admin
+  // Kirim Kriteria ke WhatsApp Admin sesuai format resmi
   const handleSendToWA = () => {
-    const locText = destination === 'tawangmangu' ? 'Tawangmangu & Kemuning' : destination === 'yogyakarta' ? 'Yogyakarta & Sleman' : 'Semua Lokasi';
-    const typeText = propertyType === 'villa' ? 'Villa' : propertyType === 'glamping' ? 'Glamping' : 'Semua Tipe';
-    const capText = minCapacity || maxCapacity ? `${minCapacity || '1'} s/d ${maxCapacity || 'bebas'} orang` : 'Bebas';
-    const bedText = minBedrooms || maxBedrooms ? `${minBedrooms || '1'} s/d ${maxBedrooms || 'bebas'} kamar` : 'Bebas';
-    const budgetText = minPriceDisplay || maxPriceDisplay ? `Rp ${minPriceDisplay || '0'} - Rp ${maxPriceDisplay || '5.000.000'}` : 'Sesuai rekomendasi terbaik';
-    const facText = selectedFacilities.length > 0 ? selectedFacilities.join(', ') : 'Standar / Bebas';
+    const locName = destination === 'tawangmangu' 
+      ? 'Tawangmangu' 
+      : destination === 'yogyakarta' 
+        ? 'Yogyakarta' 
+        : 'Tawangmangu & Yogyakarta';
 
-    const message = `Halo Admin Sekala Villa,%0A%0ASaya sedang mencari rekomendasi tempat menginap dengan kriteria:%0A- *Lokasi*: ${encodeURIComponent(locText)}%0A- *Tipe*: ${encodeURIComponent(typeText)}%0A- *Kapasitas*: ${encodeURIComponent(capText)}%0A- *Kamar Tidur*: ${encodeURIComponent(bedText)}%0A- *Budget Sewa*: ${encodeURIComponent(budgetText)}%0A- *Fasilitas yang diinginkan*: ${encodeURIComponent(facText)}%0A%0AMohon info unit yang tersedia sesuai kriteria di atas ya kak. Terima kasih!`;
+    const detailLoc = subLocation 
+      ? `${locName} (${subLocation})`
+      : (destination !== 'all' ? locName : 'Semua Lokasi');
 
+    let hargaText = 'Semua Rentang Harga';
+    if (minPriceDisplay && maxPriceDisplay) {
+      hargaText = `Rp ${minPriceDisplay} - Rp ${maxPriceDisplay}`;
+    } else if (minPriceDisplay) {
+      hargaText = `Mulai Rp ${minPriceDisplay}`;
+    } else if (maxPriceDisplay) {
+      hargaText = `Maksimal Rp ${maxPriceDisplay}`;
+    }
+
+    let capText = 'Bebas';
+    if (minCapacity && maxCapacity) {
+      capText = `${minCapacity} - ${maxCapacity} orang`;
+    } else if (minCapacity) {
+      capText = `Min. ${minCapacity} orang`;
+    } else if (maxCapacity) {
+      capText = `Maks. ${maxCapacity} orang`;
+    }
+
+    let bedText = 'Bebas';
+    if (minBedrooms && maxBedrooms) {
+      bedText = `${minBedrooms} - ${maxBedrooms} kamar`;
+    } else if (minBedrooms) {
+      bedText = `Min. ${minBedrooms} kamar`;
+    } else if (maxBedrooms) {
+      bedText = `Maks. ${maxBedrooms} kamar`;
+    }
+
+    const facText = selectedFacilities.length > 0 
+      ? selectedFacilities.join(', ') 
+      : 'Bebas';
+
+    const messageLines = [
+      'Halo Admin Sekala Villa',
+      `Rekomendasi villa di ${locName}`,
+      `- harga : ${hargaText}`,
+      `- kapasitas : ${capText}`,
+      `- kamar tidur : ${bedText}`,
+      `- lokasi : ${detailLoc}`,
+      `- fasilitas : ${facText}`,
+      'Boleh minta rekomendasi alternatif atau promo terbaru?'
+    ];
+
+    const message = encodeURIComponent(messageLines.join('\n'));
     window.open(`https://wa.me/${waPhone}?text=${message}`, '_blank');
   };
 
-  // Lokasi untuk popup modal search daerah dengan kata kunci lengkap
-  const LOCATIONS_LIST = [
+  // DAFTAR AREA KHUSUS TAWANGMANGU (SEKIPAN, PANCOT, BLUMBANG, DLL)
+  const TAWANGMANGU_AREAS = [
+    { id: '', name: 'Semua Area Tawangmangu', desc: 'Tampilkan semua unit di Tawangmangu & Kemuning', icon: '🏔️', keywords: 'semua tawangmangu kemuning' },
+    { id: 'Sekipan', name: 'Sekipan', desc: 'Kawasan Wisata Hutan Pinus, Sejuk & Banyak Spot Alam', icon: '🌲', keywords: 'sekipan pinus bukit' },
+    { id: 'Tawangmangu Bawah', name: 'Tawangmangu Bawah', desc: 'Akses Mudah, Dekat Jalan Utama & Pasar Wisata', icon: '🏘️', keywords: 'tawangmangu bawah pasar jalan utama' },
+    { id: 'Pancot', name: 'Pancot', desc: 'Kawasan Villa Tenang, Asri & Udara Dingin Lereng Lawu', icon: '🏡', keywords: 'pancot kalisoro dingin' },
+    { id: 'Blumbang', name: 'Blumbang', desc: 'Dataran Tinggi Lereng Lawu, View Bukit & Ladang Hijau', icon: '⛰️', keywords: 'blumbang tinggi atas bukit' },
+    { id: 'Kemuning', name: 'Kemuning / Ngargoyoso', desc: 'Hamparan Kebun Teh, Wisata Jeep Offroad & River Tubing', icon: '🍃', keywords: 'kemuning ngargoyoso teh kebun jeep' },
+    { id: 'Grojogan Sewu', name: 'Grojogan Sewu / Kalisoro', desc: 'Dekat Kawasan Air Terjun & Wisata Populer', icon: '🌊', keywords: 'grojogan sewu air terjun kalisoro' },
+  ];
+
+  // DAFTAR AREA KHUSUS YOGYAKARTA (KALIURANG, SLEMAN, DLL)
+  const YOGYAKARTA_AREAS = [
+    { id: '', name: 'Semua Area Yogyakarta', desc: 'Tampilkan semua unit di Yogyakarta & Sleman', icon: '🏛️', keywords: 'semua jogja yogyakarta' },
+    { id: 'Kaliurang', name: 'Kaliurang & Pakem', desc: 'Lereng Gunung Merapi, Udara Sejuk Dingin & View Merapi', icon: '🌋', keywords: 'kaliurang pakem merapi dingin' },
+    { id: 'Sleman', name: 'Sleman', desc: 'Kawasan Asri, Tenang & Dekat Sentra Kuliner Jogja', icon: '🌿', keywords: 'sleman kuliner asri' },
+    { id: 'Kota', name: 'Pusat Kota & Malioboro', desc: 'Akses Dekat Stasiun Tugu, Keraton & Pusat Belanja', icon: '🛍️', keywords: 'kota malioboro stasiun tugu keraton' },
+    { id: 'Bantul', name: 'Bantul & Prawirotaman', desc: 'Kawasan Artistik, Kafe Estetik & Suasana Santai', icon: '🎨', keywords: 'bantul prawirotaman kafe kasongan' },
+    { id: 'Prambanan', name: 'Prambanan & Kalasan', desc: 'Dekat Kompleks Candi Megah & Akses Solo-Jogja', icon: '🛕', keywords: 'prambanan kalasan candi' },
+  ];
+
+  // DAFTAR DESTINASI KETIKA PILIH SEMUA
+  const ALL_DESTINATIONS = [
     { id: 'all', name: 'Semua Lokasi', desc: 'Tampilkan semua unit di Tawangmangu & Yogyakarta', icon: '🗺️', keywords: 'semua all tawangmangu yogyakarta jogja' },
     { id: 'tawangmangu', name: 'Tawangmangu & Kemuning', desc: 'Lereng Gunung Lawu, Kebun Teh, Grojogan Sewu, Dingin & Asri', icon: '🏔️', keywords: 'tawangmangu kemuning lawu grojogan karanganyar ngargoyoso' },
     { id: 'yogyakarta', name: 'Yogyakarta & Sleman', desc: 'Kaliurang Merapi View, Prambanan & Dekat Pusat Kota Jogja', icon: '🏛️', keywords: 'yogyakarta jogja kaliurang sleman merapi prambanan bantul kota' },
   ];
 
-  const filteredLocations = LOCATIONS_LIST.filter(l => 
+  const currentAreaList = destination === 'tawangmangu'
+    ? TAWANGMANGU_AREAS
+    : destination === 'yogyakarta'
+      ? YOGYAKARTA_AREAS
+      : ALL_DESTINATIONS;
+
+  const filteredLocations = currentAreaList.filter(l => 
     l.name.toLowerCase().includes(searchLocationQuery.toLowerCase()) || 
     l.desc.toLowerCase().includes(searchLocationQuery.toLowerCase()) ||
     (l.keywords && l.keywords.toLowerCase().includes(searchLocationQuery.toLowerCase()))
@@ -160,20 +233,24 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
         {/* CARD CONTAINER PUTIH ELEGAN (WARNA PERSIS HALAMAN UTAMA) */}
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 sm:p-8 shadow-xl border border-sand-200 space-y-5 sm:space-y-6">
           
-          {/* STEP 1: PILIH LOKASI (3 TOMBOL: SEMUA / PILIH DAERAH, TAWANGMANGU, JOGJA) */}
+          {/* STEP 1: PILIH LOKASI (FOKUS 1 DESTINASI & PILIH AREA WISATA) */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-sand-800 block">
-                <i className="fa-solid fa-location-dot text-brand-700 mr-1.5"></i> 1. Pilih Lokasi
+                <i className="fa-solid fa-location-dot text-brand-700 mr-1.5"></i> 1. Pilih Lokasi Liburan
               </label>
               {destination !== 'all' ? (
                 <button
                   type="button"
-                  onClick={() => setDestination('all')}
-                  className="text-[11px] text-terracotta-600 hover:text-terracotta-700 font-bold flex items-center gap-1 transition"
-                  title="Kembalikan pilihan ke Semua Lokasi"
+                  onClick={() => {
+                    setDestination('all');
+                    setSubLocation('');
+                  }}
+                  className="text-[11px] text-terracotta-600 hover:text-terracotta-700 font-bold flex items-center gap-1 transition bg-sand-100 hover:bg-sand-200 px-2.5 py-1 rounded-xl border border-sand-300"
+                  title="Tampilkan kembali pilihan Jogja & Tawangmangu"
                 >
-                  <i className="fa-solid fa-rotate-left text-[10px]"></i> Tampilkan Semua
+                  <i className="fa-solid fa-rotate-left text-[10px]"></i> 
+                  <span>Ganti Lokasi ({destination === 'tawangmangu' ? 'Pilih Jogja / Semua' : 'Pilih TW / Semua'})</span>
                 </button>
               ) : (
                 <button
@@ -189,20 +266,16 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               )}
             </div>
 
-            {/* 3 Tombol Sejajar: 
-                - Tombol 1: 'Semua Lokasi' (aktif saat default 'all'), 
-                  ketika Tawangmangu/Jogja ditekan, tombol ini BERUBAH menjadi 'Pilih Daerah' 
-                  yang bisa langsung diklik untuk popup modal tanpa layar meloncat/bergerak.
-                - Tombol 2: Tawangmangu
-                - Tombol 3: Yogyakarta (Jogja)
-            */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
-              
-              {/* TOMBOL 1: SEMUA LOKASI (JIKA ALL) ATAU BERUBAH MENJADI 'PILIH DAERAH' (JIKA TAWANGMANGU/JOGJA AKTIF) */}
-              {destination === 'all' ? (
+            {/* JIKA BELUM PILIH DESTINASI ('all'): TAMPILKAN 3 PILIHAN (SEMUA, TAWANGMANGU, JOGJA) */}
+            {destination === 'all' && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5 animate-in fade-in">
+                {/* 1. SEMUA LOKASI */}
                 <button
                   type="button"
-                  onClick={() => setDestination('all')}
+                  onClick={() => {
+                    setDestination('all');
+                    setSubLocation('');
+                  }}
                   className="p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold scale-[1.01]"
                 >
                   <div className="flex items-center gap-2.5">
@@ -216,79 +289,158 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   </div>
                   <i className="fa-solid fa-circle-check text-sm text-amber-300"></i>
                 </button>
-              ) : (
+
+                {/* 2. TAWANGMANGU */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDestination('tawangmangu');
+                    setSubLocation('');
+                  }}
+                  className="p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200 hover:scale-[1.01]"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-lg">🏔️</span>
+                    <div>
+                      <strong className="text-xs sm:text-sm block leading-tight">Tawangmangu</strong>
+                      <span className="text-[10px] block text-sand-500">
+                        Dingin Lawu
+                      </span>
+                    </div>
+                  </div>
+                  <i className="fa-solid fa-arrow-right text-xs text-sand-400"></i>
+                </button>
+
+                {/* 3. YOGYAKARTA */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDestination('yogyakarta');
+                    setSubLocation('');
+                  }}
+                  className="p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200 hover:scale-[1.01]"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-lg">🏛️</span>
+                    <div>
+                      <strong className="text-xs sm:text-sm block leading-tight">Yogyakarta</strong>
+                      <span className="text-[10px] block text-sand-500">
+                        Kaliurang & Kota
+                      </span>
+                    </div>
+                  </div>
+                  <i className="fa-solid fa-arrow-right text-xs text-sand-400"></i>
+                </button>
+              </div>
+            )}
+
+            {/* JIKA TAWANGMANGU DIPILIH: JOGJA HILANG AGAR FOKUS, MUNCUL PILIHAN AREA (SEKIPAN, PANCOT, BLUMBANG, DLL) */}
+            {destination === 'tawangmangu' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 animate-in fade-in">
+                {/* 1. KOTA TERPILIH: TAWANGMANGU */}
+                <div className="p-3 rounded-2xl border text-left bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">🏔️</span>
+                    <div>
+                      <strong className="text-xs sm:text-sm block leading-tight">Tawangmangu & Kemuning</strong>
+                      <span className="text-[10px] block text-amber-200">
+                        Destinasi Terpilih (Lawu)
+                      </span>
+                    </div>
+                  </div>
+                  <span className="w-6 h-6 rounded-full bg-amber-400 text-brand-900 flex items-center justify-center text-xs font-bold">
+                    <i className="fa-solid fa-check"></i>
+                  </span>
+                </div>
+
+                {/* 2. TOMBOL PILIH AREA SPESIFIK (SEKIPAN, PANCOT, BLUMBANG, DLL) */}
                 <button
                   type="button"
                   onClick={() => {
                     setSearchLocationQuery('');
                     setShowLocationModal(true);
                   }}
-                  className="p-3 rounded-2xl border-2 border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-900 text-left transition-all duration-200 flex items-center justify-between shadow-xs hover:scale-[1.01] active:scale-95 group"
-                  title="Klik untuk memilih atau mencari daerah wisata spesifik"
+                  className={`p-3 rounded-2xl border-2 text-left transition flex items-center justify-between shadow-xs group ${
+                    subLocation 
+                      ? 'border-brand-900 bg-amber-100/80 text-brand-950 font-bold' 
+                      : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-900'
+                  }`}
+                  title="Klik untuk memilih area spesifik di Tawangmangu"
                 >
                   <div className="flex items-center gap-2.5">
                     <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-900 flex items-center justify-center text-sm font-bold shadow-2xs group-hover:scale-105 transition-transform">
-                      <i className="fa-solid fa-magnifying-glass text-xs"></i>
+                      <i className="fa-solid fa-map-pin text-xs"></i>
                     </span>
                     <div>
-                      <strong className="text-xs sm:text-sm block leading-tight text-brand-900 font-extrabold flex items-center gap-1">
-                        <span>Pilih Daerah</span>
-                        <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-amber-600"></i>
+                      <strong className="text-xs sm:text-sm block leading-tight">
+                        {subLocation ? `Area: ${subLocation}` : 'Pilih Area Wisata'}
                       </strong>
                       <span className="text-[10px] block text-amber-800 font-medium">
-                        Cari Daerah Wisata
+                        {subLocation ? 'Klik untuk ganti area' : 'Sekipan, Pancot, Blumbang, dll'}
                       </span>
                     </div>
                   </div>
-                  <i className="fa-solid fa-chevron-right text-xs text-amber-600 group-hover:translate-x-0.5 transition-transform"></i>
+                  <div className="flex items-center gap-1 text-amber-700 text-xs font-bold">
+                    <span>{subLocation ? 'Ubah' : 'Pilih'}</span>
+                    <i className="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
+                  </div>
                 </button>
-              )}
+              </div>
+            )}
 
-              {/* TOMBOL 2: TAWANGMANGU */}
-              <button
-                type="button"
-                onClick={() => setDestination('tawangmangu')}
-                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
-                  destination === 'tawangmangu'
-                    ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold scale-[1.01]'
-                    : 'bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-lg">🏔️</span>
-                  <div>
-                    <strong className="text-xs sm:text-sm block leading-tight">Tawangmangu</strong>
-                    <span className={`text-[10px] block ${destination === 'tawangmangu' ? 'text-amber-200' : 'text-sand-500'}`}>
-                      Dingin Lawu
-                    </span>
+            {/* JIKA YOGYAKARTA DIPILIH: TAWANGMANGU HILANG AGAR FOKUS, MUNCUL PILIHAN AREA (KALIURANG, SLEMAN, DLL) */}
+            {destination === 'yogyakarta' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 animate-in fade-in">
+                {/* 1. KOTA TERPILIH: YOGYAKARTA */}
+                <div className="p-3 rounded-2xl border text-left bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">🏛️</span>
+                    <div>
+                      <strong className="text-xs sm:text-sm block leading-tight">Yogyakarta & Sleman</strong>
+                      <span className="text-[10px] block text-amber-200">
+                        Destinasi Terpilih (Merapi View & Kota)
+                      </span>
+                    </div>
                   </div>
+                  <span className="w-6 h-6 rounded-full bg-amber-400 text-brand-900 flex items-center justify-center text-xs font-bold">
+                    <i className="fa-solid fa-check"></i>
+                  </span>
                 </div>
-                <i className={`fa-solid fa-circle-check text-sm ${destination === 'tawangmangu' ? 'text-amber-300' : 'text-transparent'}`}></i>
-              </button>
 
-              {/* TOMBOL 3: YOGYAKARTA (JOGJA) */}
-              <button
-                type="button"
-                onClick={() => setDestination('yogyakarta')}
-                className={`p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between ${
-                  destination === 'yogyakarta'
-                    ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold scale-[1.01]'
-                    : 'bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-lg">🏛️</span>
-                  <div>
-                    <strong className="text-xs sm:text-sm block leading-tight">Yogyakarta</strong>
-                    <span className={`text-[10px] block ${destination === 'yogyakarta' ? 'text-amber-200' : 'text-sand-500'}`}>
-                      Kaliurang & Kota
+                {/* 2. TOMBOL PILIH AREA SPESIFIK JOGJA */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchLocationQuery('');
+                    setShowLocationModal(true);
+                  }}
+                  className={`p-3 rounded-2xl border-2 text-left transition flex items-center justify-between shadow-xs group ${
+                    subLocation 
+                      ? 'border-brand-900 bg-amber-100/80 text-brand-950 font-bold' 
+                      : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-900'
+                  }`}
+                  title="Klik untuk memilih area spesifik di Yogyakarta"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-900 flex items-center justify-center text-sm font-bold shadow-2xs group-hover:scale-105 transition-transform">
+                      <i className="fa-solid fa-map-pin text-xs"></i>
                     </span>
+                    <div>
+                      <strong className="text-xs sm:text-sm block leading-tight">
+                        {subLocation ? `Area: ${subLocation}` : 'Pilih Area Wisata'}
+                      </strong>
+                      <span className="text-[10px] block text-amber-800 font-medium">
+                        {subLocation ? 'Klik untuk ganti area' : 'Kaliurang, Sleman, Malioboro...'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <i className={`fa-solid fa-circle-check text-sm ${destination === 'yogyakarta' ? 'text-amber-300' : 'text-transparent'}`}></i>
-              </button>
-
-            </div>
+                  <div className="flex items-center gap-1 text-amber-700 text-xs font-bold">
+                    <span>{subLocation ? 'Ubah' : 'Pilih'}</span>
+                    <i className="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* STEP 2: TIPE AKOMODASI (VILLA / GLAMPING) */}
@@ -566,9 +718,19 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                 </span>
                 <div>
                   <h3 className="font-serif font-bold text-base text-brand-900 leading-tight">
-                    Pilih Daerah Wisata
+                    {destination === 'tawangmangu' 
+                      ? 'Pilih Area di Tawangmangu' 
+                      : destination === 'yogyakarta'
+                        ? 'Pilih Area di Yogyakarta'
+                        : 'Pilih Destinasi Liburan'}
                   </h3>
-                  <span className="text-[11px] text-sand-500">Pilih atau cari destinasi liburan Anda</span>
+                  <span className="text-[11px] text-sand-500">
+                    {destination === 'tawangmangu' 
+                      ? 'Kawasan Sekipan, Pancot, Blumbang, Kemuning, dll' 
+                      : destination === 'yogyakarta'
+                        ? 'Kawasan Kaliurang, Sleman, Malioboro, dll'
+                        : 'Pilih kota tujuan Anda'}
+                  </span>
                 </div>
               </div>
               <button
@@ -585,7 +747,13 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs"></i>
               <input
                 type="text"
-                placeholder="Ketik nama daerah (misal: Lawu, Kaliurang, Jogja)..."
+                placeholder={
+                  destination === 'tawangmangu'
+                    ? 'Ketik nama area (misal: Sekipan, Pancot, Blumbang)...'
+                    : destination === 'yogyakarta'
+                      ? 'Ketik nama area (misal: Kaliurang, Sleman, Malioboro)...'
+                      : 'Ketik nama destinasi...'
+                }
                 value={searchLocationQuery}
                 onChange={(e) => setSearchLocationQuery(e.target.value)}
                 className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-4 py-2.5 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700"
@@ -595,13 +763,20 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
             {/* Daftar Pilihan Daerah */}
             <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
               {filteredLocations.map(loc => {
-                const isSelected = destination === loc.id;
+                const isSelected = destination === 'all' 
+                  ? destination === loc.id 
+                  : (subLocation || '') === (loc.id || '');
                 return (
                   <button
-                    key={loc.id}
+                    key={loc.name}
                     type="button"
                     onClick={() => {
-                      setDestination(loc.id);
+                      if (destination === 'all') {
+                        setDestination(loc.id);
+                        setSubLocation('');
+                      } else {
+                        setSubLocation(loc.id);
+                      }
                       setShowLocationModal(false);
                     }}
                     className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between ${

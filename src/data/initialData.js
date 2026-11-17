@@ -70,7 +70,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80',
     ],
     features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater'],
-    desc: 'Villa eksklusif dengan view pegunungan Lawu yang memukau. Dilengkapi kolam renang privat, fasilitas karaoke lengkap, dan water heater untuk liburan keluarga besar.'
+    desc: 'Villa eksklusif di kawasan Pancot Tawangmangu dengan view pegunungan Lawu yang memukau. Dilengkapi kolam renang privat, fasilitas karaoke lengkap, dan water heater untuk liburan keluarga besar.'
   },
   {
     id: 'sekala-tw-villa-2',
@@ -130,7 +130,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1506535772317-9fca71c959c6?auto=format&fit=crop&w=800&q=80'
     ],
     features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps'],
-    desc: 'Tenda dome estetik beratap transparan untuk melihat bintang di malam hari. Lokasi sejuk di lereng Lawu dengan spot grill BBQ.'
+    desc: 'Tenda dome estetik di kawasan Blumbang lereng Lawu beratap transparan untuk melihat bintang di malam hari. Lokasi sejuk dengan spot grill BBQ.'
   },
 
   // 3. TAWANGMANGU - HOMESTAY
@@ -151,7 +151,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
     ],
     features: ['View Gunung', 'Karaoke', 'Dapur Ringkas', 'Garden BBQ Area'],
-    desc: 'Rumah homestay besar 5 kamar di pusat Tawangmangu. Dekat Grojogan Sewu dan pasar wisata. Fasilitas karaoke dan dapur masak lengkap.'
+    desc: 'Rumah homestay besar 5 kamar di area Tawangmangu Bawah dekat Grojogan Sewu dan pasar wisata. Fasilitas karaoke dan dapur masak lengkap.'
   },
 
   // 4. JOGJA - VILLA
@@ -173,7 +173,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
     ],
     features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
-    desc: 'Villa bergaya heritage modern di Yogyakarta. Cocok untuk staycation keluarga dengan kolam renang privat dan area outdoor BBQ.'
+    desc: 'Villa bergaya heritage modern di kawasan Sleman Yogyakarta. Cocok untuk staycation keluarga dengan kolam renang privat dan area outdoor BBQ.'
   },
   {
     id: 'sekala-jg-villa-2',
