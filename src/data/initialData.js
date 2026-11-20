@@ -53,6 +53,7 @@ export const DEFAULT_VILLAS = [
   // 1. TAWANGMANGU - VILLA
   {
     id: 'sekala-tw-villa-1',
+    catalogNumber: 1,
     name: 'Sekala Pine Resort Villa',
     propertyType: 'villa',
     category: 'Premium',
@@ -74,6 +75,7 @@ export const DEFAULT_VILLAS = [
   },
   {
     id: 'sekala-tw-villa-2',
+    catalogNumber: 2,
     name: 'Villa Nuansa Sekipan Tawangmangu',
     propertyType: 'villa',
     category: 'Standard',
@@ -95,6 +97,7 @@ export const DEFAULT_VILLAS = [
   // 2. TAWANGMANGU - GLAMPING
   {
     id: 'sekala-tw-glamp-1',
+    catalogNumber: 3,
     name: 'Sekala Cloud Glamping Kemuning',
     propertyType: 'glamping',
     category: 'Standard',
@@ -115,6 +118,7 @@ export const DEFAULT_VILLAS = [
   },
   {
     id: 'sekala-tw-glamp-2',
+    catalogNumber: 4,
     name: 'Sekala Lawu Dome Camp',
     propertyType: 'glamping',
     category: 'Budget',
@@ -136,6 +140,7 @@ export const DEFAULT_VILLAS = [
   // 3. TAWANGMANGU - HOMESTAY
   {
     id: 'sekala-tw-home-1',
+    catalogNumber: 5,
     name: 'Sekala Lawu Lodge Homestay',
     propertyType: 'homestay',
     category: 'Standard',
@@ -157,6 +162,7 @@ export const DEFAULT_VILLAS = [
   // 4. JOGJA - VILLA
   {
     id: 'sekala-jg-villa-1',
+    catalogNumber: 6,
     name: 'Villa Sekala Heritage Jogja',
     propertyType: 'villa',
     category: 'Standard',
@@ -177,6 +183,7 @@ export const DEFAULT_VILLAS = [
   },
   {
     id: 'sekala-jg-villa-2',
+    catalogNumber: 7,
     name: 'Sekala Serenity Estate Jogja',
     propertyType: 'villa',
     category: 'Premium',
@@ -198,6 +205,7 @@ export const DEFAULT_VILLAS = [
   // 5. JOGJA - GLAMPING
   {
     id: 'sekala-jg-glamp-1',
+    catalogNumber: 8,
     name: 'Sekala Merapi View Glamping',
     propertyType: 'glamping',
     category: 'Standard',
@@ -219,6 +227,7 @@ export const DEFAULT_VILLAS = [
   // 6. JOGJA - HOMESTAY
   {
     id: 'sekala-jg-home-1',
+    catalogNumber: 9,
     name: 'Sekala Omah Kayu Homestay Jogja',
     propertyType: 'homestay',
     category: 'Budget',
@@ -469,4 +478,9 @@ export const ADDONS_DATA = {
 
 export function formatRupiah(num) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+}
+
+export function formatCatalogNumber(num) {
+  const n = parseInt(num) || 1;
+  return `#${String(n).padStart(2, '0')}`;
 }

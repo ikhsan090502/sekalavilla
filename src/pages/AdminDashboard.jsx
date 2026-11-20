@@ -61,6 +61,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   const [editingVilla, setEditingVilla] = useState(null);
   const [villaForm, setVillaForm] = useState({
     name: '',
+    catalogNumber: 1,
     propertyType: 'villa', // villa | glamping | homestay
     category: 'Standard',  // Budget | Standard | Premium
     location: 'Tawangmangu',
@@ -247,8 +248,11 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   // VILLA / UNIT HANDLERS
   const openAddVilla = () => {
     setEditingVilla(null);
+    const maxCat = villas.reduce((max, v) => Math.max(max, parseInt(v.catalogNumber) || 0), 0);
+    const nextCat = maxCat + 1;
     setVillaForm({
       name: '',
+      catalogNumber: nextCat,
       propertyType: 'villa',
       category: 'Standard',
       location: 'Tawangmangu',
@@ -269,6 +273,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     setEditingVilla(v);
     setVillaForm({
       name: v.name,
+      catalogNumber: v.catalogNumber || 1,
       propertyType: v.propertyType || 'villa',
       category: v.category || 'Standard',
       location: v.location,
@@ -300,9 +305,13 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     const imgs = villaForm.imagesText.trim().split('\n').map(s => s.trim()).filter(Boolean);
     const mainImg = imgs[0] || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80';
 
+    const maxCat = villas.reduce((max, v) => Math.max(max, parseInt(v.catalogNumber) || 0), 0);
+    const resolvedCat = parseInt(villaForm.catalogNumber) || (editingVilla ? (editingVilla.catalogNumber || 1) : (maxCat + 1));
+
     const itemData = {
       id: editingVilla ? editingVilla.id : ('sekala-' + Date.now()),
       name: villaForm.name.trim(),
+      catalogNumber: resolvedCat,
       propertyType: villaForm.propertyType,
       category: villaForm.category,
       location: villaForm.location,
@@ -741,6 +750,9 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                         <img src={v.image || (v.images && v.images[0])} alt={v.name} className="w-full h-full object-cover" />
                         
                         <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
+                          <span className="bg-amber-400 text-brand-950 text-[10px] font-black px-2.5 py-1 rounded-full shadow border border-amber-500 flex items-center gap-1">
+                            #{String(v.catalogNumber || 1).padStart(2, '0')}
+                          </span>
                           <span className="bg-brand-900 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full shadow flex items-center gap-1">
                             <i className={`fa-solid ${typeIcon}`}></i> {typeLabel}
                           </span>
@@ -1453,16 +1465,30 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
             </div>
 
             <form onSubmit={handleSaveVilla} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Nama Unit *</label>
-                <input
-                  type="text"
-                  required
-                  value={villaForm.name}
-                  onChange={e => setVillaForm({ ...villaForm, name: e.target.value })}
-                  placeholder="Contoh: Sekala Pine Resort Villa"
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">Nama Unit *</label>
+                  <input
+                    type="text"
+                    required
+                    value={villaForm.name}
+                    onChange={e => setVillaForm({ ...villaForm, name: e.target.value })}
+                    placeholder="Contoh: Sekala Pine Resort Villa"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">No. Urut Katalog *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={villaForm.catalogNumber || ''}
+                    onChange={e => setVillaForm({ ...villaForm, catalogNumber: parseInt(e.target.value) || '' })}
+                    placeholder="10"
+                    className="w-full bg-amber-50 border-2 border-amber-400 rounded-xl px-3 py-2 text-xs font-black text-brand-950 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -72,8 +72,9 @@ export default function VillaDetailModal({ villa, settings, onClose }) {
   };
 
   const handleDirectWA = () => {
+    const catNo = villa.catalogNumber ? `[Katalog #${String(villa.catalogNumber).padStart(2, '0')}] ` : '';
     const template = settings?.waTemplateVilla || 
-      `Halo Admin Sekala Villa! 🖐️\nSaya tertarik mau booking unit villa ini:\n\n📌 *Villa:* {villa_name}\n🏷️ *Kategori:* {category}\n📍 *Lokasi:* {location}\n👥 *Kapasitas:* {capacity} Pax\n💰 *Mulai Dari:* {price_start} / malam\n✨ *Fasilitas Utama:* {facilities}\n\nApakah unit ini ready untuk tanggal rencana saya kak? Mohon infonya, terima kasih!`;
+      `Halo Admin Sekala Villa! 🖐️\nSaya tertarik mau booking unit villa ini:\n\n📌 *Villa:* ${catNo}{villa_name}\n🏷️ *Kategori:* {category}\n📍 *Lokasi:* {location}\n👥 *Kapasitas:* {capacity} Pax\n💰 *Mulai Dari:* {price_start} / malam\n✨ *Fasilitas Utama:* {facilities}\n\nApakah unit ini ready untuk tanggal rencana saya kak? Mohon infonya, terima kasih!`;
 
     const text = template
       .replace(/{villa_name}/g, villa.name)
@@ -189,10 +190,16 @@ export default function VillaDetailModal({ villa, settings, onClose }) {
                 </div>
               )}
 
-              {/* Counter & Badge Tipe */}
-              <span className="absolute top-3 left-3 bg-slate-950/70 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur z-20 shadow flex items-center gap-1.5">
-                <i className="fa-solid fa-images text-amber-300 text-[10px]"></i> {current + 1} / {images.length}
-              </span>
+              {/* Counter & Badge Katalog */}
+              <div className="absolute top-3 left-3 flex items-center gap-2 z-20">
+                <span className="bg-amber-400 text-brand-950 text-xs font-black px-3 py-1 rounded-full border border-amber-500 shadow-md flex items-center gap-1.5">
+                  <i className="fa-solid fa-hashtag text-[10px]"></i>
+                  <span>Katalog #{String(villa.catalogNumber || 1).padStart(2, '0')}</span>
+                </span>
+                <span className="bg-slate-950/70 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur shadow flex items-center gap-1.5">
+                  <i className="fa-solid fa-images text-amber-300 text-[10px]"></i> {current + 1} / {images.length}
+                </span>
+              </div>
               <span className="absolute top-3 right-14 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full z-20 shadow">
                 {villa.category || 'Standard'}
               </span>
@@ -227,9 +234,14 @@ export default function VillaDetailModal({ villa, settings, onClose }) {
             <div className="p-4 sm:p-6 space-y-5">
               <div>
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-brand-900 leading-snug">
-                    {villa.name}
-                  </h3>
+                  <div className="flex items-center gap-2.5">
+                    <span className="bg-amber-400 text-brand-950 font-black text-xs sm:text-sm px-2.5 py-1 rounded-xl border border-amber-500 shadow-2xs shrink-0">
+                      #{String(villa.catalogNumber || 1).padStart(2, '0')}
+                    </span>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-brand-900 leading-snug">
+                      {villa.name}
+                    </h3>
+                  </div>
                   <span className="flex items-center gap-1 text-xs font-bold text-amber-800 shrink-0 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-xl">
                     <i className="fa-solid fa-star text-amber-500"></i> {villa.rating || 4.8}
                   </span>

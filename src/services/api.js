@@ -21,6 +21,7 @@ function normalizeVilla(item) {
   if (!item) return null;
   return {
     id: item.id || `v-${Math.random()}`,
+    catalogNumber: item.catalogNumber || item.catalog_number || item.no_katalog || null,
     name: item.name || item.nama || 'Unit Sekala',
     // Normalisasi Tipe: villa / glamping / homestay
     propertyType: (item.propertyType || item.property_type || item.type || item.tipe || 'villa').toLowerCase(),

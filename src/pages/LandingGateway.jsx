@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { formatRupiah } from '../data/initialData';
-import { POPULAR_FACILITIES } from '../components/SearchFilter';
+import { POPULAR_FACILITIES, FACILITY_CATEGORIES } from '../components/SearchFilter';
 
 export default function LandingGateway({ onComplete, onSkip, settings, initialFilters = {} }) {
   // Input State: Destinasi (Default: 'all' / Semua Lokasi, atau sesuai initialFilters)
@@ -9,7 +9,15 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
       ? (initialFilters.location.toLowerCase().includes('tawangmangu') ? 'tawangmangu' : 'yogyakarta')
       : 'all'
   );
-  const [subLocation, setSubLocation] = useState(initialFilters.subLocation || '');
+  const [subLocations, setSubLocations] = useState(() => {
+    if (Array.isArray(initialFilters.subLocations) && initialFilters.subLocations.length > 0) {
+      return initialFilters.subLocations;
+    }
+    if (initialFilters.subLocation && typeof initialFilters.subLocation === 'string') {
+      return initialFilters.subLocation.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    return [];
+  });
   const [propertyType, setPropertyType] = useState(initialFilters.propertyType || 'all');
   
   // Custom Typed Inputs (Persist dari history sebelumnya)
@@ -43,6 +51,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
   const [selectedFacilities, setSelectedFacilities] = useState(initialFilters.facilities || []);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [searchLocationQuery, setSearchLocationQuery] = useState('');
+  const [showFacilityModal, setShowFacilityModal] = useState(false);
+  const [facilitySearchQuery, setFacilitySearchQuery] = useState('');
+  const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
 
   const handleMinPriceChange = (e) => {
     const formatted = formatNumberWithDots(e.target.value);
@@ -61,11 +72,34 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
     });
   };
 
+  const selectAllFacilities = () => {
+    const allIds = POPULAR_FACILITIES.map(f => f.id);
+    setSelectedFacilities(allIds);
+  };
+
+  const clearAllFacilities = () => {
+    setSelectedFacilities([]);
+  };
+
+  // Toggle Pilihan Area (Multi-select)
+  const toggleArea = (areaId) => {
+    if (!areaId) {
+      // Klik 'Semua Area' -> reset subLocations
+      setSubLocations([]);
+      return;
+    }
+    setSubLocations(prev => {
+      const exists = prev.includes(areaId);
+      return exists ? prev.filter(a => a !== areaId) : [...prev, areaId];
+    });
+  };
+
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     onComplete({
       location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
-      subLocation: subLocation || '',
+      subLocation: subLocations.join(', '),
+      subLocations: subLocations,
       propertyType: propertyType,
       capacity: parseInt(minCapacity) || 0,
       maxCapacity: parseInt(maxCapacity) || 0,
@@ -89,8 +123,8 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
         ? 'Yogyakarta' 
         : 'Tawangmangu & Yogyakarta';
 
-    const detailLoc = subLocation 
-      ? `${locName} (${subLocation})`
+    const detailLoc = subLocations.length > 0 
+      ? `${locName} (${subLocations.join(', ')})`
       : (destination !== 'all' ? locName : 'Semua Lokasi');
 
     let hargaText = 'Semua Rentang Harga';
@@ -234,9 +268,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 sm:p-8 shadow-xl border border-sand-200 space-y-5 sm:space-y-6">
           
           {/* STEP 1: PILIH LOKASI (FOKUS 1 DESTINASI & PILIH AREA WISATA) */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-sand-800 block">
+              <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
                 <i className="fa-solid fa-location-dot text-brand-700 mr-1.5"></i> 1. Pilih Lokasi Liburan
               </label>
               {destination !== 'all' ? (
@@ -244,13 +278,13 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   type="button"
                   onClick={() => {
                     setDestination('all');
-                    setSubLocation('');
+                    setSubLocations([]);
                   }}
-                  className="text-[11px] text-terracotta-600 hover:text-terracotta-700 font-bold flex items-center gap-1 transition bg-sand-100 hover:bg-sand-200 px-2.5 py-1 rounded-xl border border-sand-300"
+                  className="text-xs text-brand-950 hover:text-brand-900 font-black flex items-center gap-1.5 transition bg-amber-400 hover:bg-amber-300 px-3 py-1.5 rounded-xl border border-amber-500 shadow-2xs"
                   title="Tampilkan kembali pilihan Jogja & Tawangmangu"
                 >
-                  <i className="fa-solid fa-rotate-left text-[10px]"></i> 
-                  <span>Ganti Lokasi ({destination === 'tawangmangu' ? 'Pilih Jogja / Semua' : 'Pilih TW / Semua'})</span>
+                  <i className="fa-solid fa-rotate-left text-xs"></i> 
+                  <span>Ganti Lokasi</span>
                 </button>
               ) : (
                 <button
@@ -259,9 +293,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                     setSearchLocationQuery('');
                     setShowLocationModal(true);
                   }}
-                  className="text-[11px] text-terracotta-600 hover:text-terracotta-700 font-bold flex items-center gap-1 transition"
+                  className="text-xs text-brand-900 hover:text-brand-950 font-bold flex items-center gap-1 transition bg-amber-100 hover:bg-amber-200 px-2.5 py-1 rounded-xl border border-amber-300"
                 >
-                  <i className="fa-solid fa-magnifying-glass text-[10px]"></i> Cari Daerah Wisata
+                  <i className="fa-solid fa-magnifying-glass text-xs text-amber-700"></i> Cari Daerah Wisata
                 </button>
               )}
             </div>
@@ -274,20 +308,20 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   type="button"
                   onClick={() => {
                     setDestination('all');
-                    setSubLocation('');
+                    setSubLocations([]);
                   }}
-                  className="p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold scale-[1.01]"
+                  className="p-3.5 rounded-2xl border-2 text-left transition-all duration-200 flex items-center justify-between bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black scale-[1.01]"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-lg">🗺️</span>
+                    <span className="text-xl">🗺️</span>
                     <div>
-                      <strong className="text-xs sm:text-sm block leading-tight">Semua Lokasi</strong>
-                      <span className="text-[10px] block text-amber-200">
+                      <strong className="text-sm sm:text-base block leading-tight">Semua Lokasi</strong>
+                      <span className="text-[11px] block text-brand-900 font-semibold">
                         Tawangmangu & Jogja
                       </span>
                     </div>
                   </div>
-                  <i className="fa-solid fa-circle-check text-sm text-amber-300"></i>
+                  <i className="fa-solid fa-circle-check text-base text-brand-950"></i>
                 </button>
 
                 {/* 2. TAWANGMANGU */}
@@ -295,15 +329,15 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   type="button"
                   onClick={() => {
                     setDestination('tawangmangu');
-                    setSubLocation('');
+                    setSubLocations([]);
                   }}
-                  className="p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200 hover:scale-[1.01]"
+                  className="p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-amber-50 hover:border-amber-300 text-sand-900 border-sand-200 hover:scale-[1.01]"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-lg">🏔️</span>
+                    <span className="text-xl">🏔️</span>
                     <div>
-                      <strong className="text-xs sm:text-sm block leading-tight">Tawangmangu</strong>
-                      <span className="text-[10px] block text-sand-500">
+                      <strong className="text-sm sm:text-base block leading-tight">Tawangmangu</strong>
+                      <span className="text-[11px] block text-sand-600 font-medium">
                         Dingin Lawu
                       </span>
                     </div>
@@ -316,15 +350,15 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   type="button"
                   onClick={() => {
                     setDestination('yogyakarta');
-                    setSubLocation('');
+                    setSubLocations([]);
                   }}
-                  className="p-3 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200 hover:scale-[1.01]"
+                  className="p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-amber-50 hover:border-amber-300 text-sand-900 border-sand-200 hover:scale-[1.01]"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-lg">🏛️</span>
+                    <span className="text-xl">🏛️</span>
                     <div>
-                      <strong className="text-xs sm:text-sm block leading-tight">Yogyakarta</strong>
-                      <span className="text-[10px] block text-sand-500">
+                      <strong className="text-sm sm:text-base block leading-tight">Yogyakarta</strong>
+                      <span className="text-[11px] block text-sand-600 font-medium">
                         Kaliurang & Kota
                       </span>
                     </div>
@@ -334,118 +368,196 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               </div>
             )}
 
-            {/* JIKA TAWANGMANGU DIPILIH: JOGJA HILANG AGAR FOKUS, MUNCUL PILIHAN AREA (SEKIPAN, PANCOT, BLUMBANG, DLL) */}
+            {/* JIKA TAWANGMANGU DIPILIH: JOGJA HILANG AGAR FOKUS, MUNCUL PILIHAN AREA (MULTI-SELECT) */}
             {destination === 'tawangmangu' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 animate-in fade-in">
-                {/* 1. KOTA TERPILIH: TAWANGMANGU */}
-                <div className="p-3 rounded-2xl border text-left bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">🏔️</span>
-                    <div>
-                      <strong className="text-xs sm:text-sm block leading-tight">Tawangmangu & Kemuning</strong>
-                      <span className="text-[10px] block text-amber-200">
-                        Destinasi Terpilih (Lawu)
-                      </span>
+              <div className="space-y-2 animate-in fade-in">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {/* 1. KOTA TERPILIH: TAWANGMANGU */}
+                  <div className="p-3.5 rounded-2xl border-2 text-left bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">🏔️</span>
+                      <div>
+                        <strong className="text-sm sm:text-base block leading-tight">Tawangmangu & Kemuning</strong>
+                        <span className="text-[11px] block text-brand-900 font-semibold">
+                          Destinasi Terpilih (Lereng Lawu)
+                        </span>
+                      </div>
                     </div>
+                    <span className="w-7 h-7 rounded-full bg-brand-950 text-amber-300 flex items-center justify-center text-xs font-bold">
+                      <i className="fa-solid fa-check"></i>
+                    </span>
                   </div>
-                  <span className="w-6 h-6 rounded-full bg-amber-400 text-brand-900 flex items-center justify-center text-xs font-bold">
-                    <i className="fa-solid fa-check"></i>
-                  </span>
+
+                  {/* 2. TOMBOL PILIH AREA SPESIFIK (BISA MULTI-PILIH) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchLocationQuery('');
+                      setShowLocationModal(true);
+                    }}
+                    className={`p-3.5 rounded-2xl border-2 text-left transition flex items-center justify-between shadow-xs group ${
+                      subLocations.length > 0 
+                        ? 'border-amber-500 bg-amber-100 text-brand-950 font-black' 
+                        : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-900'
+                    }`}
+                    title="Klik untuk memilih area di Tawangmangu (bisa pilih lebih dari 1)"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-9 h-9 rounded-xl bg-amber-400 text-brand-950 flex items-center justify-center text-sm font-bold shadow-2xs group-hover:scale-105 transition-transform border border-amber-500">
+                        <i className="fa-solid fa-map-pin text-sm"></i>
+                      </span>
+                      <div>
+                        <strong className="text-xs sm:text-sm block leading-tight">
+                          {subLocations.length > 0 ? `Pilihan Area (${subLocations.length} dipilih)` : 'Pilih Area Wisata (Bisa >1)'}
+                        </strong>
+                        <span className="text-[11px] block text-amber-900 font-semibold">
+                          {subLocations.length > 0 ? subLocations.join(', ') : 'Sekipan, Pancot, Blumbang, Kemuning...'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-brand-950 text-xs font-bold bg-white/70 px-2 py-1 rounded-lg border border-amber-300">
+                      <span>{subLocations.length > 0 ? 'Edit' : 'Pilih'}</span>
+                      <i className="fa-solid fa-chevron-right text-[10px]"></i>
+                    </div>
+                  </button>
                 </div>
 
-                {/* 2. TOMBOL PILIH AREA SPESIFIK (SEKIPAN, PANCOT, BLUMBANG, DLL) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchLocationQuery('');
-                    setShowLocationModal(true);
-                  }}
-                  className={`p-3 rounded-2xl border-2 text-left transition flex items-center justify-between shadow-xs group ${
-                    subLocation 
-                      ? 'border-brand-900 bg-amber-100/80 text-brand-950 font-bold' 
-                      : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-900'
-                  }`}
-                  title="Klik untuk memilih area spesifik di Tawangmangu"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-900 flex items-center justify-center text-sm font-bold shadow-2xs group-hover:scale-105 transition-transform">
-                      <i className="fa-solid fa-map-pin text-xs"></i>
-                    </span>
-                    <div>
-                      <strong className="text-xs sm:text-sm block leading-tight">
-                        {subLocation ? `Area: ${subLocation}` : 'Pilih Area Wisata'}
-                      </strong>
-                      <span className="text-[10px] block text-amber-800 font-medium">
-                        {subLocation ? 'Klik untuk ganti area' : 'Sekipan, Pancot, Blumbang, dll'}
+                {/* TAMPILAN AREA YANG SUDAH DI-SELECT (BADGES CHIPS LENGKAP) */}
+                {subLocations.length > 0 && (
+                  <div className="p-3 bg-amber-50/90 rounded-2xl border border-amber-300 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-brand-950 flex items-center gap-1.5">
+                        <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>Area terpilih ({subLocations.length}):</span>
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setSubLocations([])}
+                        className="text-xs text-terracotta-600 hover:text-terracotta-700 hover:underline font-bold"
+                      >
+                        Reset Pilihan Area
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {subLocations.map(areaName => (
+                        <span 
+                          key={areaName}
+                          className="bg-amber-400 text-brand-950 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-xl border border-amber-500 flex items-center gap-2 shadow-2xs"
+                        >
+                          <span>📍 {areaName}</span>
+                          <button
+                            type="button"
+                            onClick={() => toggleArea(areaName)}
+                            className="w-4 h-4 rounded-full bg-brand-950/20 hover:bg-brand-950 hover:text-amber-300 flex items-center justify-center text-[10px] transition"
+                            title={`Hapus ${areaName}`}
+                          >
+                            <i className="fa-solid fa-xmark"></i>
+                          </button>
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-amber-700 text-xs font-bold">
-                    <span>{subLocation ? 'Ubah' : 'Pilih'}</span>
-                    <i className="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-                  </div>
-                </button>
+                )}
               </div>
             )}
 
-            {/* JIKA YOGYAKARTA DIPILIH: TAWANGMANGU HILANG AGAR FOKUS, MUNCUL PILIHAN AREA (KALIURANG, SLEMAN, DLL) */}
+            {/* JIKA YOGYAKARTA DIPILIH: TAWANGMANGU HILANG AGAR FOKUS, MUNCUL PILIHAN AREA (MULTI-SELECT) */}
             {destination === 'yogyakarta' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 animate-in fade-in">
-                {/* 1. KOTA TERPILIH: YOGYAKARTA */}
-                <div className="p-3 rounded-2xl border text-left bg-brand-900 text-amber-300 border-brand-900 shadow-md font-bold flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">🏛️</span>
-                    <div>
-                      <strong className="text-xs sm:text-sm block leading-tight">Yogyakarta & Sleman</strong>
-                      <span className="text-[10px] block text-amber-200">
-                        Destinasi Terpilih (Merapi View & Kota)
-                      </span>
+              <div className="space-y-2 animate-in fade-in">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {/* 1. KOTA TERPILIH: YOGYAKARTA */}
+                  <div className="p-3.5 rounded-2xl border-2 text-left bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">🏛️</span>
+                      <div>
+                        <strong className="text-sm sm:text-base block leading-tight">Yogyakarta & Sleman</strong>
+                        <span className="text-[11px] block text-brand-900 font-semibold">
+                          Destinasi Terpilih (Merapi View & Kota)
+                        </span>
+                      </div>
                     </div>
+                    <span className="w-7 h-7 rounded-full bg-brand-950 text-amber-300 flex items-center justify-center text-xs font-bold">
+                      <i className="fa-solid fa-check"></i>
+                    </span>
                   </div>
-                  <span className="w-6 h-6 rounded-full bg-amber-400 text-brand-900 flex items-center justify-center text-xs font-bold">
-                    <i className="fa-solid fa-check"></i>
-                  </span>
+
+                  {/* 2. TOMBOL PILIH AREA SPESIFIK JOGJA */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchLocationQuery('');
+                      setShowLocationModal(true);
+                    }}
+                    className={`p-3.5 rounded-2xl border-2 text-left transition flex items-center justify-between shadow-xs group ${
+                      subLocations.length > 0 
+                        ? 'border-amber-500 bg-amber-100 text-brand-950 font-black' 
+                        : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-900'
+                    }`}
+                    title="Klik untuk memilih area spesifik di Yogyakarta"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-9 h-9 rounded-xl bg-amber-400 text-brand-950 flex items-center justify-center text-sm font-bold shadow-2xs group-hover:scale-105 transition-transform border border-amber-500">
+                        <i className="fa-solid fa-map-pin text-sm"></i>
+                      </span>
+                      <div>
+                        <strong className="text-xs sm:text-sm block leading-tight">
+                          {subLocations.length > 0 ? `Pilihan Area (${subLocations.length} dipilih)` : 'Pilih Area Wisata (Bisa >1)'}
+                        </strong>
+                        <span className="text-[11px] block text-amber-900 font-semibold">
+                          {subLocations.length > 0 ? subLocations.join(', ') : 'Kaliurang, Sleman, Malioboro...'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-brand-950 text-xs font-bold bg-white/70 px-2 py-1 rounded-lg border border-amber-300">
+                      <span>{subLocations.length > 0 ? 'Edit' : 'Pilih'}</span>
+                      <i className="fa-solid fa-chevron-right text-[10px]"></i>
+                    </div>
+                  </button>
                 </div>
 
-                {/* 2. TOMBOL PILIH AREA SPESIFIK JOGJA */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchLocationQuery('');
-                    setShowLocationModal(true);
-                  }}
-                  className={`p-3 rounded-2xl border-2 text-left transition flex items-center justify-between shadow-xs group ${
-                    subLocation 
-                      ? 'border-brand-900 bg-amber-100/80 text-brand-950 font-bold' 
-                      : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-900'
-                  }`}
-                  title="Klik untuk memilih area spesifik di Yogyakarta"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-900 flex items-center justify-center text-sm font-bold shadow-2xs group-hover:scale-105 transition-transform">
-                      <i className="fa-solid fa-map-pin text-xs"></i>
-                    </span>
-                    <div>
-                      <strong className="text-xs sm:text-sm block leading-tight">
-                        {subLocation ? `Area: ${subLocation}` : 'Pilih Area Wisata'}
-                      </strong>
-                      <span className="text-[10px] block text-amber-800 font-medium">
-                        {subLocation ? 'Klik untuk ganti area' : 'Kaliurang, Sleman, Malioboro...'}
+                {/* TAMPILAN AREA YANG SUDAH DI-SELECT JOGJA */}
+                {subLocations.length > 0 && (
+                  <div className="p-3 bg-amber-50/90 rounded-2xl border border-amber-300 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-brand-950 flex items-center gap-1.5">
+                        <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>Area terpilih ({subLocations.length}):</span>
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setSubLocations([])}
+                        className="text-xs text-terracotta-600 hover:text-terracotta-700 hover:underline font-bold"
+                      >
+                        Reset Pilihan Area
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {subLocations.map(areaName => (
+                        <span 
+                          key={areaName}
+                          className="bg-amber-400 text-brand-950 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-xl border border-amber-500 flex items-center gap-2 shadow-2xs"
+                        >
+                          <span>📍 {areaName}</span>
+                          <button
+                            type="button"
+                            onClick={() => toggleArea(areaName)}
+                            className="w-4 h-4 rounded-full bg-brand-950/20 hover:bg-brand-950 hover:text-amber-300 flex items-center justify-center text-[10px] transition"
+                            title={`Hapus ${areaName}`}
+                          >
+                            <i className="fa-solid fa-xmark"></i>
+                          </button>
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-amber-700 text-xs font-bold">
-                    <span>{subLocation ? 'Ubah' : 'Pilih'}</span>
-                    <i className="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-                  </div>
-                </button>
+                )}
               </div>
             )}
           </div>
 
           {/* STEP 2: TIPE AKOMODASI (VILLA / GLAMPING) */}
           <div className="space-y-2">
-            <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-sand-800 block">
+            <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
               <i className="fa-solid fa-house-chimney text-brand-700 mr-1.5"></i> 2. Konsep Akomodasi
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -460,14 +572,14 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                     key={t.id}
                     type="button"
                     onClick={() => setPropertyType(t.id)}
-                    className={`p-2.5 sm:p-3 rounded-2xl border text-center transition flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
+                    className={`p-2.5 sm:p-3 rounded-2xl border-2 text-center transition flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
                       active
-                        ? 'bg-brand-900 text-amber-300 border-brand-900 font-bold shadow-sm'
-                        : 'bg-sand-50 hover:bg-sand-100 text-sand-800 border-sand-200 text-xs'
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 font-black shadow-sm scale-[1.02]'
+                        : 'bg-sand-50 hover:bg-sand-100 text-sand-800 border-sand-200 font-bold text-xs'
                     }`}
                   >
-                    <i className={`fa-solid ${t.icon} text-sm ${active ? 'text-amber-300' : 'text-brand-700'}`}></i>
-                    <span className="text-xs font-bold">{t.label}</span>
+                    <i className={`fa-solid ${t.icon} text-sm ${active ? 'text-brand-950' : 'text-brand-700'}`}></i>
+                    <span className="text-xs sm:text-sm font-bold">{t.label}</span>
                   </button>
                 );
               })}
@@ -476,13 +588,13 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
 
           {/* STEP 3: INPUT RANGE KAPASITAS ORANG & RANGE JUMLAH KAMAR */}
           <div className="space-y-2">
-            <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-sand-800 block">
+            <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
               <i className="fa-solid fa-users text-brand-700 mr-1.5"></i> 3. Kapasitas Tamu & Jumlah Kamar (Range)
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Range Berapa Orang */}
               <div>
-                <label className="text-[10px] sm:text-[11px] text-sand-600 font-bold block mb-1">
+                <label className="text-xs text-sand-700 font-bold block mb-1">
                   Berapa Orang? (Min - Max)
                 </label>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -493,9 +605,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       placeholder="Min (4)"
                       value={minCapacity}
                       onChange={(e) => setMinCapacity(e.target.value)}
-                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-3 pr-8 py-2.5 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-8 py-1.5 sm:py-2 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                       Org
                     </span>
                   </div>
@@ -506,9 +618,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       placeholder="Max (10)"
                       value={maxCapacity}
                       onChange={(e) => setMaxCapacity(e.target.value)}
-                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-3 pr-8 py-2.5 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-8 py-1.5 sm:py-2 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                       Org
                     </span>
                   </div>
@@ -517,7 +629,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
 
               {/* Range Kamar Tidur */}
               <div>
-                <label className="text-[10px] sm:text-[11px] text-sand-600 font-bold block mb-1">
+                <label className="text-xs text-sand-700 font-bold block mb-1">
                   Jumlah Kamar Tidur? (Min - Max)
                 </label>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -528,9 +640,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       placeholder="Min (2)"
                       value={minBedrooms}
                       onChange={(e) => setMinBedrooms(e.target.value)}
-                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-3 pr-8 py-2.5 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-8 py-1.5 sm:py-2 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                       Kmr
                     </span>
                   </div>
@@ -541,9 +653,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       placeholder="Max (4)"
                       value={maxBedrooms}
                       onChange={(e) => setMaxBedrooms(e.target.value)}
-                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-3 pr-8 py-2.5 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-8 py-1.5 sm:py-2 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-semibold pointer-events-none">
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                       Kmr
                     </span>
                   </div>
@@ -554,12 +666,12 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
 
           {/* STEP 4: RANGE BUDGET HARGA SEWA */}
           <div className="space-y-2">
-            <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-sand-800 block">
+            <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
               <i className="fa-solid fa-tag text-brand-700 mr-1.5"></i> 4. Budget Sewa / Malam (Opsional)
             </label>
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-bold">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-bold">
                   Rp
                 </span>
                 <input
@@ -568,12 +680,12 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   placeholder="Min (500.000)"
                   value={minPriceDisplay}
                   onChange={handleMinPriceChange}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-8 pr-2.5 py-1.5 sm:py-2 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-bold">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-sand-400 font-bold">
                   Rp
                 </span>
                 <input
@@ -582,7 +694,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   placeholder="Max (2.500.000)"
                   value={maxPriceDisplay}
                   onChange={handleMaxPriceChange}
-                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-8 pr-2.5 py-1.5 sm:py-2 text-xs sm:text-sm text-sand-900 font-bold placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -591,21 +703,31 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
           {/* STEP 5: PILIHAN FASILITAS DI LANDING PAGE */}
           <div className="space-y-2 pt-2 border-t border-sand-100">
             <div className="flex items-center justify-between">
-              <label className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-sand-800 block">
-                <i className="fa-solid fa-check-double text-emerald-600 mr-1.5"></i> 5. Fasilitas yang Diinginkan
-              </label>
-              {selectedFacilities.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedFacilities([])}
-                  className="text-[10px] text-terracotta-600 font-bold hover:underline"
-                >
-                  Hapus Centang ({selectedFacilities.length})
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
+                  <i className="fa-solid fa-check-double text-emerald-600 mr-1.5"></i> 5. Fasilitas yang Diinginkan
+                </label>
+                {selectedFacilities.length > 0 && (
+                  <span className="bg-amber-400 text-brand-950 font-black text-xs px-2 py-0.5 rounded-full shadow-2xs">
+                    {selectedFacilities.length} dipilih
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {selectedFacilities.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFacilities([])}
+                    className="text-xs text-terracotta-600 font-bold hover:underline"
+                  >
+                    Hapus Centang
+                  </button>
+                )}
+              </div>
             </div>
             
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+            {/* Chips Fasilitas Favorit */}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               {POPULAR_FACILITIES.slice(0, 8).map(fac => {
                 const isSelected = selectedFacilities.includes(fac.id);
                 return (
@@ -613,40 +735,54 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                     key={fac.id}
                     type="button"
                     onClick={() => toggleFacility(fac.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                    className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 border-2 ${
                       isSelected 
-                        ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm' 
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black scale-105' 
                         : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
                     }`}
                   >
-                    <i className={`fa-solid ${isSelected ? 'fa-square-check text-amber-300' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
+                    <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
                     <span>{fac.label}</span>
                   </button>
                 );
               })}
+
+              {/* TOMBOL LIHAT SEMUA FASILITAS */}
+              <button
+                type="button"
+                onClick={() => {
+                  setFacilitySearchQuery('');
+                  setSelectedFacilityCategory('all');
+                  setShowFacilityModal(true);
+                }}
+                className="px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-100 hover:bg-amber-200 text-brand-950 border-2 border-amber-300 shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+              >
+                <i className="fa-solid fa-list-check text-amber-700"></i>
+                <span>Semua Fasilitas ({POPULAR_FACILITIES.length})</span>
+              </button>
             </div>
           </div>
 
-          {/* TOMBOL AKSI: CARI & TERUSKAN KE WA */}
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-sand-200">
+          {/* TOMBOL AKSI: CARI & TERUSKAN KE WA (KIRI & KANAN RAPI DI MOBILE) */}
+          <div className="pt-3 grid grid-cols-2 gap-2.5 sm:flex sm:justify-between sm:items-center border-t border-sand-200">
             {/* Tombol Teruskan ke WhatsApp */}
             <button
               type="button"
               onClick={handleSendToWA}
-              className="w-full sm:w-auto text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-3 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 order-2 sm:order-1"
+              className="w-full sm:w-auto text-emerald-700 hover:text-white bg-emerald-50 hover:bg-emerald-600 border border-emerald-300 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 active:scale-95 shadow-sm"
               title="Kirim kriteria filter langsung ke WhatsApp CS Sekala Villa"
             >
-              <i className="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
-              <span>Teruskan Kriteria ke WA</span>
+              <i className="fa-brands fa-whatsapp text-sm sm:text-base text-emerald-600 group-hover:text-white"></i>
+              <span className="truncate">Teruskan ke WA</span>
             </button>
 
             {/* Tombol Cari & Buka Katalog */}
             <button
               type="submit"
-              className="w-full sm:w-auto bg-brand-900 hover:bg-brand-800 active:scale-[0.98] text-amber-300 font-bold text-xs sm:text-sm px-7 py-3.5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 order-1 sm:order-2"
+              className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-brand-950 font-black text-xs sm:text-sm px-4 sm:px-7 py-2.5 sm:py-3 rounded-2xl border-2 border-amber-500 shadow-md transition-all flex items-center justify-center gap-2"
             >
-              <i className="fa-solid fa-magnifying-glass text-amber-300"></i>
-              <span>Cari & Buka Katalog</span>
+              <i className="fa-solid fa-magnifying-glass text-xs"></i>
+              <span className="truncate">Buka Katalog</span>
               <i className="fa-solid fa-arrow-right text-xs"></i>
             </button>
           </div>
@@ -701,35 +837,33 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
         </a>
       </footer>
 
-      {/* POPUP MODAL PILIH DAERAH (SEARCH DAERAH) */}
+      {/* POPUP MODAL PILIH DAERAH (MULTI-SELECT CHECKBOX) */}
       {showLocationModal && (
         <div 
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setShowLocationModal(false)}
         >
           <div 
-            className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-sand-200 space-y-4"
+            className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-sand-200 space-y-4 max-h-[85vh] flex flex-col justify-between"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-sand-200">
               <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xs shadow-xs">
+                <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-950 border border-amber-500 flex items-center justify-center text-xs shadow-xs font-black">
                   <i className="fa-solid fa-map-location-dot"></i>
                 </span>
                 <div>
                   <h3 className="font-serif font-bold text-base text-brand-900 leading-tight">
                     {destination === 'tawangmangu' 
-                      ? 'Pilih Area di Tawangmangu' 
+                      ? 'Pilih Area Tawangmangu' 
                       : destination === 'yogyakarta'
-                        ? 'Pilih Area di Yogyakarta'
+                        ? 'Pilih Area Yogyakarta'
                         : 'Pilih Destinasi Liburan'}
                   </h3>
-                  <span className="text-[11px] text-sand-500">
-                    {destination === 'tawangmangu' 
-                      ? 'Kawasan Sekipan, Pancot, Blumbang, Kemuning, dll' 
-                      : destination === 'yogyakarta'
-                        ? 'Kawasan Kaliurang, Sleman, Malioboro, dll'
-                        : 'Pilih kota tujuan Anda'}
+                  <span className="text-xs text-sand-500 font-medium">
+                    {destination !== 'all' 
+                      ? 'Bisa pilih lebih dari 1 area sekaligus' 
+                      : 'Pilih kota tujuan Anda'}
                   </span>
                 </div>
               </div>
@@ -742,7 +876,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               </button>
             </div>
 
-            {/* Input Search Daerah (Tanpa autoFocus agar layar mobile tidak meloncat) */}
+            {/* Input Search Daerah */}
             <div className="relative">
               <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs"></i>
               <input
@@ -756,16 +890,17 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                 }
                 value={searchLocationQuery}
                 onChange={(e) => setSearchLocationQuery(e.target.value)}
-                className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-4 py-2.5 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700"
+                className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm font-semibold text-sand-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
 
-            {/* Daftar Pilihan Daerah */}
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+            {/* Daftar Pilihan Daerah (Multi-select) */}
+            <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
               {filteredLocations.map(loc => {
                 const isSelected = destination === 'all' 
                   ? destination === loc.id 
-                  : (subLocation || '') === (loc.id || '');
+                  : (loc.id === '' ? subLocations.length === 0 : subLocations.includes(loc.id));
+
                 return (
                   <button
                     key={loc.name}
@@ -773,16 +908,16 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                     onClick={() => {
                       if (destination === 'all') {
                         setDestination(loc.id);
-                        setSubLocation('');
+                        setSubLocations([]);
+                        setShowLocationModal(false);
                       } else {
-                        setSubLocation(loc.id);
+                        toggleArea(loc.id);
                       }
-                      setShowLocationModal(false);
                     }}
-                    className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                    className={`w-full p-3 rounded-2xl border-2 text-left transition flex items-center justify-between ${
                       isSelected 
-                        ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm' 
-                        : 'bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200'
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-bold' 
+                        : 'bg-sand-50 hover:bg-sand-100 text-sand-900 border-sand-200 font-medium'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -791,14 +926,168 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       </span>
                       <div>
                         <strong className="text-xs sm:text-sm block leading-tight">{loc.name}</strong>
-                        <span className={`text-[10px] block ${isSelected ? 'text-amber-200' : 'text-sand-500'}`}>{loc.desc}</span>
+                        <span className={`text-[10px] sm:text-[11px] block ${isSelected ? 'text-brand-900 font-semibold' : 'text-sand-500'}`}>
+                          {loc.desc}
+                        </span>
                       </div>
                     </div>
-                    <i className={`fa-solid ${isSelected ? 'fa-circle-check text-amber-300' : 'fa-circle text-sand-300'} text-base`}></i>
+                    <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : 'fa-square text-sand-300'} text-lg`}></i>
                   </button>
                 );
               })}
             </div>
+
+            {/* Modal Footer dengan Aksi Terapkan */}
+            {destination !== 'all' && (
+              <div className="pt-3 border-t border-sand-200 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSubLocations([])}
+                  className="text-xs text-terracotta-600 hover:text-terracotta-700 font-bold px-3 py-2 rounded-xl hover:bg-sand-100 transition"
+                >
+                  Reset / Pilih Semua
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowLocationModal(false)}
+                  className="bg-amber-400 hover:bg-amber-300 text-brand-950 border border-amber-500 font-black text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition"
+                >
+                  Terapkan ({subLocations.length > 0 ? `${subLocations.length} Area` : 'Semua Area'})
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* POPUP MODAL PILIH SEMUA FASILITAS */}
+      {showFacilityModal && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setShowFacilityModal(false)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-sand-200 space-y-4 max-h-[85vh] flex flex-col justify-between"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-sand-200">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-950 border border-amber-500 flex items-center justify-center text-xs shadow-xs font-black">
+                  <i className="fa-solid fa-list-check"></i>
+                </span>
+                <div>
+                  <h3 className="font-serif font-bold text-base text-brand-900 leading-tight">
+                    Semua Kategori Fasilitas
+                  </h3>
+                  <span className="text-xs text-sand-500 font-medium">
+                    Pilih fasilitas yang wajib ada di villa Anda
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFacilityModal(false)}
+                className="w-8 h-8 rounded-full bg-sand-100 hover:bg-sand-200 text-sand-800 flex items-center justify-center transition"
+              >
+                <i className="fa-solid fa-xmark text-sm"></i>
+              </button>
+            </div>
+
+            {/* Input Search Fasilitas */}
+            <div className="relative">
+              <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs"></i>
+              <input
+                type="text"
+                placeholder="Cari fasilitas (misal: kolam renang, karaoke, biliar)..."
+                value={facilitySearchQuery}
+                onChange={(e) => setFacilitySearchQuery(e.target.value)}
+                className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm font-semibold text-sand-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+
+            {/* Kategori Tabs */}
+            <div className="flex gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
+              {FACILITY_CATEGORIES.map(cat => {
+                const isActive = selectedFacilityCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedFacilityCategory(cat.id)}
+                    className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
+                      isActive 
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-2xs font-black' 
+                        : 'bg-sand-100 hover:bg-sand-200 text-sand-700 border-sand-200'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Grid Fasilitas */}
+            <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-56 pr-1">
+              {POPULAR_FACILITIES
+                .filter(f => {
+                  if (selectedFacilityCategory !== 'all' && f.category !== selectedFacilityCategory) return false;
+                  if (facilitySearchQuery.trim()) {
+                    const q = facilitySearchQuery.toLowerCase().trim();
+                    return f.label.toLowerCase().includes(q) || (f.category && f.category.toLowerCase().includes(q));
+                  }
+                  return true;
+                })
+                .map(fac => {
+                  const isSelected = selectedFacilities.includes(fac.id);
+                  return (
+                    <button
+                      key={fac.id}
+                      type="button"
+                      onClick={() => toggleFacility(fac.id)}
+                      className={`p-2.5 rounded-xl border-2 text-left transition flex items-center justify-between text-xs font-bold ${
+                        isSelected 
+                          ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-2xs font-black' 
+                          : 'bg-sand-50 hover:bg-sand-100 text-sand-800 border-sand-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <i className={`fa-solid ${fac.icon || 'fa-tag'} ${isSelected ? 'text-brand-950' : 'text-emerald-700'}`}></i>
+                        <span className="truncate">{fac.label}</span>
+                      </div>
+                      <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : 'fa-square text-sand-300'} text-base shrink-0 ml-1`}></i>
+                    </button>
+                  );
+                })}
+            </div>
+
+            {/* Footer Modal Fasilitas */}
+            <div className="pt-3 border-t border-sand-200 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={selectAllFacilities}
+                  className="text-xs text-brand-900 font-bold hover:underline"
+                >
+                  Pilih Semua
+                </button>
+                <span className="text-sand-300">•</span>
+                <button
+                  type="button"
+                  onClick={clearAllFacilities}
+                  className="text-xs text-terracotta-600 font-bold hover:underline"
+                >
+                  Hapus Pilihan
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFacilityModal(false)}
+                className="bg-amber-400 hover:bg-amber-300 text-brand-950 border border-amber-500 font-black text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition"
+              >
+                Terapkan ({selectedFacilities.length} Fasilitas)
+              </button>
+            </div>
+
           </div>
         </div>
       )}

@@ -66,8 +66,12 @@ export default function SearchFilter({
   // Kirim Hasil Filter dari Card Putih ke WhatsApp sesuai format resmi yang diminta
   const handleSendFilterToWA = () => {
     const locName = filters.location !== 'all' ? filters.location : 'Tawangmangu & Yogyakarta';
-    const detailLoc = filters.subLocation 
-      ? `${locName} (${filters.subLocation})`
+    const subLocText = (filters.subLocations && filters.subLocations.length > 0)
+      ? filters.subLocations.join(', ')
+      : (filters.subLocation || '');
+
+    const detailLoc = subLocText 
+      ? `${locName} (${subLocText})`
       : (filters.location !== 'all' ? filters.location : 'Semua Lokasi');
 
     let hargaText = 'Semua Rentang Harga';
@@ -161,6 +165,7 @@ export default function SearchFilter({
 
   // Hitung berapa kriteria aktif dari landing matcher
   const hasCustomMatcher = (filters.location && filters.location !== 'all') || 
+                           (filters.subLocations && filters.subLocations.length > 0) ||
                            (filters.subLocation && filters.subLocation !== '') ||
                            (filters.capacity && filters.capacity > 0) || 
                            (filters.maxCapacity && filters.maxCapacity > 0) || 
@@ -169,6 +174,10 @@ export default function SearchFilter({
                            (filters.minPrice && filters.minPrice > 0) || 
                            (filters.budget && filters.budget < 5000000) ||
                            (filters.propertyType && filters.propertyType !== 'all');
+
+  const activeSubLocations = (filters.subLocations && filters.subLocations.length > 0)
+    ? filters.subLocations
+    : (filters.subLocation ? filters.subLocation.split(',').map(s => s.trim()).filter(Boolean) : []);
 
   return (
     <section id="search-filter-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
@@ -195,31 +204,31 @@ export default function SearchFilter({
             {/* 2. Card Kuning Kriteria Menginap */}
             <div className="bg-amber-50/90 border-2 border-amber-300 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
               <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
-                <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xs sm:text-sm shrink-0 shadow-xs">
+                <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-400 text-brand-950 border border-amber-500 flex items-center justify-center text-xs sm:text-sm shrink-0 shadow-xs font-black">
                   <i className="fa-solid fa-sliders"></i>
                 </span>
                 <div>
-                  <span className="text-xs sm:text-sm font-bold text-brand-900 block leading-tight">
+                  <span className="text-xs sm:text-sm font-black text-brand-900 block leading-tight">
                     Kriteria Menginap Sesuai Inputan Anda
                   </span>
                   <div className="flex flex-wrap gap-1.5 mt-1.5">
                     {filters.location !== 'all' && (
-                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                      <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 shadow-2xs">
                         📍 {filters.location}
                       </span>
                     )}
-                    {filters.subLocation && (
-                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
-                        📌 Area: {filters.subLocation}
+                    {activeSubLocations.length > 0 && activeSubLocations.map(subLoc => (
+                      <span key={subLoc} className="bg-amber-400 text-brand-950 text-xs font-black px-2.5 py-1 rounded-lg border border-amber-500 shadow-2xs">
+                        📌 Area: {subLoc}
                       </span>
-                    )}
+                    ))}
                     {filters.propertyType !== 'all' && (
-                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 capitalize shadow-2xs">
+                      <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 capitalize shadow-2xs">
                         🏡 {filters.propertyType}
                       </span>
                     )}
                     {(filters.capacity > 0 || filters.maxCapacity > 0) && (
-                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                      <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 shadow-2xs">
                         👥 {filters.capacity > 0 && filters.maxCapacity > 0 
                             ? `${filters.capacity} - ${filters.maxCapacity} Orang`
                             : filters.capacity > 0 
@@ -228,7 +237,7 @@ export default function SearchFilter({
                       </span>
                     )}
                     {(filters.bedrooms > 0 || filters.maxBedrooms > 0) && (
-                      <span className="bg-white text-sand-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200 shadow-2xs">
+                      <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 shadow-2xs">
                         🛏️ {filters.bedrooms > 0 && filters.maxBedrooms > 0 
                             ? `${filters.bedrooms} - ${filters.maxBedrooms} Kamar`
                             : filters.bedrooms > 0 
@@ -237,7 +246,7 @@ export default function SearchFilter({
                       </span>
                     )}
                     {(filters.minPrice > 0 || filters.budget < 5000000) && (
-                      <span className="bg-white text-sand-800 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                      <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 shadow-2xs">
                         💰 {filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} - {formatRupiah(filters.budget)}
                       </span>
                     )}
@@ -298,7 +307,7 @@ export default function SearchFilter({
             </div>
           </div>
 
-          {/* TAB TIPE AKOMODASI: SEMUA / VILLA / GLAMPING */}
+          {/* TAB TIPE AKOMODASI: SEMUA / VILLA / GLAMPING (WARNA KUNING CERAH AKTIF) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {PROPERTY_TYPES.map(pt => {
               const active = (filters.propertyType || 'all') === pt.id;
@@ -306,13 +315,13 @@ export default function SearchFilter({
                 <button
                   key={pt.id}
                   onClick={() => setFilters(prev => ({ ...prev, propertyType: pt.id }))}
-                  className={`py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2.5 border ${
+                  className={`py-3 px-4 rounded-2xl font-black text-xs sm:text-sm transition flex items-center justify-center gap-2.5 border-2 ${
                     active 
-                      ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-md scale-[1.01]' 
-                      : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
+                      ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-md scale-[1.01]' 
+                      : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-amber-50 hover:border-amber-300 hover:text-brand-950'
                   }`}
                 >
-                  <i className={`fa-solid ${pt.icon} ${active ? 'text-amber-400' : 'text-brand-700'}`}></i>
+                  <i className={`fa-solid ${pt.icon} ${active ? 'text-brand-950' : 'text-brand-700'}`}></i>
                   <span>{pt.label}</span>
                 </button>
               );
@@ -352,13 +361,13 @@ export default function SearchFilter({
           }`}>
             {/* 1. LOKASI */}
             <div>
-              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+              <label className="block text-xs sm:text-sm font-black text-sand-900 uppercase mb-1">
                 <i className="fa-solid fa-location-dot text-brand-700 mr-1"></i> Lokasi Destinasi
               </label>
               <select
                 value={filters.location}
                 onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700"
+                className="w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-sand-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
               >
                 <option value="all">Semua Lokasi</option>
                 <option value="Tawangmangu">Tawangmangu & Kemuning</option>
@@ -368,7 +377,7 @@ export default function SearchFilter({
 
             {/* 2. KAPASITAS TAMU (RANGE MIN - MAX ORANG) */}
             <div>
-              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+              <label className="block text-xs sm:text-sm font-black text-sand-900 uppercase mb-1">
                 <i className="fa-solid fa-user-group text-brand-700 mr-1"></i> Kapasitas Orang (Min - Max)
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -383,9 +392,9 @@ export default function SearchFilter({
                       const val = parseInt(e.target.value, 10);
                       setFilters(prev => ({ ...prev, capacity: isNaN(val) ? 0 : val }));
                     }}
-                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                     Min
                   </span>
                 </div>
@@ -401,14 +410,14 @@ export default function SearchFilter({
                       const val = parseInt(e.target.value, 10);
                       setFilters(prev => ({ ...prev, maxCapacity: isNaN(val) ? 0 : val }));
                     }}
-                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                     Max
                   </span>
                 </div>
               </div>
-              <div className="text-[9px] text-sand-400 mt-1 font-semibold">
+              <div className="text-[10px] text-sand-600 mt-1 font-bold">
                 {filters.capacity > 0 && filters.maxCapacity > 0
                   ? `${filters.capacity} s/d ${filters.maxCapacity} Orang`
                   : filters.capacity > 0
@@ -421,7 +430,7 @@ export default function SearchFilter({
 
             {/* 3. JUMLAH KAMAR TIDUR (RANGE MIN - MAX KAMAR) */}
             <div>
-              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+              <label className="block text-xs sm:text-sm font-black text-sand-900 uppercase mb-1">
                 <i className="fa-solid fa-bed text-brand-700 mr-1"></i> Kamar Tidur (Min - Max)
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -436,9 +445,9 @@ export default function SearchFilter({
                       const val = parseInt(e.target.value, 10);
                       setFilters(prev => ({ ...prev, bedrooms: isNaN(val) ? 0 : val }));
                     }}
-                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                     Min
                   </span>
                 </div>
@@ -454,14 +463,14 @@ export default function SearchFilter({
                       const val = parseInt(e.target.value, 10);
                       setFilters(prev => ({ ...prev, maxBedrooms: isNaN(val) ? 0 : val }));
                     }}
-                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-2.5 pr-7 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-sand-400 font-semibold pointer-events-none">
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-sand-500 font-bold pointer-events-none">
                     Max
                   </span>
                 </div>
               </div>
-              <div className="text-[9px] text-sand-400 mt-1 font-semibold">
+              <div className="text-[10px] text-sand-600 mt-1 font-bold">
                 {filters.bedrooms > 0 && filters.maxBedrooms > 0
                   ? `${filters.bedrooms} s/d ${filters.maxBedrooms} Kamar`
                   : filters.bedrooms > 0
@@ -474,13 +483,13 @@ export default function SearchFilter({
 
             {/* 4. RENTANG BUDGET SEWA (RP MINIMAL - RP MAKSIMAL DENGAN TITIK OTOMATIS) */}
             <div>
-              <label className="block text-[10px] font-extrabold text-sand-800 uppercase mb-1">
+              <label className="block text-xs sm:text-sm font-black text-sand-900 uppercase mb-1">
                 <i className="fa-solid fa-tag text-brand-700 mr-1"></i> Rentang Budget / Malam
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 {/* Min Rp */}
                 <div className="relative">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-sand-400 font-bold pointer-events-none">
                     Min
                   </span>
                   <input
@@ -492,13 +501,13 @@ export default function SearchFilter({
                       const raw = getRawNumber(e.target.value);
                       setFilters(prev => ({ ...prev, minPrice: raw }));
                     }}
-                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
 
                 {/* Max Rp */}
                 <div className="relative">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-sand-400 font-bold pointer-events-none">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-sand-400 font-bold pointer-events-none">
                     Max
                   </span>
                   <input
@@ -510,11 +519,11 @@ export default function SearchFilter({
                       const raw = getRawNumber(e.target.value);
                       setFilters(prev => ({ ...prev, budget: raw > 0 ? raw : 5000000 }));
                     }}
-                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-2 text-xs font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-1 focus:ring-brand-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-2 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-amber-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
-              <div className="flex justify-between text-[9px] text-sand-400 mt-1 font-semibold">
+              <div className="flex justify-between text-[10px] text-sand-600 mt-1 font-bold">
                 <span>{filters.minPrice > 0 ? `Min: ${formatRupiah(filters.minPrice)}` : 'Mulai Rp 0'}</span>
                 <span>{filters.budget && filters.budget < 5000000 ? `Max: ${formatRupiah(filters.budget)}` : 'Semua Harga'}</span>
               </div>
@@ -522,16 +531,16 @@ export default function SearchFilter({
           </div>
         )}
 
-        {/* BARIS FASILITAS: TAMPILKAN 6 UTAMA & BUTTON AKSI KANAN-KIRI TERPISAH */}
+        {/* BARIS FASILITAS: TAMPILKAN 6 UTAMA & BUTTON AKSI KANAN-KIRI TERPISAH (WARNA KUNING CERAH) */}
         <div className="pt-3 border-t border-sand-100 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-extrabold text-sand-800 uppercase tracking-wider">
+              <span className="text-xs sm:text-sm font-black text-sand-900 uppercase tracking-wider">
                 <i className="fa-solid fa-check-double text-emerald-600 mr-1"></i> 
                 Fasilitas Favorit (Bisa Multi-Pilih):
               </span>
               {selectedFacilities.length > 0 && (
-                <span className="text-[10px] bg-brand-900 text-amber-300 font-extrabold px-2 py-0.5 rounded-full shadow-xs">
+                <span className="text-xs bg-amber-400 text-brand-950 font-black px-2.5 py-0.5 rounded-full border border-amber-500 shadow-xs">
                   {selectedFacilities.length} dipilih
                 </span>
               )}
@@ -540,14 +549,14 @@ export default function SearchFilter({
               <button 
                 type="button"
                 onClick={clearFacilities}
-                className="text-[11px] text-sand-500 hover:text-terracotta-600 font-semibold"
+                className="text-xs text-terracotta-600 hover:text-terracotta-700 font-bold hover:underline"
               >
                 Hapus Centang Fasilitas
               </button>
             )}
           </div>
 
-          {/* 6 FASILITAS UTAMA (CHIPS SAJA, TIDAK TERCAMPUR BUTTON AKSI) */}
+          {/* 6 FASILITAS UTAMA (CHIPS SAJA, KUNING CERAH KETIKA AKTIF) */}
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {TOP_FACILITIES.map(fac => {
               const isSelected = selectedFacilities.includes(fac.id);
@@ -556,13 +565,13 @@ export default function SearchFilter({
                   key={fac.id}
                   type="button"
                   onClick={() => toggleFacility(fac.id)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                  className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 border-2 ${
                     isSelected 
-                      ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm scale-105' 
-                      : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100 hover:text-brand-900'
+                      ? 'bg-amber-400 text-brand-950 border-amber-500 font-black shadow-sm scale-105' 
+                      : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
                   }`}
                 >
-                  <i className={`fa-solid ${isSelected ? 'fa-square-check text-amber-300' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
+                  <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
                   <span>{fac.label}</span>
                 </button>
               );
@@ -576,7 +585,7 @@ export default function SearchFilter({
             <button
               type="button"
               onClick={handleSendFilterToWA}
-              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs border border-emerald-700"
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs sm:text-sm border border-emerald-700"
               title="Kirim hasil filter ini ke WhatsApp CS"
             >
               <i className="fa-brands fa-whatsapp text-base text-white"></i>
@@ -591,17 +600,17 @@ export default function SearchFilter({
                 setSelectedFacilityCategory('all');
                 setModalOpen(true);
               }}
-              className="w-full sm:w-auto bg-brand-900 hover:bg-brand-800 active:scale-95 text-amber-300 font-bold py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs border border-brand-900"
+              className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 active:scale-95 text-brand-950 font-black py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs sm:text-sm border-2 border-amber-500"
               title="Buka popup semua filter fasilitas lengkap berdasarkan kategori"
             >
               <i className="fa-solid fa-sliders text-xs"></i>
               <span className="truncate">Semua Filter</span>
               {extraSelectedCount > 0 ? (
-                <span className="bg-amber-400 text-brand-900 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full">
+                <span className="bg-brand-950 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded-full">
                   +{extraSelectedCount}
                 </span>
               ) : (
-                <span className="text-[10px] text-amber-200 font-extrabold">
+                <span className="text-[10px] text-brand-950 font-black bg-amber-200/80 px-1.5 py-0.5 rounded-full">
                   ({POPULAR_FACILITIES.length})
                 </span>
               )}
@@ -681,16 +690,16 @@ export default function SearchFilter({
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedFacilityCategory(cat.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5 border shrink-0 ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition flex items-center gap-1.5 border-2 shrink-0 ${
                       isActive
-                        ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-xs'
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-xs'
                         : 'bg-sand-50 hover:bg-sand-100 text-sand-800 border-sand-200'
                     }`}
                   >
                     <span>{cat.label}</span>
                     {countSelected > 0 && (
-                      <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${
-                        isActive ? 'bg-amber-400 text-brand-900' : 'bg-sand-200 text-sand-800'
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${
+                        isActive ? 'bg-brand-950 text-amber-300' : 'bg-sand-200 text-sand-800'
                       }`}>
                         {countSelected}
                       </span>
@@ -710,24 +719,24 @@ export default function SearchFilter({
                       key={fac.id}
                       type="button"
                       onClick={() => toggleFacility(fac.id)}
-                      className={`p-3 rounded-2xl text-xs font-bold text-left transition flex items-center justify-between border ${
+                      className={`p-3 rounded-2xl text-xs font-bold text-left transition flex items-center justify-between border-2 ${
                         isSelected 
-                          ? 'bg-brand-900 text-amber-300 border-brand-900 shadow-sm' 
+                          ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black' 
                           : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <i className={`fa-solid ${fac.icon || 'fa-tag'} text-sm ${isSelected ? 'text-amber-300' : 'text-emerald-700'}`}></i>
+                        <i className={`fa-solid ${fac.icon || 'fa-tag'} text-sm ${isSelected ? 'text-brand-950' : 'text-emerald-700'}`}></i>
                         <div>
                           <span className="block leading-tight">{fac.label}</span>
                           {fac.category && (
-                            <span className={`text-[9px] uppercase tracking-wider block font-medium ${isSelected ? 'text-sand-300' : 'text-sand-400'}`}>
+                            <span className={`text-[9px] uppercase tracking-wider block font-semibold ${isSelected ? 'text-brand-900' : 'text-sand-400'}`}>
                               {fac.category}
                             </span>
                           )}
                         </div>
                       </div>
-                      <i className={`fa-solid ${isSelected ? 'fa-circle-check text-amber-300' : 'fa-circle text-sand-300'} text-base`}></i>
+                      <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : 'fa-square text-sand-300'} text-base`}></i>
                     </button>
                   );
                 })}
@@ -745,20 +754,31 @@ export default function SearchFilter({
             <div className="pt-3 mt-3 border-t border-sand-200 flex items-center justify-between">
               <div className="text-xs">
                 {selectedFacilities.length > 0 ? (
-                  <span className="font-bold text-brand-900">
-                    <strong className="text-terracotta-600">{selectedFacilities.length}</strong> fasilitas dipilih
+                  <span className="font-black text-brand-900">
+                    <strong className="text-brand-950">{selectedFacilities.length}</strong> fasilitas dipilih
                   </span>
                 ) : (
-                  <span className="text-sand-500">Belum ada fasilitas dipilih</span>
+                  <span className="text-sand-500 font-semibold">Belum ada fasilitas</span>
                 )}
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const allIds = POPULAR_FACILITIES.map(f => f.id);
+                    setFilters(prev => ({ ...prev, facilities: allIds }));
+                  }}
+                  className="text-xs text-brand-900 font-bold hover:underline px-1.5 py-1"
+                >
+                  Pilih Semua
+                </button>
+                <span className="text-sand-300">•</span>
                 {selectedFacilities.length > 0 && (
                   <button
                     type="button"
                     onClick={clearFacilities}
-                    className="text-xs text-terracotta-600 font-bold hover:underline px-2 py-1"
+                    className="text-xs text-terracotta-600 font-bold hover:underline px-1.5 py-1"
                   >
                     Reset
                   </button>
@@ -766,7 +786,7 @@ export default function SearchFilter({
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-2.5 rounded-xl shadow transition"
+                  className="bg-amber-400 hover:bg-amber-300 text-brand-950 font-black text-xs px-5 py-2.5 rounded-xl border border-amber-500 shadow-sm transition active:scale-95"
                 >
                   Terapkan Filter
                 </button>

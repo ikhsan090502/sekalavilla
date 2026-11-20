@@ -61,6 +61,7 @@ export default function App() {
     propertyType: 'all', // 'all' | 'villa' | 'glamping'
     location: 'all',
     subLocation: '', // Sekipan, Pancot, Blumbang, Kemuning, Kaliurang, dll
+    subLocations: [], // Multi-select array area (e.g. ['Sekipan', 'Pancot'])
     category: 'all',
     capacity: 0, // Min kapasitas orang
     maxCapacity: 0, // Max kapasitas orang
@@ -157,6 +158,7 @@ export default function App() {
       propertyType: 'all',
       location: 'all',
       subLocation: '',
+      subLocations: [],
       category: 'all',
       capacity: 0,
       maxCapacity: 0,
@@ -220,13 +222,21 @@ export default function App() {
       const loc = (v.location || '').toLowerCase();
       if (!loc.includes(filters.location.toLowerCase())) return false;
     }
-    // 3B. Sub-location (Sekipan, Pancot, Blumbang, Kemuning, Kaliurang, dll)
-    if (filters.subLocation && filters.subLocation.trim() !== '') {
-      const sub = filters.subLocation.toLowerCase().trim();
-      const matchName = (v.name || '').toLowerCase().includes(sub);
-      const matchDesc = (v.desc || '').toLowerCase().includes(sub);
-      const matchLoc = (v.location || '').toLowerCase().includes(sub);
-      if (!matchName && !matchDesc && !matchLoc) return false;
+    // 3B. Sub-location (Sekipan, Pancot, Blumbang, Kemuning, Kaliurang, dll) - Multi-select
+    const activeSubLocs = (filters.subLocations && filters.subLocations.length > 0)
+      ? filters.subLocations
+      : (filters.subLocation ? filters.subLocation.split(',').map(s => s.trim()).filter(Boolean) : []);
+
+    if (activeSubLocs.length > 0) {
+      const matchAnySubLoc = activeSubLocs.some(subLoc => {
+        const sub = subLoc.toLowerCase().trim();
+        const matchName = (v.name || '').toLowerCase().includes(sub);
+        const matchDesc = (v.desc || '').toLowerCase().includes(sub);
+        const matchLoc = (v.location || '').toLowerCase().includes(sub);
+        const matchSub = (v.subLocation || '').toLowerCase().includes(sub);
+        return matchName || matchDesc || matchLoc || matchSub;
+      });
+      if (!matchAnySubLoc) return false;
     }
     // 4. Category
     if (filters.category && filters.category !== 'all') {
@@ -303,6 +313,7 @@ export default function App() {
             ...prev,
             location: chosenFilters.location || 'all',
             subLocation: chosenFilters.subLocation || '',
+            subLocations: chosenFilters.subLocations || (chosenFilters.subLocation ? [chosenFilters.subLocation] : []),
             capacity: chosenFilters.capacity || 0,
             maxCapacity: chosenFilters.maxCapacity || 0,
             bedrooms: chosenFilters.bedrooms || 0,
@@ -557,16 +568,16 @@ export default function App() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-4 py-3 rounded-2xl shadow-2xl border-2 border-amber-300/40 transition-all flex items-center gap-2 hover:scale-105 active:scale-95 group"
+          className="bg-amber-400 hover:bg-amber-300 text-brand-950 font-black text-xs px-4 py-3 rounded-2xl shadow-2xl border-2 border-amber-500 transition-all flex items-center gap-2 hover:scale-105 active:scale-95 group"
           title="Sesuaikan Pilihan Villa Anda"
         >
-          <span className="w-6 h-6 rounded-lg bg-amber-400 text-brand-900 flex items-center justify-center text-xs group-hover:-translate-y-0.5 transition-transform">
+          <span className="w-6 h-6 rounded-lg bg-brand-950 text-amber-300 flex items-center justify-center text-xs group-hover:-translate-y-0.5 transition-transform">
             <i className="fa-solid fa-arrow-up"></i>
           </span>
-          <span className="hidden xs:inline sm:inline text-xs font-serif font-bold">
+          <span className="hidden xs:inline sm:inline text-xs font-bold">
             Sesuaikan Pilihan Villa Anda
           </span>
-          <span className="inline xs:hidden sm:hidden text-[11px] font-bold">
+          <span className="inline xs:hidden sm:hidden text-xs font-black">
             Filter Villa
           </span>
         </button>
