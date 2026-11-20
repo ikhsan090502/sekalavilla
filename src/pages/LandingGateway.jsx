@@ -54,6 +54,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
   const [showFacilityModal, setShowFacilityModal] = useState(false);
   const [facilitySearchQuery, setFacilitySearchQuery] = useState('');
   const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
+  const [showFacilityReminder, setShowFacilityReminder] = useState(false);
 
   const handleMinPriceChange = (e) => {
     const formatted = formatNumberWithDots(e.target.value);
@@ -96,6 +97,11 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
+    if (selectedFacilities.length === 0 && !showFacilityReminder) {
+      setShowFacilityReminder(true);
+      return;
+    }
+    setShowFacilityReminder(false);
     onComplete({
       location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
       subLocation: subLocations.join(', '),
@@ -726,40 +732,41 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               </div>
             </div>
             
-            {/* Chips Fasilitas Favorit */}
+            {/* TOMBOL PILIH FASILITAS — 1 CTA Besar */}
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              {POPULAR_FACILITIES.slice(0, 8).map(fac => {
-                const isSelected = selectedFacilities.includes(fac.id);
-                return (
-                  <button
-                    key={fac.id}
-                    type="button"
-                    onClick={() => toggleFacility(fac.id)}
-                    className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 border-2 ${
-                      isSelected 
-                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black scale-105' 
-                        : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
-                    }`}
-                  >
-                    <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
-                    <span>{fac.label}</span>
-                  </button>
-                );
-              })}
-
-              {/* TOMBOL LIHAT SEMUA FASILITAS */}
               <button
                 type="button"
                 onClick={() => {
                   setFacilitySearchQuery('');
                   setSelectedFacilityCategory('all');
                   setShowFacilityModal(true);
+                  setShowFacilityReminder(false);
                 }}
-                className="px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-100 hover:bg-amber-200 text-brand-950 border-2 border-amber-300 shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+                className={`w-full py-3 px-4 rounded-2xl border-2 transition flex items-center justify-center gap-2.5 active:scale-95 font-black text-sm ${
+                  selectedFacilities.length > 0
+                    ? 'border-amber-500 bg-amber-400 text-brand-950 shadow-md'
+                    : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-950'
+                }`}
               >
                 <i className="fa-solid fa-list-check text-amber-700"></i>
-                <span>Semua Fasilitas ({POPULAR_FACILITIES.length})</span>
+                <span>Pilih Fasilitas Sesuai Kebutuhan</span>
+                {selectedFacilities.length > 0 ? (
+                  <span className="bg-white text-brand-950 font-black text-xs px-2.5 py-1 rounded-full border border-amber-500">
+                    {selectedFacilities.length} dipilih ✓
+                  </span>
+                ) : (
+                  <span className="text-xs text-amber-700 font-semibold">({POPULAR_FACILITIES.length} pilihan)</span>
+                )}
               </button>
+              {selectedFacilities.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedFacilities([])}
+                  className="text-xs text-terracotta-600 font-bold hover:underline mx-auto"
+                >
+                  Hapus Pilihan Fasilitas
+                </button>
+              )}
             </div>
           </div>
 
@@ -786,6 +793,56 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               <i className="fa-solid fa-arrow-right text-xs"></i>
             </button>
           </div>
+
+          {/* POPUP PENGINGAT FASILITAS — muncul jika user klik Buka Katalog tanpa pilih fasilitas */}
+          {showFacilityReminder && selectedFacilities.length === 0 && (
+            <div className="mt-3 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl text-sm text-brand-950 flex items-start gap-3 shadow-md">
+              <i className="fa-solid fa-lightbulb text-amber-500 text-lg mt-0.5 shrink-0"></i>
+              <div className="flex-1">
+                <span className="block font-black text-sm">Mau pilih fasilitas dulu? 😊</span>
+                <span className="block text-xs font-medium text-amber-900 mt-0.5">
+                  Contoh: Private Pool, View Gunung, Karaoke, Area BBQ, dll — biar rekomendasinya lebih pas!
+                </span>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFacilitySearchQuery('');
+                      setSelectedFacilityCategory('all');
+                      setShowFacilityModal(true);
+                      setShowFacilityReminder(false);
+                    }}
+                    className="bg-amber-400 text-brand-950 font-black text-xs px-4 py-2 rounded-xl border border-amber-500 hover:bg-amber-300 transition active:scale-95"
+                  >
+                    <i className="fa-solid fa-list-check mr-1.5"></i>
+                    Pilih Fasilitas
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowFacilityReminder(false);
+                      onComplete({
+                        location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
+                        subLocation: subLocations.join(', '),
+                        subLocations: subLocations,
+                        propertyType: propertyType,
+                        capacity: parseInt(minCapacity) || 0,
+                        maxCapacity: parseInt(maxCapacity) || 0,
+                        bedrooms: parseInt(minBedrooms) || 0,
+                        maxBedrooms: parseInt(maxBedrooms) || 0,
+                        minPrice: getRawNumber(minPriceDisplay),
+                        maxPrice: getRawNumber(maxPriceDisplay),
+                        facilities: []
+                      });
+                    }}
+                    className="bg-white text-sand-700 font-bold text-xs px-4 py-2 rounded-xl border border-sand-300 hover:bg-sand-100 transition active:scale-95"
+                  >
+                    Lewati, Buka Katalog →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
         </form>
 
