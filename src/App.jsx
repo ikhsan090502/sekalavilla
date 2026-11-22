@@ -56,6 +56,7 @@ export default function App() {
   const [selectedVilla, setSelectedVilla] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [promoOpen, setPromoOpen] = useState(false);
+  const [gridCols, setGridCols] = useState(3); // 1 | 2 | 3 kolom katalog
 
   const [filters, setFilters] = useState({
     propertyType: 'all', // 'all' | 'villa' | 'glamping'
@@ -203,14 +204,25 @@ export default function App() {
 
   // Filter unit yang tampil di homepage
   const displayVillas = villas.filter(v => {
-    // 1. Search text
+    // 1. Search text — termasuk nomor katalog (misal: "03", "#03", "villa 3")
     if (filters.search && filters.search.trim() !== '') {
       const q = filters.search.toLowerCase().trim();
       const matchName = (v.name || '').toLowerCase().includes(q);
       const matchDesc = (v.desc || '').toLowerCase().includes(q);
       const matchLoc = (v.location || '').toLowerCase().includes(q);
       const matchFeat = (v.features || []).some(f => f.toLowerCase().includes(q));
-      if (!matchName && !matchDesc && !matchLoc && !matchFeat) return false;
+      // Cek nomor katalog: cocok jika q adalah angka dan catalogNumber cocok
+      const catNum = v.catalogNumber ? String(v.catalogNumber).padStart(2, '0') : '';
+      const matchCatalog = catNum && (
+        q === catNum ||
+        q === String(v.catalogNumber) ||
+        q === `#${catNum}` ||
+        q === `villa ${catNum}` ||
+        q === `villa ${v.catalogNumber}` ||
+        q === `no ${catNum}` ||
+        q === `nomor ${catNum}`
+      );
+      if (!matchName && !matchDesc && !matchLoc && !matchFeat && !matchCatalog) return false;
     }
     // 2. Property type
     if (filters.propertyType !== 'all') {
@@ -308,6 +320,7 @@ export default function App() {
       <LandingGateway
         settings={settings}
         initialFilters={filters}
+        villas={villas}
         onComplete={(chosenFilters) => {
           setFilters(prev => ({
             ...prev,
@@ -438,9 +451,56 @@ export default function App() {
               </h2>
             </div>
             
-            <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800 self-start sm:self-auto">
-              Menampilkan <strong className="text-brand-900 font-extrabold">{displayVillas.length}</strong> Unit
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Toggle Grid Layout */}
+              <div className="flex items-center bg-sand-100 rounded-xl p-0.5 border border-sand-200">
+                <button
+                  onClick={() => setGridCols(1)}
+                  title="1 kolom"
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${gridCols === 1 ? 'bg-brand-900 text-amber-300 shadow' : 'text-sand-600 hover:text-sand-900'}`}
+                >
+                  <i className="fa-solid fa-list"></i>
+                </button>
+                <button
+                  onClick={() => setGridCols(2)}
+                  title="2 kolom"
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${gridCols === 2 ? 'bg-brand-900 text-amber-300 shadow' : 'text-sand-600 hover:text-sand-900'}`}
+                >
+                  <i className="fa-solid fa-table-columns"></i>
+                </button>
+                <button
+                  onClick={() => setGridCols(3)}
+                  title="3 kolom"
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${gridCols === 3 ? 'bg-brand-900 text-amber-300 shadow' : 'text-sand-600 hover:text-sand-900'}`}
+                >
+                  <i className="fa-solid fa-grip"></i>
+                </button>
+              </div>
+
+              {/* Cari by Nama / No. Katalog */}
+              <div className="relative">
+                <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs pointer-events-none"></i>
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  placeholder="Cari nama / no. villa..."
+                  className="pl-7 pr-3 py-1.5 text-xs font-medium rounded-xl border border-sand-300 bg-white text-sand-900 placeholder-sand-400 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-300 w-44 sm:w-52"
+                />
+                {filters.search && (
+                  <button
+                    onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sand-400 hover:text-sand-700"
+                  >
+                    <i className="fa-solid fa-xmark text-xs"></i>
+                  </button>
+                )}
+              </div>
+
+              <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800">
+                Menampilkan <strong className="text-brand-900 font-extrabold">{displayVillas.length}</strong> Unit
+              </span>
+            </div>
           </div>
 
           {/* Kondisi Loading vs Konten */}
@@ -498,7 +558,11 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className={`grid gap-4 sm:gap-6 ${
+              gridCols === 1 ? 'grid-cols-1' :
+              gridCols === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+              'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+            }`}>
               {displayVillas.map(item => (
                 <VillaCard 
                   key={item.id} 

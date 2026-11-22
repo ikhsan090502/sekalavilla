@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { formatRupiah } from '../data/initialData';
 import { POPULAR_FACILITIES, FACILITY_CATEGORIES } from '../components/SearchFilter';
 
-export default function LandingGateway({ onComplete, onSkip, settings, initialFilters = {} }) {
+export default function LandingGateway({ onComplete, onSkip, settings, initialFilters = {}, villas = [] }) {
   // Input State: Destinasi (Default: 'all' / Semua Lokasi, atau sesuai initialFilters)
   const [destination, setDestination] = useState(
     initialFilters.location && initialFilters.location !== 'all'
@@ -56,6 +56,58 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
   const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
   const [showFacilityReminder, setShowFacilityReminder] = useState(false);
 
+  // Hitung jumlah villa yang cocok secara LIVE berdasarkan filter saat ini
+  const liveCount = useMemo(() => {
+    return villas.filter(v => {
+      // Location
+      if (destination !== 'all') {
+        const loc = (v.location || '').toLowerCase();
+        const dest = destination === 'tawangmangu' ? 'tawangmangu' : 'yogyakarta';
+        if (!loc.includes(dest)) return false;
+      }
+      // Sub-locations
+      if (subLocations.length > 0) {
+        const matchAny = subLocations.some(sub => {
+          const s = sub.toLowerCase();
+          return (v.name||'').toLowerCase().includes(s) || (v.location||'').toLowerCase().includes(s) || (v.subLocation||'').toLowerCase().includes(s) || (v.desc||'').toLowerCase().includes(s);
+        });
+        if (!matchAny) return false;
+      }
+      // Property type
+      if (propertyType !== 'all') {
+        if ((v.propertyType || 'villa').toLowerCase() !== propertyType.toLowerCase()) return false;
+      }
+      // Capacity
+      const minCap = parseInt(minCapacity) || 0;
+      const maxCap = parseInt(maxCapacity) || 0;
+      if (minCap > 0 && (v.capacity || 0) < minCap) return false;
+      if (maxCap > 0 && (v.capacity || 0) > maxCap) return false;
+      // Bedrooms
+      const minBed = parseInt(minBedrooms) || 0;
+      const maxBed = parseInt(maxBedrooms) || 0;
+      if (minBed > 0 && (v.bedrooms || 1) < minBed) return false;
+      if (maxBed > 0 && (v.bedrooms || 1) > maxBed) return false;
+      // Price
+      const rawMin = getRawNumber(minPriceDisplay);
+      const rawMax = getRawNumber(maxPriceDisplay);
+      if (rawMin > 0) {
+        const tol = Math.min(rawMin * 0.15, 200000);
+        if ((v.price || 0) < rawMin - tol) return false;
+      }
+      if (rawMax > 0) {
+        const tol = Math.min(rawMax * 0.15, 250000);
+        if ((v.price || 0) > rawMax + tol) return false;
+      }
+      // Facilities
+      if (selectedFacilities.length > 0) {
+        const feats = v.features || [];
+        const hasAll = selectedFacilities.every(fac => feats.some(f => f.toLowerCase().includes(fac.toLowerCase())));
+        if (!hasAll) return false;
+      }
+      return true;
+    }).length;
+  }, [villas, destination, subLocations, propertyType, minCapacity, maxCapacity, minBedrooms, maxBedrooms, minPriceDisplay, maxPriceDisplay, selectedFacilities]);
+
   const handleMinPriceChange = (e) => {
     const formatted = formatNumberWithDots(e.target.value);
     setMinPriceDisplay(formatted);
@@ -98,7 +150,11 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     if (selectedFacilities.length === 0 && !showFacilityReminder) {
-      setShowFacilityReminder(true);
+      // Langsung buka modal fasilitas jika belum pilih
+      setFacilitySearchQuery('');
+      setSelectedFacilityCategory('all');
+      setShowFacilityModal(true);
+      setShowFacilityReminder(true); // tandai sudah pernah diingatkan
       return;
     }
     setShowFacilityReminder(false);
@@ -269,6 +325,22 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
             Pilih lokasi, kapasitas, jumlah kamar, dan fasilitas. Sistem langsung menyajikan villa atau glamping yang paling cocok.
           </p>
         </div>
+
+        {/* LIVE COUNTER — tampil mencolok di atas form, sticky saat scroll */}
+        {villas.length > 0 && (
+          <div className="sticky top-0 z-20 -mx-3.5 sm:-mx-6 lg:-mx-8 px-3.5 sm:px-6 lg:px-8 py-2 bg-brand-900/95 backdrop-blur-sm shadow-lg mb-4 flex items-center justify-between gap-2">
+            <span className="text-xs text-amber-300 font-bold flex items-center gap-1.5">
+              <i className="fa-solid fa-sliders text-amber-400"></i>
+              Sesuaikan pilihan untuk hasil terbaik
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-xs text-sand-300 font-medium">Ditemukan:</span>
+              <span className={`font-black text-sm px-3 py-1 rounded-full border ${liveCount > 0 ? 'bg-amber-400 text-brand-950 border-amber-500' : 'bg-terracotta-600 text-white border-terracotta-700'}`}>
+                {liveCount} Villa {liveCount === 0 ? '😔' : '✓'}
+              </span>
+            </span>
+          </div>
+        )}
 
         {/* CARD CONTAINER PUTIH ELEGAN (WARNA PERSIS HALAMAN UTAMA) */}
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 sm:p-8 shadow-xl border border-sand-200 space-y-5 sm:space-y-6">
@@ -794,53 +866,51 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
             </button>
           </div>
 
-          {/* POPUP PENGINGAT FASILITAS — muncul jika user klik Buka Katalog tanpa pilih fasilitas */}
-          {showFacilityReminder && selectedFacilities.length === 0 && (
-            <div className="mt-3 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl text-sm text-brand-950 flex items-start gap-3 shadow-md">
-              <i className="fa-solid fa-lightbulb text-amber-500 text-lg mt-0.5 shrink-0"></i>
-              <div className="flex-1">
-                <span className="block font-black text-sm">Mau pilih fasilitas dulu? 😊</span>
-                <span className="block text-xs font-medium text-amber-900 mt-0.5">
-                  Contoh: Private Pool, View Gunung, Karaoke, Area BBQ, dll — biar rekomendasinya lebih pas!
+          {/* NOTE & LIVE COUNT — di bawah tombol aksi, mencolok */}
+          {villas.length > 0 && (
+            <div className={`rounded-2xl p-3 flex items-center justify-between gap-2 border-2 ${liveCount > 0 ? 'bg-emerald-50 border-emerald-300' : 'bg-terracotta-50 border-terracotta-300'}`}>
+              <div className="flex items-start gap-2 flex-1">
+                <i className={`fa-solid mt-0.5 text-sm ${liveCount > 0 ? 'fa-circle-check text-emerald-600' : 'fa-circle-exclamation text-terracotta-600'}`}></i>
+                <span className="text-xs font-bold text-sand-900">
+                  {liveCount > 0
+                    ? <>Ditemukan <strong className="text-emerald-700">{liveCount} villa</strong> sesuai pilihan Anda — klik <em>Buka Katalog</em> untuk melihat!</>
+                    : <>Belum ada villa yang cocok. <span className="text-terracotta-700">Coba ubah harga, kapasitas, atau lokasi</span> agar pilihan lebih banyak.</>
+                  }
                 </span>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFacilitySearchQuery('');
-                      setSelectedFacilityCategory('all');
-                      setShowFacilityModal(true);
-                      setShowFacilityReminder(false);
-                    }}
-                    className="bg-amber-400 text-brand-950 font-black text-xs px-4 py-2 rounded-xl border border-amber-500 hover:bg-amber-300 transition active:scale-95"
-                  >
-                    <i className="fa-solid fa-list-check mr-1.5"></i>
-                    Pilih Fasilitas
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowFacilityReminder(false);
-                      onComplete({
-                        location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
-                        subLocation: subLocations.join(', '),
-                        subLocations: subLocations,
-                        propertyType: propertyType,
-                        capacity: parseInt(minCapacity) || 0,
-                        maxCapacity: parseInt(maxCapacity) || 0,
-                        bedrooms: parseInt(minBedrooms) || 0,
-                        maxBedrooms: parseInt(maxBedrooms) || 0,
-                        minPrice: getRawNumber(minPriceDisplay),
-                        maxPrice: getRawNumber(maxPriceDisplay),
-                        facilities: []
-                      });
-                    }}
-                    className="bg-white text-sand-700 font-bold text-xs px-4 py-2 rounded-xl border border-sand-300 hover:bg-sand-100 transition active:scale-95"
-                  >
-                    Lewati, Buka Katalog →
-                  </button>
-                </div>
               </div>
+              <span className={`font-black text-lg shrink-0 ${liveCount > 0 ? 'text-emerald-600' : 'text-terracotta-600'}`}>
+                {liveCount}
+              </span>
+            </div>
+          )}
+
+          {/* POPUP — jika sudah pernah diingatkan pilih fasilitas & masih kosong → kasih opsi lewati */}
+          {showFacilityReminder && selectedFacilities.length === 0 && !showFacilityModal && (
+            <div className="p-3 bg-amber-50 border-2 border-amber-400 rounded-2xl text-sm text-brand-950 flex items-center gap-3">
+              <i className="fa-solid fa-lightbulb text-amber-500 shrink-0"></i>
+              <span className="flex-1 text-xs font-bold">Belum pilih fasilitas — atau langsung buka katalog?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowFacilityReminder(false);
+                  onComplete({
+                    location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
+                    subLocation: subLocations.join(', '),
+                    subLocations: subLocations,
+                    propertyType: propertyType,
+                    capacity: parseInt(minCapacity) || 0,
+                    maxCapacity: parseInt(maxCapacity) || 0,
+                    bedrooms: parseInt(minBedrooms) || 0,
+                    maxBedrooms: parseInt(maxBedrooms) || 0,
+                    minPrice: getRawNumber(minPriceDisplay),
+                    maxPrice: getRawNumber(maxPriceDisplay),
+                    facilities: []
+                  });
+                }}
+                className="bg-amber-400 text-brand-950 font-black text-xs px-3 py-1.5 rounded-xl border border-amber-500 hover:bg-amber-300 transition shrink-0 active:scale-95"
+              >
+                Lewati →
+              </button>
             </div>
           )}
 
