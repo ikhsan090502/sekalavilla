@@ -173,7 +173,15 @@ export default function SearchFilter({
                            (filters.maxBedrooms && filters.maxBedrooms > 0) || 
                            (filters.minPrice && filters.minPrice > 0) || 
                            (filters.budget && filters.budget < 5000000) ||
-                           (filters.propertyType && filters.propertyType !== 'all');
+                           (filters.propertyType && filters.propertyType !== 'all') ||
+                           (filters.facilities && filters.facilities.length > 0);
+
+  // Fasilitas yang ditampilkan di baris utama: 6 teratas + semua fasilitas yang sedang dipilih user
+  const visibleFacilities = useMemo(() => {
+    const topIds = TOP_FACILITIES.map(f => f.id);
+    const extraSelected = POPULAR_FACILITIES.filter(f => selectedFacilities.includes(f.id) && !topIds.includes(f.id));
+    return [...TOP_FACILITIES, ...extraSelected];
+  }, [selectedFacilities, TOP_FACILITIES]);
 
   const activeSubLocations = (filters.subLocations && filters.subLocations.length > 0)
     ? filters.subLocations
@@ -248,6 +256,14 @@ export default function SearchFilter({
                     {(filters.minPrice > 0 || filters.budget < 5000000) && (
                       <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 shadow-2xs">
                         💰 {filters.minPrice > 0 ? formatRupiah(filters.minPrice) : 'Rp 0'} - {formatRupiah(filters.budget)}
+                      </span>
+                    )}
+                    {selectedFacilities.length > 0 && (
+                      <span className="bg-amber-400 text-brand-950 text-xs font-black px-2.5 py-1 rounded-lg border border-amber-500 shadow-2xs flex items-center gap-1">
+                        ✨ Fasilitas ({selectedFacilities.length}): {selectedFacilities.map(fId => {
+                          const f = POPULAR_FACILITIES.find(p => p.id === fId);
+                          return f ? f.label : fId;
+                        }).join(', ')}
                       </span>
                     )}
                   </div>
@@ -556,9 +572,9 @@ export default function SearchFilter({
             )}
           </div>
 
-          {/* 6 FASILITAS UTAMA (CHIPS SAJA, KUNING CERAH KETIKA AKTIF) */}
+          {/* FASILITAS FAVORIT + SEMUA YANG SEDANG TERPILIH (CHIPS AKTIF KUNING CERAH) */}
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            {TOP_FACILITIES.map(fac => {
+            {visibleFacilities.map(fac => {
               const isSelected = selectedFacilities.includes(fac.id);
               return (
                 <button

@@ -1,4 +1,5 @@
 import { storage } from './storage';
+import { matchFacility } from '../data/initialData';
 
 // =========================================================================
 // 🔗 KONFIGURASI REST API VPS SEKALA VILLA
@@ -125,12 +126,10 @@ export const villaApi = {
       // Filter Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
       if (filters.facilities && Array.isArray(filters.facilities) && filters.facilities.length > 0) {
         const itemFeatures = v.features || [];
-        const hasAllSelected = filters.facilities.every(selectedFac =>
-          itemFeatures.some(f => f.toLowerCase().includes(selectedFac.toLowerCase()))
-        );
-        if (!hasAllSelected) return false;
+        const hasAny = filters.facilities.some(selectedFac => matchFacility(itemFeatures, selectedFac));
+        if (!hasAny) return false;
       } else if (filters.facility && filters.facility !== 'all') {
-        const hasFac = (v.features || []).some(f => f.toLowerCase().includes(filters.facility.toLowerCase()));
+        const hasFac = matchFacility(v.features, filters.facility);
         if (!hasFac) return false;
       }
       return true;

@@ -70,7 +70,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80',
     ],
-    features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater'],
+    features: ['Private Pool', 'View Gunung', 'Karaoke', 'Free Water Heater', 'Wifi 100Mbps', 'Garden BBQ Area', 'Dapur Ringkas', 'Parkir Luas'],
     desc: 'Villa eksklusif di kawasan Pancot Tawangmangu dengan view pegunungan Lawu yang memukau. Dilengkapi kolam renang privat, fasilitas karaoke lengkap, dan water heater untuk liburan keluarga besar.'
   },
   {
@@ -90,7 +90,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['Private Pool', 'View Gunung', 'Garden BBQ Area', 'Free Water Heater'],
+    features: ['Private Pool', 'View Gunung', 'Garden BBQ Area', 'Free Water Heater', 'Wifi 100Mbps', 'Karaoke', 'Dapur Ringkas', 'Parkir Luas'],
     desc: 'Villa sejuk di kawasan Sekipan Tawangmangu dengan private pool outdoor, balkon pemandangan bukit, dan area BBQ siap pakai.'
   },
 
@@ -113,7 +113,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1499363536502-87642509e31b?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['View Kebun Teh', 'View Gunung', 'Free Water Heater', 'Wifi 100Mbps'],
+    features: ['View Kebun Teh', 'View Gunung', 'Free Water Heater', 'Wifi 100Mbps', 'Garden BBQ Area', 'Api Unggun', 'Balkon Rooftop'],
     desc: 'Pengalaman menginap glamping mewah di tengah hamparan kebun teh Kemuning dengan pemandangan langsung Gunung Lawu. Kasur empuk, air hangat, dan api unggun.'
   },
   {
@@ -133,7 +133,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1506535772317-9fca71c959c6?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps'],
+    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps', 'Free Water Heater', 'Api Unggun'],
     desc: 'Tenda dome estetik di kawasan Blumbang lereng Lawu beratap transparan untuk melihat bintang di malam hari. Lokasi sejuk dengan spot grill BBQ.'
   },
 
@@ -155,7 +155,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['View Gunung', 'Karaoke', 'Dapur Ringkas', 'Garden BBQ Area'],
+    features: ['View Gunung', 'Karaoke', 'Dapur Ringkas', 'Garden BBQ Area', 'Free Water Heater', 'Wifi 100Mbps', 'Parkir Luas', 'Smart TV & Netflix'],
     desc: 'Rumah homestay besar 5 kamar di area Tawangmangu Bawah dekat Grojogan Sewu dan pasar wisata. Fasilitas karaoke dan dapur masak lengkap.'
   },
 
@@ -178,7 +178,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
     ],
-    features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
+    features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps', 'Free Water Heater', 'Dapur Ringkas', 'AC / Pendingin', 'Parkir Luas', 'Smart TV & Netflix'],
     desc: 'Villa bergaya heritage modern di kawasan Sleman Yogyakarta. Cocok untuk staycation keluarga dengan kolam renang privat dan area outdoor BBQ.'
   },
   {
@@ -198,7 +198,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps'],
+    features: ['Private Pool', 'Karaoke', 'Garden BBQ Area', 'Wifi 100Mbps', 'Free Water Heater', 'Billiard', 'Smart TV & Netflix', 'AC / Pendingin', 'Parkir Luas', 'Dapur Ringkas', 'Playground'],
     desc: 'Estate mewah berkapasitas besar di area Kaliurang Jogja. Kolam renang luas, gazebo santai, dan taman tropis yang sejuk.'
   },
 
@@ -218,10 +218,10 @@ export const DEFAULT_VILLAS = [
     image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
     images: [
       'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1499363536502-87642509e31b?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps', 'Free Water Heater'],
-    desc: 'Glamping estetik di lereng Gunung Merapi Kaliurang. Udara sejuk, pemandangan pepohonan rindang, dan tempat santai api unggun.'
+    features: ['View Gunung', 'Garden BBQ Area', 'Wifi 100Mbps', 'Free Water Heater', 'Api Unggun', 'Balkon Rooftop'],
+    desc: 'Glamping estetik di lereng Merapi Kaliurang dengan view langsung puncak Merapi saat pagi hari. Udara sejuk dan area api unggun malam.'
   },
 
   // 6. JOGJA - HOMESTAY
@@ -242,7 +242,7 @@ export const DEFAULT_VILLAS = [
       'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=800&q=80'
     ],
-    features: ['Dapur Ringkas', 'Wifi 100Mbps', 'Parkir Luas', 'Free Water Heater'],
+    features: ['Dapur Ringkas', 'Wifi 100Mbps', 'Parkir Luas', 'Free Water Heater', 'Karaoke', 'AC / Pendingin', 'Smart TV & Netflix'],
     desc: 'Homestay bernuansa kayu klasik dengan dapur lengkap, ruang keluarga luas, dan halaman parkir untuk 3 mobil di Yogyakarta.'
   }
 ];
@@ -483,4 +483,35 @@ export function formatRupiah(num) {
 export function formatCatalogNumber(num) {
   const n = parseInt(num) || 1;
   return `#${String(n).padStart(2, '0')}`;
+}
+
+// Helper cerdas mencocokkan fasilitas (dengan normalisasi dan alias)
+export function matchFacility(villaFeatures = [], targetFacility = '') {
+  if (!targetFacility) return true;
+  const target = targetFacility.toLowerCase().trim();
+  
+  // Keyword aliases
+  let keywords = [];
+  if (target.includes('pool') || target.includes('kolam')) keywords = ['pool', 'kolam'];
+  else if (target.includes('gunung')) keywords = ['gunung'];
+  else if (target.includes('teh') || target.includes('kebun')) keywords = ['kebun teh', 'teh'];
+  else if (target.includes('karaoke')) keywords = ['karaoke'];
+  else if (target.includes('heater') || target.includes('air panas')) keywords = ['heater', 'air panas'];
+  else if (target.includes('wifi') || target.includes('internet')) keywords = ['wifi', 'internet'];
+  else if (target.includes('bbq') || target.includes('barbeque')) keywords = ['bbq', 'barbeque'];
+  else if (target.includes('dapur') || target.includes('masak') || target.includes('kitchen')) keywords = ['dapur', 'masak', 'kitchen'];
+  else if (target.includes('unggun')) keywords = ['unggun'];
+  else if (target.includes('billiard') || target.includes('biliar')) keywords = ['billiard', 'biliar'];
+  else if (target.includes('parkir') || target.includes('bus')) keywords = ['parkir', 'bus'];
+  else if (target.includes('playground') || target.includes('anak')) keywords = ['playground', 'anak'];
+  else if (target.includes('tv') || target.includes('netflix')) keywords = ['tv', 'netflix'];
+  else if (target.includes('ac') || target.includes('pendingin')) keywords = ['ac', 'pendingin', 'air conditioner'];
+  else if (target.includes('balkon') || target.includes('rooftop')) keywords = ['balkon', 'rooftop'];
+  else keywords = [target];
+
+  return (villaFeatures || []).some(f => {
+    const fLow = (f || '').toLowerCase();
+    if (fLow.includes(target) || target.includes(fLow)) return true;
+    return keywords.some(k => fLow.includes(k));
+  });
 }

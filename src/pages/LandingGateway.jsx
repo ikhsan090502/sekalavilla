@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { formatRupiah } from '../data/initialData';
+import { formatRupiah, matchFacility } from '../data/initialData';
 import { POPULAR_FACILITIES, FACILITY_CATEGORIES } from '../components/SearchFilter';
 
 export default function LandingGateway({ onComplete, onSkip, settings, initialFilters = {}, villas = [] }) {
@@ -58,7 +58,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
 
   // Hitung jumlah villa yang cocok secara LIVE berdasarkan filter saat ini
   const liveCount = useMemo(() => {
-    return villas.filter(v => {
+    const baseMatches = villas.filter(v => {
       // Location
       if (destination !== 'all') {
         const loc = (v.location || '').toLowerCase();
@@ -98,15 +98,41 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
         const tol = Math.min(rawMax * 0.15, 250000);
         if ((v.price || 0) > rawMax + tol) return false;
       }
-      // Facilities
-      if (selectedFacilities.length > 0) {
-        const feats = v.features || [];
-        const hasAll = selectedFacilities.every(fac => feats.some(f => f.toLowerCase().includes(fac.toLowerCase())));
-        if (!hasAll) return false;
-      }
       return true;
-    }).length;
+    });
+
+    if (selectedFacilities.length === 0) {
+      return baseMatches.length;
+    }
+
+    // Cek yang punya SEMUA fasilitas
+    const full = baseMatches.filter(v => {
+      const feats = v.features || [];
+      return selectedFacilities.every(fac => matchFacility(feats, fac));
+    });
+
+    if (full.length > 0) return full.length;
+
+    // Jika tidak ada yang 100% lengkap, hitung yang punya minimal 1 fasilitas terpilih
+    const partial = baseMatches.filter(v => {
+      const feats = v.features || [];
+      return selectedFacilities.some(fac => matchFacility(feats, fac));
+    });
+
+    return partial.length;
   }, [villas, destination, subLocations, propertyType, minCapacity, maxCapacity, minBedrooms, maxBedrooms, minPriceDisplay, maxPriceDisplay, selectedFacilities]);
+
+  // Hitung jumlah unit yang memiliki fasilitas tertentu
+  const getFacilityCount = (facilityId) => {
+    return villas.filter(v => {
+      if (destination !== 'all') {
+        const loc = (v.location || '').toLowerCase();
+        const dest = destination === 'tawangmangu' ? 'tawangmangu' : 'yogyakarta';
+        if (!loc.includes(dest)) return false;
+      }
+      return matchFacility(v.features, facilityId);
+    }).length;
+  };
 
   const handleMinPriceChange = (e) => {
     const formatted = formatNumberWithDots(e.target.value);
@@ -334,7 +360,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               Sesuaikan pilihan untuk hasil terbaik
             </span>
             <span className="flex items-center gap-2">
-              <span className="text-xs text-sand-300 font-medium">Ditemukan:</span>
+              <span className="text-xs text-white font-bold">Ditemukan:</span>
               <span className={`font-black text-sm px-3 py-1 rounded-full border ${liveCount > 0 ? 'bg-amber-400 text-brand-950 border-amber-500' : 'bg-terracotta-600 text-white border-terracotta-700'}`}>
                 {liveCount} Villa {liveCount === 0 ? '😔' : '✓'}
               </span>
@@ -830,13 +856,38 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   <span className="text-xs text-amber-700 font-semibold">({POPULAR_FACILITIES.length} pilihan)</span>
                 )}
               </button>
+              {/* Badges Fasilitas yang Sudah Dipilih (Bisa Dilihat & Dihapus) */}
+              {selectedFacilities.length > 0 && (
+                <div className="w-full flex flex-wrap gap-1.5 pt-2">
+                  {selectedFacilities.map(fId => {
+                    const facObj = POPULAR_FACILITIES.find(f => f.id === fId);
+                    return (
+                      <span
+                        key={fId}
+                        className="inline-flex items-center gap-1.5 bg-amber-400 text-brand-950 font-black text-xs px-2.5 py-1 rounded-xl border border-amber-500 shadow-2xs animate-in fade-in"
+                      >
+                        <i className={`fa-solid ${facObj?.icon || 'fa-check'} text-xs text-brand-950`}></i>
+                        <span>{facObj?.label || fId}</span>
+                        <button
+                          type="button"
+                          onClick={() => toggleFacility(fId)}
+                          className="hover:text-red-700 ml-1 text-brand-950/70 hover:text-brand-950"
+                          title="Hapus fasilitas ini"
+                        >
+                          <i className="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
               {selectedFacilities.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setSelectedFacilities([])}
-                  className="text-xs text-terracotta-600 font-bold hover:underline mx-auto"
+                  className="text-xs text-terracotta-600 font-bold hover:underline mx-auto block pt-1"
                 >
-                  Hapus Pilihan Fasilitas
+                  Hapus Semua Pilihan Fasilitas
                 </button>
               )}
             </div>
@@ -1103,11 +1154,14 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   <i className="fa-solid fa-list-check"></i>
                 </span>
                 <div>
-                  <h3 className="font-serif font-bold text-base text-brand-900 leading-tight">
-                    Semua Kategori Fasilitas
+                  <h3 className="font-serif font-bold text-base text-brand-900 leading-tight flex items-center gap-2">
+                    <span>Semua Kategori Fasilitas</span>
+                    <span className="text-xs bg-amber-400 text-brand-950 font-black px-2 py-0.5 rounded-full border border-amber-500 shadow-2xs">
+                      {liveCount} Villa Cocok
+                    </span>
                   </h3>
                   <span className="text-xs text-sand-500 font-medium">
-                    Pilih fasilitas yang wajib ada di villa Anda
+                    Pilih fasilitas yang diinginkan (angka menunjukkan unit tersedia)
                   </span>
                 </div>
               </div>
@@ -1180,6 +1234,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       <div className="flex items-center gap-2 truncate">
                         <i className={`fa-solid ${fac.icon || 'fa-tag'} ${isSelected ? 'text-brand-950' : 'text-emerald-700'}`}></i>
                         <span className="truncate">{fac.label}</span>
+                        <span className={`text-[10px] font-bold shrink-0 ${isSelected ? 'text-brand-950' : 'text-sand-500'}`}>
+                          ({getFacilityCount(fac.id)})
+                        </span>
                       </div>
                       <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : 'fa-square text-sand-300'} text-base shrink-0 ml-1`}></i>
                     </button>
@@ -1209,9 +1266,9 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               <button
                 type="button"
                 onClick={() => setShowFacilityModal(false)}
-                className="bg-amber-400 hover:bg-amber-300 text-brand-950 border border-amber-500 font-black text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition"
+                className="bg-amber-400 hover:bg-amber-300 text-brand-950 border border-amber-500 font-black text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition active:scale-95"
               >
-                Terapkan ({selectedFacilities.length} Fasilitas)
+                Terapkan ({selectedFacilities.length} Fasilitas • {liveCount} Villa)
               </button>
             </div>
 

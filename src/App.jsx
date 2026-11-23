@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { villaApi } from './services/api';
 import { storage } from './services/storage';
+import { matchFacility } from './data/initialData';
 import Header from './components/Header';
 import BannerSlider from './components/BannerSlider';
 import SearchFilter from './components/SearchFilter';
@@ -203,97 +204,115 @@ export default function App() {
   };
 
   // Filter unit yang tampil di homepage
-  const displayVillas = villas.filter(v => {
-    // 1. Search text — termasuk nomor katalog (misal: "03", "#03", "villa 3")
-    if (filters.search && filters.search.trim() !== '') {
-      const q = filters.search.toLowerCase().trim();
-      const matchName = (v.name || '').toLowerCase().includes(q);
-      const matchDesc = (v.desc || '').toLowerCase().includes(q);
-      const matchLoc = (v.location || '').toLowerCase().includes(q);
-      const matchFeat = (v.features || []).some(f => f.toLowerCase().includes(q));
-      // Cek nomor katalog: cocok jika q adalah angka dan catalogNumber cocok
-      const catNum = v.catalogNumber ? String(v.catalogNumber).padStart(2, '0') : '';
-      const matchCatalog = catNum && (
-        q === catNum ||
-        q === String(v.catalogNumber) ||
-        q === `#${catNum}` ||
-        q === `villa ${catNum}` ||
-        q === `villa ${v.catalogNumber}` ||
-        q === `no ${catNum}` ||
-        q === `nomor ${catNum}`
-      );
-      if (!matchName && !matchDesc && !matchLoc && !matchFeat && !matchCatalog) return false;
-    }
-    // 2. Property type
-    if (filters.propertyType !== 'all') {
-      const pType = (v.propertyType || 'villa').toLowerCase();
-      if (pType !== filters.propertyType.toLowerCase()) return false;
-    }
-    // 3. Location
-    if (filters.location !== 'all') {
-      const loc = (v.location || '').toLowerCase();
-      if (!loc.includes(filters.location.toLowerCase())) return false;
-    }
-    // 3B. Sub-location (Sekipan, Pancot, Blumbang, Kemuning, Kaliurang, dll) - Multi-select
-    const activeSubLocs = (filters.subLocations && filters.subLocations.length > 0)
-      ? filters.subLocations
-      : (filters.subLocation ? filters.subLocation.split(',').map(s => s.trim()).filter(Boolean) : []);
+  const displayVillas = useMemo(() => {
+    const filtered = villas.filter(v => {
+      // 1. Search text — termasuk nomor katalog (misal: "03", "#03", "villa 3")
+      if (filters.search && filters.search.trim() !== '') {
+        const q = filters.search.toLowerCase().trim();
+        const matchName = (v.name || '').toLowerCase().includes(q);
+        const matchDesc = (v.desc || '').toLowerCase().includes(q);
+        const matchLoc = (v.location || '').toLowerCase().includes(q);
+        const matchFeat = (v.features || []).some(f => f.toLowerCase().includes(q));
+        // Cek nomor katalog: cocok jika q adalah angka dan catalogNumber cocok
+        const catNum = v.catalogNumber ? String(v.catalogNumber).padStart(2, '0') : '';
+        const matchCatalog = catNum && (
+          q === catNum ||
+          q === String(v.catalogNumber) ||
+          q === `#${catNum}` ||
+          q === `villa ${catNum}` ||
+          q === `villa ${v.catalogNumber}` ||
+          q === `no ${catNum}` ||
+          q === `nomor ${catNum}`
+        );
+        if (!matchName && !matchDesc && !matchLoc && !matchFeat && !matchCatalog) return false;
+      }
+      // 2. Property type
+      if (filters.propertyType !== 'all') {
+        const pType = (v.propertyType || 'villa').toLowerCase();
+        if (pType !== filters.propertyType.toLowerCase()) return false;
+      }
+      // 3. Location
+      if (filters.location !== 'all') {
+        const loc = (v.location || '').toLowerCase();
+        if (!loc.includes(filters.location.toLowerCase())) return false;
+      }
+      // 3B. Sub-location (Sekipan, Pancot, Blumbang, Kemuning, Kaliurang, dll) - Multi-select
+      const activeSubLocs = (filters.subLocations && filters.subLocations.length > 0)
+        ? filters.subLocations
+        : (filters.subLocation ? filters.subLocation.split(',').map(s => s.trim()).filter(Boolean) : []);
 
-    if (activeSubLocs.length > 0) {
-      const matchAnySubLoc = activeSubLocs.some(subLoc => {
-        const sub = subLoc.toLowerCase().trim();
-        const matchName = (v.name || '').toLowerCase().includes(sub);
-        const matchDesc = (v.desc || '').toLowerCase().includes(sub);
-        const matchLoc = (v.location || '').toLowerCase().includes(sub);
-        const matchSub = (v.subLocation || '').toLowerCase().includes(sub);
-        return matchName || matchDesc || matchLoc || matchSub;
-      });
-      if (!matchAnySubLoc) return false;
-    }
-    // 4. Category
-    if (filters.category && filters.category !== 'all') {
-      if ((v.category || 'Standard') !== filters.category) return false;
-    }
-    // 5. Capacity (range orang: min kapasitas & max kapasitas)
-    if (filters.capacity && filters.capacity > 0) {
-      if ((v.capacity || 0) < filters.capacity) return false;
-    }
-    if (filters.maxCapacity && filters.maxCapacity > 0) {
-      // Jika tamu mencari maksimal kapasitas (misal: rombongan maks 10 orang),
-      // kita berikan toleransi fleksibel agar villa berkapasitas pas atau sedikit di atasnya tetap tampil
-      if ((v.capacity || 0) > filters.maxCapacity) return false;
-    }
-    // 5B. Bedrooms (range kamar tidur: min & max kamar)
-    if (filters.bedrooms && filters.bedrooms > 0) {
-      if ((v.bedrooms || 1) < filters.bedrooms) return false;
-    }
-    if (filters.maxBedrooms && filters.maxBedrooms > 0) {
-      if ((v.bedrooms || 1) > filters.maxBedrooms) return false;
-    }
-    // 6. Range Harga: Fleksibel dengan toleransi harga mendekati (±15% atau 150rb)
-    // Jika tamu mencari minPrice (misal 1jt), unit yang harganya mendekati (misal 850rb - 900rb) tetap dimasukkan
-    if (filters.minPrice && filters.minPrice > 0) {
-      const minTolerance = Math.min(filters.minPrice * 0.15, 200000); // toleransi 15% atau maks 200rb
-      const effectiveMin = Math.max(0, filters.minPrice - minTolerance);
-      if ((v.price || 0) < effectiveMin) return false;
-    }
-    // Jika tamu mencari batas maksimal budget (misal 1jt), unit yang sedikit di atasnya (misal 1.1jt) atau di bawahnya tetap masuk
-    if (filters.budget && filters.budget > 0) {
-      const maxTolerance = Math.min(filters.budget * 0.15, 250000); // toleransi 15% atau maks 250rb
-      const effectiveMax = filters.budget + maxTolerance;
-      if ((v.price || 0) > effectiveMax) return false;
-    }
-    // 7. Multi-select Facilities (Bisa pilih banyak fasilitas sekaligus)
+      if (activeSubLocs.length > 0) {
+        const matchAnySubLoc = activeSubLocs.some(subLoc => {
+          const sub = subLoc.toLowerCase().trim();
+          const matchName = (v.name || '').toLowerCase().includes(sub);
+          const matchDesc = (v.desc || '').toLowerCase().includes(sub);
+          const matchLoc = (v.location || '').toLowerCase().includes(sub);
+          const matchSub = (v.subLocation || '').toLowerCase().includes(sub);
+          return matchName || matchDesc || matchLoc || matchSub;
+        });
+        if (!matchAnySubLoc) return false;
+      }
+      // 4. Category
+      if (filters.category && filters.category !== 'all') {
+        if ((v.category || 'Standard') !== filters.category) return false;
+      }
+      // 5. Capacity (range orang: min kapasitas & max kapasitas)
+      if (filters.capacity && filters.capacity > 0) {
+        if ((v.capacity || 0) < filters.capacity) return false;
+      }
+      if (filters.maxCapacity && filters.maxCapacity > 0) {
+        // Jika tamu mencari maksimal kapasitas (misal: rombongan maks 10 orang),
+        // kita berikan toleransi fleksibel agar villa berkapasitas pas atau sedikit di atasnya tetap tampil
+        if ((v.capacity || 0) > filters.maxCapacity) return false;
+      }
+      // 5B. Bedrooms (range kamar tidur: min & max kamar)
+      if (filters.bedrooms && filters.bedrooms > 0) {
+        if ((v.bedrooms || 1) < filters.bedrooms) return false;
+      }
+      if (filters.maxBedrooms && filters.maxBedrooms > 0) {
+        if ((v.bedrooms || 1) > filters.maxBedrooms) return false;
+      }
+      // 6. Range Harga: Fleksibel dengan toleransi harga mendekati (±15% atau 150rb)
+      // Jika tamu mencari minPrice (misal 1jt), unit yang harganya mendekati (misal 850rb - 900rb) tetap dimasukkan
+      if (filters.minPrice && filters.minPrice > 0) {
+        const minTolerance = Math.min(filters.minPrice * 0.15, 200000); // toleransi 15% atau maks 200rb
+        const effectiveMin = Math.max(0, filters.minPrice - minTolerance);
+        if ((v.price || 0) < effectiveMin) return false;
+      }
+      // Jika tamu mencari batas maksimal budget (misal 1jt), unit yang sedikit di atasnya (misal 1.1jt) atau di bawahnya tetap masuk
+      if (filters.budget && filters.budget > 0) {
+        const maxTolerance = Math.min(filters.budget * 0.15, 250000); // toleransi 15% atau maks 250rb
+        const effectiveMax = filters.budget + maxTolerance;
+        if ((v.price || 0) > effectiveMax) return false;
+      }
+      return true;
+    });
+
+    // 7. Multi-select Facilities (Smart Matching: 100% match didahulukan, jika tidak ada tampilkan yang paling banyak cocok)
     if (filters.facilities && Array.isArray(filters.facilities) && filters.facilities.length > 0) {
-      const itemFeatures = v.features || [];
-      const hasAllSelected = filters.facilities.every(selectedFac =>
-        itemFeatures.some(f => f.toLowerCase().includes(selectedFac.toLowerCase()))
-      );
-      if (!hasAllSelected) return false;
+      const fullMatches = filtered.filter(v => {
+        const itemFeatures = v.features || [];
+        return filters.facilities.every(selectedFac => matchFacility(itemFeatures, selectedFac));
+      });
+
+      if (fullMatches.length > 0) {
+        return fullMatches;
+      }
+
+      // Fallback: Tampilkan unit yang memiliki minimal 1 fasilitas cocok, diurutkan terbanyak
+      return filtered
+        .map(v => {
+          const itemFeatures = v.features || [];
+          const count = filters.facilities.filter(selectedFac => matchFacility(itemFeatures, selectedFac)).length;
+          return { villa: v, matchCount: count };
+        })
+        .filter(item => item.matchCount > 0)
+        .sort((a, b) => b.matchCount - a.matchCount)
+        .map(item => item.villa);
     }
 
-    return true;
-  });
+    return filtered;
+  }, [villas, filters]);
 
   // Judul dinamis katalog sesuai tipe yang dipilih
   const getCatalogHeading = () => {

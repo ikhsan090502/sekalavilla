@@ -23,7 +23,17 @@ export const storage = {
   getVillas: () => {
     try {
       const raw = localStorage.getItem(KEY_VILLAS);
-      return raw ? JSON.parse(raw) : DEFAULT_VILLAS;
+      if (!raw) return DEFAULT_VILLAS;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_VILLAS;
+      // Sinkronkan features terbaru dari DEFAULT_VILLAS jika unit default
+      return parsed.map(v => {
+        const def = DEFAULT_VILLAS.find(d => d.id === v.id);
+        if (def && (!v.features || v.features.length < def.features.length)) {
+          return { ...v, features: def.features };
+        }
+        return v;
+      });
     } catch {
       return DEFAULT_VILLAS;
     }
