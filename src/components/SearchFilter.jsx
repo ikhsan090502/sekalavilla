@@ -721,7 +721,7 @@ export default function SearchFilter({
             >
               <i className="fa-solid fa-sliders text-xs"></i>
               <span className="truncate">Semua Filter</span>
-              <span className="bg-brand-950 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full">
+              <span className="bg-white text-brand-950 text-[10px] font-black px-2 py-0.5 rounded-full">
                 {modalLiveCount} Villa
               </span>
             </button>
