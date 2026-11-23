@@ -195,6 +195,48 @@ export default function SearchFilter({
     return [...TOP_FACILITIES, ...extraSelected];
   }, [selectedFacilities, TOP_FACILITIES]);
 
+  // Hitung berapa unit villa yang cocok secara LIVE dengan kriteria & fasilitas saat ini
+  const modalLiveCount = useMemo(() => {
+    return (villas || []).filter(v => {
+      // 1. Property type
+      if (filters.propertyType && filters.propertyType !== 'all') {
+        const pType = (v.propertyType || 'villa').toLowerCase();
+        if (pType !== filters.propertyType.toLowerCase()) return false;
+      }
+      // 2. Location
+      if (filters.location && filters.location !== 'all') {
+        const loc = (v.location || '').toLowerCase();
+        if (!loc.includes(filters.location.toLowerCase())) return false;
+      }
+      // 3. Sub-locations
+      const activeSubLocs = (filters.subLocations && filters.subLocations.length > 0)
+        ? filters.subLocations
+        : (filters.subLocation ? filters.subLocation.split(',').map(s => s.trim()).filter(Boolean) : []);
+      if (activeSubLocs.length > 0) {
+        const matchAnySubLoc = activeSubLocs.some(subLoc => {
+          const sub = subLoc.toLowerCase().trim();
+          return (v.name||'').toLowerCase().includes(sub) || (v.location||'').toLowerCase().includes(sub) || (v.subLocation||'').toLowerCase().includes(sub);
+        });
+        if (!matchAnySubLoc) return false;
+      }
+      // 4. Capacity
+      if (filters.capacity > 0 && (v.capacity || 0) < filters.capacity) return false;
+      if (filters.maxCapacity > 0 && (v.capacity || 0) > filters.maxCapacity) return false;
+      // 5. Bedrooms
+      if (filters.bedrooms > 0 && (v.bedrooms || 1) < filters.bedrooms) return false;
+      if (filters.maxBedrooms > 0 && (v.bedrooms || 1) > filters.maxBedrooms) return false;
+      // 6. Price
+      if (filters.minPrice > 0 && (v.price || 0) < filters.minPrice * 0.85) return false;
+      if (filters.budget < 5000000 && (v.price || 0) > filters.budget * 1.15) return false;
+      // 7. Facilities (termasuk yang sedang dicentang)
+      if (selectedFacilities.length > 0) {
+        const hasMatch = selectedFacilities.some(fac => matchFacility(v.features, fac));
+        if (!hasMatch) return false;
+      }
+      return true;
+    }).length;
+  }, [villas, filters, selectedFacilities]);
+
   const activeSubLocations = (filters.subLocations && filters.subLocations.length > 0)
     ? filters.subLocations
     : (filters.subLocation ? filters.subLocation.split(',').map(s => s.trim()).filter(Boolean) : []);
@@ -202,6 +244,35 @@ export default function SearchFilter({
   return (
     <section id="search-filter-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-3 sm:-mt-6 relative z-20">
       
+      {/* LIVE FLOATING COUNTER — mengambang / freeze saat scroll mengisi filter katalog */}
+      <div className="sticky top-2 z-30 mb-3 bg-brand-900/95 backdrop-blur-md text-white rounded-2xl px-4 py-2.5 shadow-xl border border-brand-800 flex items-center justify-between gap-3 animate-in fade-in">
+        <div className="flex items-center gap-2">
+          <span className="w-6 h-6 rounded-lg bg-amber-400 text-brand-950 flex items-center justify-center text-xs font-black shrink-0">
+            <i className="fa-solid fa-sliders"></i>
+          </span>
+          <div>
+            <span className="text-xs text-amber-300 font-bold block leading-none">
+              Hasil Filter Katalog
+            </span>
+            <span className="text-[10px] text-sand-200">
+              {modalLiveCount > 0 ? `${modalLiveCount} unit cocok tersedia` : 'Belum ada yang cocok, coba ubah kriteria'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-white font-bold hidden sm:inline">Ditemukan:</span>
+          <span className={`font-black text-xs sm:text-sm px-3.5 py-1 rounded-full border-2 shadow-sm flex items-center gap-1.5 ${
+            modalLiveCount > 0 
+              ? 'bg-amber-400 text-brand-950 border-amber-500' 
+              : 'bg-terracotta-600 text-white border-terracotta-700'
+          }`}>
+            <i className={`fa-solid ${modalLiveCount > 0 ? 'fa-check-circle' : 'fa-circle-exclamation'} text-xs`}></i>
+            <span>{modalLiveCount} Villa {modalLiveCount > 0 ? '✓' : '😔'}</span>
+          </span>
+        </div>
+      </div>
+
       {/* CARD PUTIH UTAMA (MEMBUNGKUS SEMUA FILTER TERMASUK STATUS & CARD KUNING) */}
       <div className={`bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-sand-200 space-y-4 sm:space-y-5 transition-all duration-300 ${
         hasCustomMatcher ? 'ring-2 ring-amber-300/50' : ''
@@ -210,14 +281,19 @@ export default function SearchFilter({
         {/* BAGIAN FILTER AKTIF: JUDUL & CARD KUNING DIMASUKKAN KE DALAM CARD PUTIH */}
         {hasCustomMatcher && (
           <div className="space-y-2.5 pb-3 border-b border-sand-100">
-            {/* 1. Judul Filter Pencarian Anda Sedang Aktif */}
-            <div className="flex items-center gap-2 px-1">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-              <span className="text-xs sm:text-sm font-serif font-bold text-brand-900 tracking-wide">
-                Filter Pencarian Anda Sedang Aktif
+            {/* 1. Judul Filter Pencarian Anda Sedang Aktif & Live Counter */}
+            <div className="flex items-center justify-between gap-2 px-1">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs sm:text-sm font-serif font-bold text-brand-900 tracking-wide">
+                  Filter Pencarian Anda Sedang Aktif
+                </span>
+              </div>
+              <span className="text-xs bg-amber-400 text-brand-950 font-black px-3 py-1 rounded-full border border-amber-500 shadow-xs shrink-0">
+                {modalLiveCount} Villa Terfilter ✓
               </span>
             </div>
 
@@ -333,6 +409,12 @@ export default function SearchFilter({
                 Temukan Villa & Glamping Pilihan
               </h3>
             </div>
+            <span className={`text-xs font-black px-3 py-1.5 rounded-xl border-2 shadow-2xs flex items-center gap-1.5 ${
+              modalLiveCount > 0 ? 'bg-amber-400 text-brand-950 border-amber-500' : 'bg-sand-200 text-sand-800 border-sand-300'
+            }`}>
+              <i className="fa-solid fa-house text-xs"></i>
+              <span>{modalLiveCount} Unit Tersedia</span>
+            </span>
           </div>
 
           {/* TAB TIPE AKOMODASI: SEMUA / VILLA / GLAMPING (WARNA KUNING CERAH AKTIF) */}
@@ -639,15 +721,9 @@ export default function SearchFilter({
             >
               <i className="fa-solid fa-sliders text-xs"></i>
               <span className="truncate">Semua Filter</span>
-              {extraSelectedCount > 0 ? (
-                <span className="bg-brand-950 text-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded-full">
-                  +{extraSelectedCount}
-                </span>
-              ) : (
-                <span className="text-[10px] text-brand-950 font-black bg-amber-200/80 px-1.5 py-0.5 rounded-full">
-                  ({POPULAR_FACILITIES.length})
-                </span>
-              )}
+              <span className="bg-brand-950 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full">
+                {modalLiveCount} Villa
+              </span>
             </button>
           </div>
         </div>
@@ -668,11 +744,14 @@ export default function SearchFilter({
                   <i className="fa-solid fa-list-check"></i>
                 </span>
                 <div>
-                  <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight">
-                    Pilih Fasilitas Unit
+                  <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight flex items-center gap-2">
+                    <span>Pilih Fasilitas Unit</span>
+                    <span className="text-xs bg-amber-400 text-brand-950 font-black px-2 py-0.5 rounded-full border border-amber-500 shadow-2xs">
+                      {modalLiveCount} Villa Cocok
+                    </span>
                   </h3>
                   <span className="text-[11px] text-sand-500">
-                    Filter fasilitas berdasarkan kategori atau nama
+                    Filter fasilitas berdasarkan kategori atau nama (angka menunjukkan unit tersedia)
                   </span>
                 </div>
               </div>

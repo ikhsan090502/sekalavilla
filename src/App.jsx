@@ -517,8 +517,8 @@ export default function App() {
                 )}
               </div>
 
-              <span className="text-xs font-bold bg-sand-200 px-3 py-1.5 rounded-xl text-sand-800">
-                Menampilkan <strong className="text-brand-900 font-extrabold">{displayVillas.length}</strong> Unit
+              <span className="text-xs font-black bg-amber-400 text-brand-950 border-2 border-amber-500 px-3.5 py-1.5 rounded-xl shadow-xs">
+                Ditemukan <strong className="text-brand-950 font-black text-sm">{displayVillas.length}</strong> Unit Villa
               </span>
             </div>
           </div>
@@ -659,10 +659,10 @@ export default function App() {
             <i className="fa-solid fa-arrow-up"></i>
           </span>
           <span className="hidden xs:inline sm:inline text-xs font-bold">
-            Sesuaikan Pilihan Villa Anda
+            Sesuaikan Pilihan Villa ({displayVillas.length})
           </span>
           <span className="inline xs:hidden sm:hidden text-xs font-black">
-            Filter Villa
+            Filter Villa ({displayVillas.length})
           </span>
         </button>
       </div>
