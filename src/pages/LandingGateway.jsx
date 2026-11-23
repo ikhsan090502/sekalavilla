@@ -56,6 +56,14 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
   const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
   const [showFacilityReminder, setShowFacilityReminder] = useState(false);
 
+  // Fasilitas Utama yang selalu tampil di baris depan + fasilitas terpilih
+  const TOP_FACILITIES = useMemo(() => POPULAR_FACILITIES.slice(0, 8), []);
+  const visibleFacilities = useMemo(() => {
+    const topIds = TOP_FACILITIES.map(f => f.id);
+    const extraSelected = POPULAR_FACILITIES.filter(f => selectedFacilities.includes(f.id) && !topIds.includes(f.id));
+    return [...TOP_FACILITIES, ...extraSelected];
+  }, [selectedFacilities, TOP_FACILITIES]);
+
   // Hitung jumlah villa yang cocok secara LIVE berdasarkan filter saat ini
   const liveCount = useMemo(() => {
     const baseMatches = villas.filter(v => {
@@ -830,8 +838,37 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               </div>
             </div>
             
-            {/* TOMBOL PILIH FASILITAS — 1 CTA Besar */}
+            {/* DAFTAR NAMA MENU PILIHAN FASILITAS (CHIPS AKTIF KUNING CERAH + HITUNGAN UNIT) */}
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {visibleFacilities.map(fac => {
+                const isSelected = selectedFacilities.includes(fac.id);
+                const count = getFacilityCount(fac.id);
+                return (
+                  <button
+                    key={fac.id}
+                    type="button"
+                    onClick={() => {
+                      toggleFacility(fac.id);
+                      setShowFacilityReminder(false);
+                    }}
+                    className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 border-2 active:scale-95 ${
+                      isSelected 
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 font-black shadow-sm scale-105' 
+                        : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
+                    }`}
+                  >
+                    <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
+                    <span>{fac.label}</span>
+                    {count > 0 && (
+                      <span className={`text-[10px] font-bold ${isSelected ? 'text-brand-950/80' : 'text-sand-400'}`}>
+                        ({count})
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+
+              {/* TOMBOL SEMUA FASILITAS */}
               <button
                 type="button"
                 onClick={() => {
@@ -840,56 +877,16 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   setShowFacilityModal(true);
                   setShowFacilityReminder(false);
                 }}
-                className={`w-full py-3 px-4 rounded-2xl border-2 transition flex items-center justify-center gap-2.5 active:scale-95 font-black text-sm ${
-                  selectedFacilities.length > 0
-                    ? 'border-amber-500 bg-amber-400 text-brand-950 shadow-md'
-                    : 'border-dashed border-amber-500 bg-amber-50 hover:bg-amber-100 text-brand-950'
-                }`}
+                className="px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-100 hover:bg-amber-200 text-brand-950 border-2 border-amber-300 shadow-2xs transition flex items-center gap-1.5 active:scale-95"
               >
                 <i className="fa-solid fa-list-check text-amber-700"></i>
-                <span>Pilih Fasilitas Sesuai Kebutuhan</span>
-                {selectedFacilities.length > 0 ? (
-                  <span className="bg-white text-brand-950 font-black text-xs px-2.5 py-1 rounded-full border border-amber-500">
-                    {selectedFacilities.length} dipilih ✓
+                <span>Semua Fasilitas ({POPULAR_FACILITIES.length})</span>
+                {selectedFacilities.length > 0 && (
+                  <span className="bg-amber-400 text-brand-950 font-black text-xs px-2 py-0.5 rounded-full border border-amber-500">
+                    {selectedFacilities.length}
                   </span>
-                ) : (
-                  <span className="text-xs text-amber-700 font-semibold">({POPULAR_FACILITIES.length} pilihan)</span>
                 )}
               </button>
-              {/* Badges Fasilitas yang Sudah Dipilih (Bisa Dilihat & Dihapus) */}
-              {selectedFacilities.length > 0 && (
-                <div className="w-full flex flex-wrap gap-1.5 pt-2">
-                  {selectedFacilities.map(fId => {
-                    const facObj = POPULAR_FACILITIES.find(f => f.id === fId);
-                    return (
-                      <span
-                        key={fId}
-                        className="inline-flex items-center gap-1.5 bg-amber-400 text-brand-950 font-black text-xs px-2.5 py-1 rounded-xl border border-amber-500 shadow-2xs animate-in fade-in"
-                      >
-                        <i className={`fa-solid ${facObj?.icon || 'fa-check'} text-xs text-brand-950`}></i>
-                        <span>{facObj?.label || fId}</span>
-                        <button
-                          type="button"
-                          onClick={() => toggleFacility(fId)}
-                          className="hover:text-red-700 ml-1 text-brand-950/70 hover:text-brand-950"
-                          title="Hapus fasilitas ini"
-                        >
-                          <i className="fa-solid fa-xmark text-xs"></i>
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-              {selectedFacilities.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedFacilities([])}
-                  className="text-xs text-terracotta-600 font-bold hover:underline mx-auto block pt-1"
-                >
-                  Hapus Semua Pilihan Fasilitas
-                </button>
-              )}
             </div>
           </div>
 
