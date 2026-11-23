@@ -452,6 +452,7 @@ export default function App() {
           setFilters={setFilters} 
           onReset={handleResetFilters}
           settings={settings}
+          villas={villas}
           onOpenGateway={() => {
             setShowLandingGateway(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });

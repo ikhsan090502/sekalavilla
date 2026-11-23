@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { formatRupiah, PROPERTY_TYPES } from '../data/initialData';
+import { formatRupiah, PROPERTY_TYPES, matchFacility } from '../data/initialData';
 
 export const POPULAR_FACILITIES = [
   { id: 'Private Pool', label: 'Private Pool', icon: 'fa-water-ladder', category: 'Utama' },
@@ -35,12 +35,24 @@ export default function SearchFilter({
   setFilters, 
   onReset,
   onOpenGateway,
-  settings
+  settings,
+  villas = []
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchFacility, setSearchFacility] = useState('');
   const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
   const [showCriteriaForm, setShowCriteriaForm] = useState(false);
+
+  // Hitung jumlah unit yang memiliki fasilitas tertentu
+  const getFacilityCount = (facilityId) => {
+    return (villas || []).filter(v => {
+      if (filters.location && filters.location !== 'all') {
+        const loc = (v.location || '').toLowerCase();
+        if (!loc.includes(filters.location.toLowerCase())) return false;
+      }
+      return matchFacility(v.features, facilityId);
+    }).length;
+  };
 
   // 6 Fasilitas Favorit Utama yang selalu tampil di baris depan
   const TOP_FACILITIES = POPULAR_FACILITIES.slice(0, 6);
@@ -576,6 +588,7 @@ export default function SearchFilter({
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {visibleFacilities.map(fac => {
               const isSelected = selectedFacilities.includes(fac.id);
+              const count = getFacilityCount(fac.id);
               return (
                 <button
                   key={fac.id}
@@ -589,6 +602,11 @@ export default function SearchFilter({
                 >
                   <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : (fac.icon || 'fa-tag')} text-xs ${!isSelected ? 'text-emerald-700' : ''}`}></i>
                   <span>{fac.label}</span>
+                  {count > 0 && (
+                    <span className={`text-[10px] font-bold ${isSelected ? 'text-brand-950/80' : 'text-sand-400'}`}>
+                      ({count})
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -744,7 +762,12 @@ export default function SearchFilter({
                       <div className="flex items-center gap-2.5">
                         <i className={`fa-solid ${fac.icon || 'fa-tag'} text-sm ${isSelected ? 'text-brand-950' : 'text-emerald-700'}`}></i>
                         <div>
-                          <span className="block leading-tight">{fac.label}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="block leading-tight">{fac.label}</span>
+                            <span className={`text-[10px] font-bold ${isSelected ? 'text-brand-950' : 'text-sand-500'}`}>
+                              ({getFacilityCount(fac.id)} unit)
+                            </span>
+                          </div>
                           {fac.category && (
                             <span className={`text-[9px] uppercase tracking-wider block font-semibold ${isSelected ? 'text-brand-900' : 'text-sand-400'}`}>
                               {fac.category}
@@ -804,7 +827,7 @@ export default function SearchFilter({
                   onClick={() => setModalOpen(false)}
                   className="bg-amber-400 hover:bg-amber-300 text-brand-950 font-black text-xs px-5 py-2.5 rounded-xl border border-amber-500 shadow-sm transition active:scale-95"
                 >
-                  Terapkan Filter
+                  Terapkan ({selectedFacilities.length} Fasilitas)
                 </button>
               </div>
             </div>
