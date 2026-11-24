@@ -518,3 +518,114 @@ export function matchFacility(villaFeatures = [], targetFacility = '') {
     return keywords.some(k => fLow.includes(k));
   });
 }
+
+/**
+ * Helper pencarian cerdas & real-time untuk Villa:
+ * Mendukung pencarian presisi berdasarkan:
+ * - Nomor katalog / unit: "3", "03", "#3", "#03", "villa 3", "villa no 3", "villa no. 3", "villa nomor 3", "no 3", "v3", dll.
+ * - Nama villa, sub-lokasi, kota, deskripsi, badge
+ * - Fasilitas yang dimiliki unit
+ * - Pencarian multi-kata kombinasi (misal: "villa no 3 kemuning", "private pool noman")
+ */
+export function matchVillaSearch(v, rawQuery) {
+  if (!rawQuery || typeof rawQuery !== 'string' || !rawQuery.trim()) return true;
+  const q = rawQuery.toLowerCase().trim();
+
+  const name = (v.name || '').toLowerCase();
+  const desc = (v.desc || '').toLowerCase();
+  const loc = (v.location || '').toLowerCase();
+  const subLoc = (v.subLocation || '').toLowerCase();
+  const badge = (v.badge || '').toLowerCase();
+  const features = (v.features || []).map(f => (f || '').toLowerCase());
+  const catNum = v.catalogNumber !== undefined && v.catalogNumber !== null ? parseInt(v.catalogNumber, 10) : null;
+
+  // 1. Ekstrak apakah query adalah pencarian nomor unit murni
+  // Pola seperti: "3", "03", "#3", "#03", "villa 3", "villa no 3", "villa no. 3", "villa nomor 3", "no 3", "no. 3", "v3", "unit 3"
+  const cleanedQueryForNum = q
+    .replace(/villa/gi, '')
+    .replace(/glamping/gi, '')
+    .replace(/homestay/gi, '')
+    .replace(/resort/gi, '')
+    .replace(/unit/gi, '')
+    .replace(/nomor/gi, '')
+    .replace(/no\./gi, '')
+    .replace(/no/gi, '')
+    .replace(/#/g, '')
+    .replace(/^v/i, '')
+    .trim();
+
+  const isPureNumberSearch = cleanedQueryForNum !== '' && /^\d+$/.test(cleanedQueryForNum);
+
+  if (isPureNumberSearch) {
+    const targetCatNum = parseInt(cleanedQueryForNum, 10);
+    // Jika nomor katalog cocok persis, langsung cocok!
+    if (catNum !== null && catNum === targetCatNum) {
+      return true;
+    }
+    // Jika tidak cocok nomor katalog, hanya cocok jika nama villa memang mengandung query teks tersebut
+    // (JANGAN mencocokkan features/desc agar tidak tertukar dengan teks "Wifi 100Mbps" atau "3 kamar")
+    if (name.includes(q)) {
+      return true;
+    }
+    return false;
+  }
+
+  // 2. Cek apakah query persis substring dari Nama Villa, Sub-lokasi, Lokasi, atau Badge
+  if (name.includes(q) || subLoc.includes(q) || loc.includes(q) || badge.includes(q)) {
+    return true;
+  }
+
+  // 3. Cek apakah query ada di fasilitas (misal: "private pool", "karaoke", "water heater")
+  if (features.some(f => f.includes(q) || q.includes(f))) {
+    return true;
+  }
+
+  // 4. Cek apakah ada di deskripsi
+  if (desc.includes(q)) {
+    return true;
+  }
+
+  // 5. Pencarian Multi-Kata Kombinasi (misal: "villa no 3 kemuning", "kemuning pool", "lawu private pool")
+  const words = q.split(/\s+/).filter(w => w.length > 0);
+  if (words.length > 1) {
+    // Cari apakah salah satu kata mengindikasikan nomor katalog (misal: "3", "#3", "no.3")
+    let targetNumInWords = null;
+    const nonNumberWords = [];
+
+    for (let i = 0; i < words.length; i++) {
+      const w = words[i];
+      const wClean = w.replace(/#/g, '').replace(/no\./gi, '').replace(/no/gi, '').replace(/^v/i, '').trim();
+      if (wClean !== '' && /^\d+$/.test(wClean)) {
+        targetNumInWords = parseInt(wClean, 10);
+      } else if (!['villa', 'glamping', 'unit', 'no', 'nomor', 'di'].includes(w)) {
+        nonNumberWords.push(w);
+      }
+    }
+
+    // Jika ada nomor target dalam kata-kata pencarian (misal "villa no 3 kemuning")
+    if (targetNumInWords !== null) {
+      if (catNum !== targetNumInWords && !name.includes(String(targetNumInWords))) {
+        return false;
+      }
+    }
+
+    // Semua kata non-nomor lainnya harus cocok dengan nama, lokasi, fasilitas, atau deskripsi
+    if (nonNumberWords.length > 0) {
+      const allNonNumMatch = nonNumberWords.every(word => {
+        return (
+          name.includes(word) ||
+          subLoc.includes(word) ||
+          loc.includes(word) ||
+          badge.includes(word) ||
+          desc.includes(word) ||
+          features.some(f => f.includes(word))
+        );
+      });
+      if (allNonNumMatch) return true;
+    } else if (targetNumInWords !== null && catNum === targetNumInWords) {
+      return true;
+    }
+  }
+
+  return false;
+}

@@ -1,5 +1,5 @@
 import { storage } from './storage';
-import { matchFacility } from '../data/initialData';
+import { matchFacility, matchVillaSearch } from '../data/initialData';
 
 // =========================================================================
 // 🔗 KONFIGURASI REST API VPS SEKALA VILLA
@@ -93,14 +93,9 @@ export const villaApi = {
     // 2. FALLBACK LOKAL (Jika API belum ada atau gagal dihubungi)
     const all = storage.getVillas();
     return all.filter(v => {
-      // Filter Pencarian Teks
-      if (filters.search && filters.search.trim() !== '') {
-        const q = filters.search.toLowerCase().trim();
-        const matchName = (v.name || '').toLowerCase().includes(q);
-        const matchDesc = (v.desc || '').toLowerCase().includes(q);
-        const matchLoc = (v.location || '').toLowerCase().includes(q);
-        const matchFeat = (v.features || []).some(f => f.toLowerCase().includes(q));
-        if (!matchName && !matchDesc && !matchLoc && !matchFeat) return false;
+      // Filter Pencarian Teks & Nomor Katalog Cerdas (Real-time)
+      if (filters.search && !matchVillaSearch(v, filters.search)) {
+        return false;
       }
 
       if (filters.propertyType && filters.propertyType !== 'all') {

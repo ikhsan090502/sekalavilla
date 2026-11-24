@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { formatRupiah, PROPERTY_TYPES, matchFacility } from '../data/initialData';
+import { formatRupiah, PROPERTY_TYPES, matchFacility, matchVillaSearch } from '../data/initialData';
 
 export const POPULAR_FACILITIES = [
   { id: 'Private Pool', label: 'Private Pool', icon: 'fa-water-ladder', category: 'Utama' },
@@ -198,6 +198,10 @@ export default function SearchFilter({
   // Hitung berapa unit villa yang cocok secara LIVE dengan kriteria & fasilitas saat ini
   const modalLiveCount = useMemo(() => {
     return (villas || []).filter(v => {
+      // 0. Search keyword & Nomor Villa (Real-time live count)
+      if (filters.search && !matchVillaSearch(v, filters.search)) {
+        return false;
+      }
       // 1. Property type
       if (filters.propertyType && filters.propertyType !== 'all') {
         const pType = (v.propertyType || 'villa').toLowerCase();
@@ -470,7 +474,7 @@ export default function SearchFilter({
             type="text"
             value={filters.search || ''}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            placeholder="Cari nama unit (misal: The Noman, Atsiri, Bilby) atau fasilitas..."
+            placeholder="Cari no. villa (misal: villa no 3, #03, 3), nama unit, atau fasilitas..."
             className="w-full bg-sand-50 border border-sand-200 rounded-2xl pl-11 pr-10 py-3 text-xs sm:text-sm font-medium text-sand-900 placeholder-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-700 focus:bg-white transition"
           />
           {filters.search && (

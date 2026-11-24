@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { villaApi } from './services/api';
 import { storage } from './services/storage';
-import { matchFacility } from './data/initialData';
+import { matchFacility, matchVillaSearch } from './data/initialData';
 import Header from './components/Header';
 import BannerSlider from './components/BannerSlider';
 import SearchFilter from './components/SearchFilter';
@@ -130,11 +130,14 @@ export default function App() {
     loadMeta();
   }, []);
 
-  // Fetch Data Unit setiap kali Filter berubah
+  // Fetch Data Unit setiap kali Filter berubah (Real-time & instan)
   useEffect(() => {
     let isMounted = true;
     async function loadVillas() {
-      setLoadingVillas(true);
+      // Hanya aktifkan spinner jika memanggil remote API VPS agar pencarian lokal real-time tanpa flicker
+      if (villaApi.isConfigured()) {
+        setLoadingVillas(true);
+      }
       try {
         const data = await villaApi.getVillas(filters);
         if (isMounted) setVillas(data);
@@ -222,25 +225,9 @@ export default function App() {
   // Filter unit yang tampil di homepage
   const displayVillas = useMemo(() => {
     const filtered = villas.filter(v => {
-      // 1. Search text — termasuk nomor katalog (misal: "03", "#03", "villa 3")
-      if (filters.search && filters.search.trim() !== '') {
-        const q = filters.search.toLowerCase().trim();
-        const matchName = (v.name || '').toLowerCase().includes(q);
-        const matchDesc = (v.desc || '').toLowerCase().includes(q);
-        const matchLoc = (v.location || '').toLowerCase().includes(q);
-        const matchFeat = (v.features || []).some(f => f.toLowerCase().includes(q));
-        // Cek nomor katalog: cocok jika q adalah angka dan catalogNumber cocok
-        const catNum = v.catalogNumber ? String(v.catalogNumber).padStart(2, '0') : '';
-        const matchCatalog = catNum && (
-          q === catNum ||
-          q === String(v.catalogNumber) ||
-          q === `#${catNum}` ||
-          q === `villa ${catNum}` ||
-          q === `villa ${v.catalogNumber}` ||
-          q === `no ${catNum}` ||
-          q === `nomor ${catNum}`
-        );
-        if (!matchName && !matchDesc && !matchLoc && !matchFeat && !matchCatalog) return false;
+      // 1. Search text & Nomor Katalog Cerdas (Real-time)
+      if (filters.search && !matchVillaSearch(v, filters.search)) {
+        return false;
       }
       // 2. Property type
       if (filters.propertyType !== 'all') {
@@ -537,8 +524,8 @@ export default function App() {
                   type="text"
                   value={filters.search}
                   onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  placeholder="Cari nama / no. villa..."
-                  className="pl-7 pr-3 py-1.5 text-xs font-medium rounded-xl border border-sand-300 bg-white text-sand-900 placeholder-sand-400 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-300 w-44 sm:w-52"
+                  placeholder="Cari no. villa / nama (misal: 3)..."
+                  className="pl-7 pr-7 py-1.5 text-xs font-medium rounded-xl border border-sand-300 bg-white text-sand-900 placeholder-sand-400 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-300 w-44 sm:w-56"
                 />
                 {filters.search && (
                   <button
