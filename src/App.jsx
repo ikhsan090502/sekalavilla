@@ -77,9 +77,16 @@ export default function App() {
     search: ''
   });
 
-  // Listener URL Routing (#admin, ?article=slug)
+  // Listener URL Routing (#admin, ?article=slug) & Browser Back Button ke Landing Page
   useEffect(() => {
-    const handleUrlChange = () => {
+    // Tandai initial landing gateway jika dibuka
+    if (showLandingGateway) {
+      try {
+        window.history.replaceState({ screen: 'gateway' }, '', window.location.pathname);
+      } catch {}
+    }
+
+    const handleUrlChange = (e) => {
       const artSlug = getArticleSlugFromURL();
       setCurrentArticleSlug(artSlug);
 
@@ -88,6 +95,13 @@ export default function App() {
         setRegionPage(prev => ({ ...prev, active: false }));
       } else {
         setView('site');
+        // Jika tombol Back HP / Browser ditekan dan kembali ke state gateway atau state kosong
+        if (!checkIsAdminURL() && !artSlug && (!e?.state || e?.state?.screen === 'gateway')) {
+          setShowLandingGateway(true);
+          setLocationModalOpen(false);
+          setRegionPage(prev => ({ ...prev, active: false }));
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
     };
     window.addEventListener('hashchange', handleUrlChange);
@@ -96,7 +110,7 @@ export default function App() {
       window.removeEventListener('hashchange', handleUrlChange);
       window.removeEventListener('popstate', handleUrlChange);
     };
-  }, []);
+  }, [showLandingGateway]);
 
   // Fetch Banners, Settings, Regions di awal
   useEffect(() => {
@@ -335,6 +349,18 @@ export default function App() {
     );
   }
 
+  // Mundur ke Landing Gateway
+  const handleOpenLandingGateway = () => {
+    setShowLandingGateway(true);
+    setLocationModalOpen(false);
+    setSelectedVilla(null);
+    setRegionPage(prev => ({ ...prev, active: false }));
+    try {
+      window.history.pushState({ screen: 'gateway' }, '', window.location.pathname);
+    } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // 1A. TAMPILKAN LANDING GATEWAY INTERAKTIF (SEBELUM MASUK HALAMAN UTAMA)
   if (showLandingGateway && !currentArticleSlug && !regionPage.active) {
     return (
@@ -358,6 +384,9 @@ export default function App() {
             facilities: chosenFilters.facilities || []
           }));
           sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
+          try {
+            window.history.pushState({ screen: 'homepage' }, '', window.location.pathname);
+          } catch {}
           setShowLandingGateway(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
@@ -365,6 +394,9 @@ export default function App() {
           // Ketika melewati landing page, wajib munculkan popup memilih lokasi
           handleResetFilters();
           sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
+          try {
+            window.history.pushState({ screen: 'homepage' }, '', window.location.pathname);
+          } catch {}
           setShowLandingGateway(false);
           setLocationModalOpen(true);
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -431,11 +463,12 @@ export default function App() {
   // 3. TAMPILKAN HOMEPAGE UTAMA
   return (
     <div className="min-h-screen bg-sand-50 text-sand-900 font-sans">
-      {/* Header dengan Sub-menu Katalog Daerah */}
+      {/* Header dengan Sub-menu Katalog Daerah & Tombol Landing Gateway */}
       <Header 
         settings={settings} 
         regions={regions}
         onOpenRegionPage={handleOpenRegionPage}
+        onOpenGateway={handleOpenLandingGateway}
         onHomeClick={() => {
           handleResetFilters();
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -456,10 +489,7 @@ export default function App() {
           onReset={handleResetFilters}
           settings={settings}
           villas={villas}
-          onOpenGateway={() => {
-            setShowLandingGateway(true);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
+          onOpenGateway={handleOpenLandingGateway}
         />
 
         {/* Katalog Villa */}
@@ -641,7 +671,7 @@ export default function App() {
       <Footer />
 
       {/* Mobile Nav */}
-      <MobileBottomNav settings={settings} />
+      <MobileBottomNav settings={settings} onOpenGateway={handleOpenLandingGateway} />
 
       {/* Floating Action Button di Pojok Kanan Bawah: Scroll Naik ke Filter dengan tulisan 'Sesuaikan Pilihan Villa Anda' */}
       <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 animate-in fade-in">

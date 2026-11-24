@@ -247,7 +247,18 @@ export default function SearchFilter({
       {/* LIVE FLOATING COUNTER — mengambang / freeze saat scroll mengisi filter katalog */}
       <div className="sticky top-2 z-30 mb-3 bg-brand-900/95 backdrop-blur-md text-white rounded-2xl px-4 py-2.5 shadow-xl border border-brand-800 flex items-center justify-between gap-3 animate-in fade-in">
         <div className="flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-amber-400 text-brand-950 flex items-center justify-center text-xs font-black shrink-0">
+          {onOpenGateway && (
+            <button
+              type="button"
+              onClick={onOpenGateway}
+              className="bg-amber-400 hover:bg-amber-300 text-brand-950 font-black text-[11px] px-2.5 py-1 rounded-xl transition flex items-center gap-1 shadow-xs border border-amber-500 shrink-0 active:scale-95"
+              title="Mundur ke Landing Page Smart Matcher"
+            >
+              <i className="fa-solid fa-arrow-left text-[10px]"></i>
+              <span>Landing</span>
+            </button>
+          )}
+          <span className="w-6 h-6 rounded-lg bg-amber-400 text-brand-950 flex items-center justify-center text-xs font-black shrink-0 hidden sm:flex">
             <i className="fa-solid fa-sliders"></i>
           </span>
           <div>
@@ -400,7 +411,7 @@ export default function SearchFilter({
 
         {/* HEADER: PILIH TIPE AKOMODASI (HANYA VILLA & GLAMPING) */}
         <div>
-          <div className="flex items-center justify-between mb-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2.5 gap-2">
             <div>
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-sand-500 block">
                 PILIHAN AKOMODASI
@@ -409,12 +420,25 @@ export default function SearchFilter({
                 Temukan Villa & Glamping Pilihan
               </h3>
             </div>
-            <span className={`text-xs font-black px-3 py-1.5 rounded-xl border-2 shadow-2xs flex items-center gap-1.5 ${
-              modalLiveCount > 0 ? 'bg-amber-400 text-brand-950 border-amber-500' : 'bg-sand-200 text-sand-800 border-sand-300'
-            }`}>
-              <i className="fa-solid fa-house text-xs"></i>
-              <span>{modalLiveCount} Unit Tersedia</span>
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {onOpenGateway && (
+                <button
+                  type="button"
+                  onClick={onOpenGateway}
+                  className="text-xs font-black text-brand-950 bg-amber-400 hover:bg-amber-300 px-3 py-1.5 rounded-xl border border-amber-500 transition flex items-center gap-1.5 shadow-2xs active:scale-95"
+                  title="Mundur ke Landing Page Smart Matcher"
+                >
+                  <i className="fa-solid fa-arrow-left text-[10px]"></i>
+                  <span>Mundur ke Landing Page</span>
+                </button>
+              )}
+              <span className={`text-xs font-black px-3 py-1.5 rounded-xl border-2 shadow-2xs flex items-center gap-1.5 ${
+                modalLiveCount > 0 ? 'bg-sand-100 text-brand-950 border-sand-300' : 'bg-sand-200 text-sand-800 border-sand-300'
+              }`}>
+                <i className="fa-solid fa-house text-xs"></i>
+                <span>{modalLiveCount} Unit Tersedia</span>
+              </span>
+            </div>
           </div>
 
           {/* TAB TIPE AKOMODASI: SEMUA / VILLA / GLAMPING (WARNA KUNING CERAH AKTIF) */}

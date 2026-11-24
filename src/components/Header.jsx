@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ settings, regions = [], onOpenRegionPage, onHomeClick }) {
+export default function Header({ settings, regions = [], onOpenRegionPage, onHomeClick, onOpenGateway }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [catalogDropdownOpen, setCatalogDropdownOpen] = useState(false);
   const waPhone = settings?.whatsappPhone || '6281381669735';
@@ -41,6 +41,18 @@ export default function Header({ settings, regions = [], onOpenRegionPage, onHom
           </a>
 
           <nav className="hidden md:flex items-center space-x-7 text-xs font-bold uppercase tracking-wider text-sand-800">
+            {onOpenGateway && (
+              <button 
+                type="button"
+                onClick={onOpenGateway} 
+                className="bg-amber-100 hover:bg-amber-200 text-brand-950 px-3 py-1.5 rounded-xl border border-amber-300 font-black text-xs flex items-center gap-1.5 transition active:scale-95 shadow-2xs"
+                title="Mundur ke Landing Page Smart Matcher"
+              >
+                <i className="fa-solid fa-arrow-left text-[11px] text-terracotta-600"></i>
+                <span>Landing Page</span>
+              </button>
+            )}
+
             <a href="#promo-banner" className="hover:text-brand-700 transition">Promo Iklan</a>
 
             {/* SUB-MENU KATALOG DENGAN DAERAH & TIPE AKOMODASI */}
@@ -132,6 +144,23 @@ export default function Header({ settings, regions = [], onOpenRegionPage, onHom
         {/* MOBILE MENU ACCORDION */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-sand-200 bg-sand-50 px-4 py-3 space-y-3 text-xs font-bold uppercase max-h-[80vh] overflow-y-auto">
+            {onOpenGateway && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenGateway();
+                }}
+                className="w-full text-left py-2.5 px-3.5 rounded-xl bg-amber-400 text-brand-950 font-black text-xs flex items-center justify-between transition border-2 border-amber-500 shadow-sm active:scale-95"
+              >
+                <span className="flex items-center gap-2">
+                  <i className="fa-solid fa-arrow-left text-xs"></i>
+                  <span>Mundur ke Landing Page</span>
+                </span>
+                <i className="fa-solid fa-chevron-right text-[10px]"></i>
+              </button>
+            )}
+
             <a href="#promo-banner" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sand-800">
               Promo Special
             </a>
