@@ -3,11 +3,11 @@ import { formatRupiah, matchFacility } from '../data/initialData';
 import { POPULAR_FACILITIES, FACILITY_CATEGORIES } from '../components/SearchFilter';
 
 export default function LandingGateway({ onComplete, onSkip, settings, initialFilters = {}, villas = [] }) {
-  // Input State: Destinasi (Default: 'all' / Semua Lokasi, atau sesuai initialFilters)
+  // Input State: Destinasi (Wajib memilih salah satu destinasi: tawangmangu / yogyakarta)
   const [destination, setDestination] = useState(
     initialFilters.location && initialFilters.location !== 'all'
       ? (initialFilters.location.toLowerCase().includes('tawangmangu') ? 'tawangmangu' : 'yogyakarta')
-      : 'all'
+      : ''
   );
   const [subLocations, setSubLocations] = useState(() => {
     if (Array.isArray(initialFilters.subLocations) && initialFilters.subLocations.length > 0) {
@@ -183,14 +183,26 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
+
+    // 1. CEK LOKASI TERLEBIH DAHULU (WAJIB NOMOR 1)
+    if (!destination || destination === '') {
+      setSearchLocationQuery('');
+      setShowLocationModal(true);
+      document.getElementById('step-1-lokasi')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    // 2. SETELAH LOKASI TERPILIH, BARU CEK FASILITAS
     if (selectedFacilities.length === 0 && !showFacilityReminder) {
-      // Langsung buka modal fasilitas jika belum pilih
+      // Langsung buka modal fasilitas jika belum pilih fasilitas
       setFacilitySearchQuery('');
       setSelectedFacilityCategory('all');
       setShowFacilityModal(true);
       setShowFacilityReminder(true); // tandai sudah pernah diingatkan
       return;
     }
+
+    // 3. SEMUA VALIDASI SELESAI -> BUKA KATALOG
     setShowFacilityReminder(false);
     onComplete({
       location: destination === 'tawangmangu' ? 'Tawangmangu' : destination === 'yogyakarta' ? 'Yogyakarta' : 'all',
@@ -379,104 +391,115 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
         {/* CARD CONTAINER PUTIH ELEGAN (WARNA PERSIS HALAMAN UTAMA) */}
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-5 sm:p-8 shadow-xl border border-sand-200 space-y-5 sm:space-y-6">
           
-          {/* STEP 1: PILIH LOKASI (FOKUS 1 DESTINASI & PILIH AREA WISATA) */}
-          <div className="space-y-2.5">
+          {/* STEP 1: PILIH LOKASI (WAJIB NOMOR 1 SEBELUM FASILITAS) */}
+          <div id="step-1-lokasi" className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
-                <i className="fa-solid fa-location-dot text-brand-700 mr-1.5"></i> 1. Pilih Lokasi Liburan
-              </label>
-              {destination !== 'all' ? (
+              <div className="flex items-center gap-2">
+                <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
+                  <i className="fa-solid fa-location-dot text-brand-700 mr-1.5"></i> 1. Pilih Lokasi Liburan
+                </label>
+                {!destination && (
+                  <span className="text-[10px] bg-amber-400 text-brand-950 font-black px-2.5 py-0.5 rounded-full border border-amber-500 shadow-2xs animate-pulse">
+                    Wajib Dipilih
+                  </span>
+                )}
+              </div>
+              {destination ? (
                 <button
                   type="button"
                   onClick={() => {
-                    setDestination('all');
+                    setDestination('');
                     setSubLocations([]);
                   }}
-                  className="text-xs text-brand-950 hover:text-brand-900 font-black flex items-center gap-1.5 transition bg-amber-400 hover:bg-amber-300 px-3 py-1.5 rounded-xl border border-amber-500 shadow-2xs"
-                  title="Tampilkan kembali pilihan Jogja & Tawangmangu"
+                  className="text-xs text-brand-950 hover:text-brand-900 font-black flex items-center gap-1.5 transition bg-amber-400 hover:bg-amber-300 px-3 py-1.5 rounded-xl border border-amber-500 shadow-2xs active:scale-95"
+                  title="Ganti pilihan destinasi liburan Anda"
                 >
                   <i className="fa-solid fa-rotate-left text-xs"></i> 
                   <span>Ganti Lokasi</span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchLocationQuery('');
-                    setShowLocationModal(true);
-                  }}
-                  className="text-xs text-brand-900 hover:text-brand-950 font-bold flex items-center gap-1 transition bg-amber-100 hover:bg-amber-200 px-2.5 py-1 rounded-xl border border-amber-300"
-                >
-                  <i className="fa-solid fa-magnifying-glass text-xs text-amber-700"></i> Cari Daerah Wisata
-                </button>
+                <span className="text-xs text-sand-500 font-semibold italic">
+                  Pilih salah satu di bawah:
+                </span>
               )}
             </div>
 
-            {/* JIKA BELUM PILIH DESTINASI ('all'): TAMPILKAN 3 PILIHAN (SEMUA, TAWANGMANGU, JOGJA) */}
-            {destination === 'all' && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5 animate-in fade-in">
-                {/* 1. SEMUA LOKASI */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDestination('all');
-                    setSubLocations([]);
-                  }}
-                  className="p-3.5 rounded-2xl border-2 text-left transition-all duration-200 flex items-center justify-between bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black scale-[1.01]"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🗺️</span>
-                    <div>
-                      <strong className="text-sm sm:text-base block leading-tight">Semua Lokasi</strong>
-                      <span className="text-[11px] block text-brand-900 font-semibold">
-                        Tawangmangu & Jogja
-                      </span>
+            {/* JIKA BELUM PILIH DESTINASI: TAMPILKAN 2 KARTU DESTINASI UTAMA YANG MENGUNDANG */}
+            {(!destination || destination === 'all') && (
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 animate-in fade-in">
+                  {/* 1. TAWANGMANGU & KEMUNING */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestination('tawangmangu');
+                      setSubLocations([]);
+                    }}
+                    className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 flex items-center justify-between group active:scale-95 ${
+                      destination === 'tawangmangu'
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-md font-black scale-[1.01]'
+                        : 'bg-sand-50 hover:bg-amber-50 hover:border-amber-400 text-sand-900 border-sand-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl sm:text-3xl">🏔️</span>
+                      <div>
+                        <strong className="text-sm sm:text-base block leading-tight text-brand-900">
+                          Tawangmangu & Kemuning
+                        </strong>
+                        <span className="text-[11px] block text-sand-600 font-semibold mt-0.5">
+                          Dingin Lereng Lawu • Sekipan, Pancot, Kebun Teh
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <i className="fa-solid fa-circle-check text-base text-brand-950"></i>
-                </button>
+                    <span className="w-7 h-7 rounded-full bg-sand-200 group-hover:bg-amber-400 text-brand-950 flex items-center justify-center text-xs font-black transition">
+                      <i className="fa-solid fa-arrow-right"></i>
+                    </span>
+                  </button>
 
-                {/* 2. TAWANGMANGU */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDestination('tawangmangu');
-                    setSubLocations([]);
-                  }}
-                  className="p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-amber-50 hover:border-amber-300 text-sand-900 border-sand-200 hover:scale-[1.01]"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🏔️</span>
-                    <div>
-                      <strong className="text-sm sm:text-base block leading-tight">Tawangmangu</strong>
-                      <span className="text-[11px] block text-sand-600 font-medium">
-                        Dingin Lawu
-                      </span>
+                  {/* 2. YOGYAKARTA & SLEMAN */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestination('yogyakarta');
+                      setSubLocations([]);
+                    }}
+                    className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 flex items-center justify-between group active:scale-95 ${
+                      destination === 'yogyakarta'
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-md font-black scale-[1.01]'
+                        : 'bg-sand-50 hover:bg-amber-50 hover:border-amber-400 text-sand-900 border-sand-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl sm:text-3xl">🏛️</span>
+                      <div>
+                        <strong className="text-sm sm:text-base block leading-tight text-brand-900">
+                          Yogyakarta & Sleman
+                        </strong>
+                        <span className="text-[11px] block text-sand-600 font-semibold mt-0.5">
+                          Kaliurang & Merapi • Asri, Sejuk & Dekat Kota
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <i className="fa-solid fa-arrow-right text-xs text-sand-400"></i>
-                </button>
+                    <span className="w-7 h-7 rounded-full bg-sand-200 group-hover:bg-amber-400 text-brand-950 flex items-center justify-center text-xs font-black transition">
+                      <i className="fa-solid fa-arrow-right"></i>
+                    </span>
+                  </button>
+                </div>
 
-                {/* 3. YOGYAKARTA */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDestination('yogyakarta');
-                    setSubLocations([]);
-                  }}
-                  className="p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between bg-sand-50 hover:bg-amber-50 hover:border-amber-300 text-sand-900 border-sand-200 hover:scale-[1.01]"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🏛️</span>
-                    <div>
-                      <strong className="text-sm sm:text-base block leading-tight">Yogyakarta</strong>
-                      <span className="text-[11px] block text-sand-600 font-medium">
-                        Kaliurang & Kota
-                      </span>
-                    </div>
-                  </div>
-                  <i className="fa-solid fa-arrow-right text-xs text-sand-400"></i>
-                </button>
+                {/* Opsi alternatif jika ingin melihat semua */}
+                <div className="text-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestination('all');
+                      setSubLocations([]);
+                    }}
+                    className="text-xs text-sand-600 hover:text-brand-900 font-semibold transition hover:underline"
+                  >
+                    Atau tampilkan Semua Destinasi (Tawangmangu & Jogja Sekaligus) →
+                  </button>
+                </div>
               </div>
             )}
 
@@ -1033,12 +1056,12 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       ? 'Pilih Area Tawangmangu' 
                       : destination === 'yogyakarta'
                         ? 'Pilih Area Yogyakarta'
-                        : 'Pilih Destinasi Liburan'}
+                        : '1. Wajib Pilih Lokasi Terlebih Dahulu'}
                   </h3>
                   <span className="text-xs text-sand-500 font-medium">
-                    {destination !== 'all' 
+                    {destination && destination !== 'all' 
                       ? 'Bisa pilih lebih dari 1 area sekaligus' 
-                      : 'Pilih kota tujuan Anda'}
+                      : 'Pilih kota tujuan Anda sebelum memilih fasilitas'}
                   </span>
                 </div>
               </div>
@@ -1072,7 +1095,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
             {/* Daftar Pilihan Daerah (Multi-select) */}
             <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
               {filteredLocations.map(loc => {
-                const isSelected = destination === 'all' 
+                const isSelected = (!destination || destination === 'all')
                   ? destination === loc.id 
                   : (loc.id === '' ? subLocations.length === 0 : subLocations.includes(loc.id));
 
@@ -1081,7 +1104,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                     key={loc.name}
                     type="button"
                     onClick={() => {
-                      if (destination === 'all') {
+                      if (!destination || destination === 'all') {
                         setDestination(loc.id);
                         setSubLocations([]);
                         setShowLocationModal(false);
@@ -1113,7 +1136,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
             </div>
 
             {/* Modal Footer dengan Aksi Terapkan */}
-            {destination !== 'all' && (
+            {destination && destination !== 'all' && (
               <div className="pt-3 border-t border-sand-200 flex items-center justify-between gap-2">
                 <button
                   type="button"
