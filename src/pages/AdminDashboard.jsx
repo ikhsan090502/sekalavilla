@@ -3,12 +3,55 @@ import { storage } from '../services/storage';
 import { formatRupiah, DEFAULT_BANNERS, DEFAULT_VILLAS, DEFAULT_SETTINGS } from '../data/initialData';
 import { scrapeGoogleMaps } from '../services/scraper';
 
+// =====================================================================
+// DAFTAR AKUN ADMIN (tambahkan akun sub-admin baru di sini)
+// =====================================================================
+const ADMIN_ACCOUNTS = [
+  {
+    username: 'admin',
+    password: 'sekala2026',
+    role: 'superadmin',
+    name: 'Super Admin',
+    location: null, // null = akses semua lokasi
+    emoji: '🛡️'
+  },
+  {
+    username: 'admin.tawang',
+    password: 'tawang2026',
+    role: 'subadmin',
+    name: 'Sub Admin Tawangmangu',
+    location: 'Tawangmangu', // hanya bisa edit villa Tawangmangu
+    emoji: '🏔️'
+  }
+];
+
 export default function AdminDashboard({ onBackToSite, onDataChanged }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(storage.isAuth());
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('sekala2026');
+  // Cek user tersimpan di localStorage
+  const getSavedUser = () => {
+    try {
+      const raw = localStorage.getItem('SEKALA_ADMIN_USER');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  };
+
+  const savedUser = getSavedUser();
+  const [isLoggedIn, setIsLoggedIn] = useState(storage.isAuth() && Boolean(savedUser));
+  const [currentUser, setCurrentUser] = useState(savedUser);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [activeTab, setActiveTab] = useState('villas');
+
+  // Helper: apakah user boleh edit villa ini?
+  const canEditVilla = (villa) => {
+    if (!currentUser || currentUser.role === 'superadmin') return true;
+    const loc = (villa.location || '').toLowerCase();
+    const userLoc = (currentUser.location || '').toLowerCase();
+    return loc.includes(userLoc);
+  };
+
+  // Helper: apakah super admin?
+  const isSuperAdmin = !currentUser || currentUser.role === 'superadmin';
   const [toastMsg, setToastMsg] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -111,11 +154,16 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'sekala2026') {
+    const account = ADMIN_ACCOUNTS.find(
+      a => a.username === username.trim() && a.password === password
+    );
+    if (account) {
       storage.setAuth(true);
+      localStorage.setItem('SEKALA_ADMIN_USER', JSON.stringify(account));
+      setCurrentUser(account);
       setIsLoggedIn(true);
       setLoginError(false);
-      triggerToast('Selamat datang di Dashboard Admin Sekala Villa!');
+      triggerToast(`Selamat datang, ${account.name}! ${account.emoji}`);
     } else {
       setLoginError(true);
     }
@@ -123,6 +171,8 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
 
   const handleLogout = () => {
     storage.setAuth(false);
+    localStorage.removeItem('SEKALA_ADMIN_USER');
+    setCurrentUser(null);
     setIsLoggedIn(false);
   };
 
@@ -533,7 +583,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
 
           {loginError && (
             <div className="bg-rose-100 border border-rose-300 text-rose-800 text-xs p-3 rounded-xl mb-4 font-semibold">
-              Username atau password salah!
+              Username atau password salah! Periksa kembali.
             </div>
           )}
 
@@ -543,6 +593,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
               <input
                 type="text"
                 value={username}
+                placeholder="Masukkan username"
                 onChange={e => setUsername(e.target.value)}
                 className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
               />
@@ -552,6 +603,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
               <input
                 type="password"
                 value={password}
+                placeholder="Masukkan password"
                 onChange={e => setPassword(e.target.value)}
                 className="w-full bg-white border border-sand-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-700"
               />
@@ -564,6 +616,25 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
             </button>
           </form>
 
+          {/* Daftar akun (hanya tampil di development atau bisa dihapus di production) */}
+          <div className="mt-5 p-3 bg-sand-100 rounded-2xl border border-sand-200 space-y-1.5">
+            <p className="text-[10px] text-sand-800 font-bold uppercase tracking-wider mb-2">👤 Daftar Akun Admin:</p>
+            {ADMIN_ACCOUNTS.map(acc => (
+              <button
+                key={acc.username}
+                type="button"
+                onClick={() => { setUsername(acc.username); setPassword(acc.password); }}
+                className="w-full text-left px-3 py-2 rounded-xl bg-white hover:bg-amber-50 border border-sand-200 hover:border-amber-300 transition"
+              >
+                <span className="text-xs font-black text-brand-900">{acc.emoji} {acc.name}</span>
+                <span className="text-[10px] text-sand-600 block font-mono">{acc.username}</span>
+                {acc.location && (
+                  <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full">📍 {acc.location} only</span>
+                )}
+              </button>
+            ))}
+          </div>
+
           <button
             onClick={onBackToSite}
             className="w-full text-center text-xs text-sand-800 hover:text-brand-900 font-bold mt-4 block"
@@ -575,16 +646,17 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     );
   }
 
-  // TABS CONFIGURATION
-  const tabs = [
-    { id: 'villas', label: 'Katalog Unit Akomodasi', icon: 'fa-house-chimney-window' },
-    { id: 'regions', label: 'Kelola Daerah & Tipe (Sub-Admin)', icon: 'fa-map-location-dot' },
-    { id: 'articles', label: 'Kelola Artikel & Halaman', icon: 'fa-newspaper' },
-    { id: 'banners', label: 'Banner Iklan Slider', icon: 'fa-image' },
-    { id: 'promo', label: 'Pengaturan Popup Promo', icon: 'fa-tags' },
-    { id: 'whatsapp', label: 'Nomor WhatsApp & Template', icon: 'fa-whatsapp', brand: true },
-    { id: 'api', label: 'Koneksi REST API VPS', icon: 'fa-code' },
+  // TABS CONFIGURATION — sub-admin hanya lihat tab katalog & daerah
+  const ALL_TABS = [
+    { id: 'villas', label: 'Katalog Unit Akomodasi', icon: 'fa-house-chimney-window', superOnly: false },
+    { id: 'regions', label: 'Kelola Daerah & Tipe', icon: 'fa-map-location-dot', superOnly: false },
+    { id: 'articles', label: 'Kelola Artikel & Halaman', icon: 'fa-newspaper', superOnly: true },
+    { id: 'banners', label: 'Banner Iklan Slider', icon: 'fa-image', superOnly: true },
+    { id: 'promo', label: 'Pengaturan Popup Promo', icon: 'fa-tags', superOnly: true },
+    { id: 'whatsapp', label: 'Nomor WhatsApp & Template', icon: 'fa-whatsapp', brand: true, superOnly: true },
+    { id: 'api', label: 'Koneksi REST API VPS', icon: 'fa-code', superOnly: true },
   ];
+  const tabs = ALL_TABS.filter(t => isSuperAdmin || !t.superOnly);
 
   return (
     <div className="min-h-screen bg-sand-100 flex flex-col md:flex-row">
@@ -599,14 +671,17 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
       {/* SIDEBAR DESKTOP */}
       <aside className="w-64 bg-brand-900 text-white p-5 hidden md:flex flex-col justify-between shrink-0 shadow-xl">
         <div>
-          <div className="flex items-center gap-3 pb-6 border-b border-brand-800 mb-6">
-            <span className="w-10 h-10 rounded-2xl bg-amber-400 text-brand-900 flex items-center justify-center font-bold text-lg shadow">
-              <i className="fa-solid fa-shield-halved"></i>
+          <div className="flex items-center gap-3 pb-5 border-b border-brand-800 mb-5">
+            <span className="w-10 h-10 rounded-2xl bg-amber-400 text-brand-900 flex items-center justify-center font-bold text-lg shadow shrink-0">
+              {currentUser?.emoji || '🛡️'}
             </span>
-            <div>
-              <h2 className="font-serif font-bold text-base text-amber-50">Sekala Admin</h2>
-              <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> React Single Page
+            <div className="min-w-0">
+              <h2 className="font-serif font-bold text-sm text-amber-50 leading-tight truncate">
+                {currentUser?.name || 'Admin'}
+              </h2>
+              <span className={`text-[10px] font-bold flex items-center gap-1 mt-0.5 ${isSuperAdmin ? 'text-emerald-400' : 'text-amber-300'}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse shrink-0"></span>
+                {isSuperAdmin ? 'Super Admin — Semua Lokasi' : `Sub Admin — ${currentUser?.location}`}
               </span>
             </div>
           </div>
@@ -717,22 +792,27 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                   Kelola Villa, Glamping & Homestay
                 </h2>
                 <p className="text-xs text-sand-800 mt-1">
-                  Atur tipe unit akomodasi, harga per malam, fasilitas utama, dan foto galeri 1:1.
+                  {isSuperAdmin
+                    ? 'Semua lokasi — Tawangmangu & Yogyakarta.'
+                    : `📍 Anda hanya bisa edit villa lokasi: ${currentUser?.location}. Villa lokasi lain bisa dilihat tapi tidak bisa diedit.`}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
-                <button
-                  onClick={() => { setScraperModalOpen(true); setScrapedResult(null); setScraperError(''); }}
-                  className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-2xl shadow transition flex items-center gap-2"
-                >
-                  <i className="fa-solid fa-wand-magic-sparkles text-brand-900"></i>
-                  <span>⚡ Tarik Otomatis dari Maps</span>
-                </button>
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => { setScraperModalOpen(true); setScrapedResult(null); setScraperError(''); }}
+                    className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-2xl shadow transition flex items-center gap-2"
+                  >
+                    <i className="fa-solid fa-wand-magic-sparkles text-brand-900"></i>
+                    <span>⚡ Tarik Otomatis dari Maps</span>
+                  </button>
+                )}
                 <button
                   onClick={openAddVilla}
                   className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-4 py-2.5 rounded-2xl shadow transition flex items-center gap-2"
                 >
-                  <i className="fa-solid fa-plus"></i> Tambah Manual
+                  <i className="fa-solid fa-plus"></i>
+                  {isSuperAdmin ? 'Tambah Manual' : `+ Tambah Unit ${currentUser?.location}`}
                 </button>
               </div>
             </div>
@@ -742,9 +822,10 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                 const pType = v.propertyType || 'villa';
                 const typeLabel = pType === 'glamping' ? 'Glamping' : (pType === 'homestay' ? 'Homestay' : 'Villa');
                 const typeIcon = pType === 'glamping' ? 'fa-campground' : (pType === 'homestay' ? 'fa-people-roof' : 'fa-house-chimney-window');
+                const editable = canEditVilla(v);
 
                 return (
-                  <div key={v.id} className="bg-white rounded-3xl border border-sand-200 overflow-hidden shadow-sm flex flex-col justify-between">
+                  <div key={v.id} className={`bg-white rounded-3xl border overflow-hidden shadow-sm flex flex-col justify-between transition ${editable ? 'border-sand-200' : 'border-sand-100 opacity-75'}`}>
                     <div>
                       <div className="relative aspect-square bg-sand-200 overflow-hidden">
                         <img src={v.image || (v.images && v.images[0])} alt={v.name} className="w-full h-full object-cover" />
@@ -784,18 +865,26 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                     </div>
 
                     <div className="p-4 pt-0 border-t border-sand-100 flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEditVilla(v)}
-                        className="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-1.5 rounded-xl transition"
-                      >
-                        <i className="fa-solid fa-pen-to-square me-1"></i> Edit
-                      </button>
-                      <button
-                        onClick={() => deleteVilla(v.id)}
-                        className="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs px-3 py-1.5 rounded-xl transition"
-                      >
-                        <i className="fa-solid fa-trash me-1"></i> Hapus
-                      </button>
+                      {!editable ? (
+                        <span className="text-[10px] text-sand-400 font-bold italic flex items-center gap-1 w-full justify-center py-1">
+                          <i className="fa-solid fa-lock text-sand-300"></i> Hanya bisa dilihat — bukan lokasi Anda
+                        </span>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => openEditVilla(v)}
+                            className="bg-sand-200 hover:bg-sand-300 text-sand-900 font-bold text-xs px-3 py-1.5 rounded-xl transition"
+                          >
+                            <i className="fa-solid fa-pen-to-square me-1"></i> Edit
+                          </button>
+                          <button
+                            onClick={() => deleteVilla(v.id)}
+                            className="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs px-3 py-1.5 rounded-xl transition"
+                          >
+                            <i className="fa-solid fa-trash me-1"></i> Hapus
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
