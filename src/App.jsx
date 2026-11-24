@@ -10,6 +10,7 @@ import VillaDetailModal from './components/VillaDetailModal';
 import AddonsSection from './components/AddonsSection';
 import ArticlesSection from './components/ArticlesSection';
 import ArticleDetailModal from './components/ArticleDetailModal';
+import LocationSelectModal from './components/LocationSelectModal';
 import PromoModal from './components/PromoModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import Footer from './components/Footer';
@@ -56,6 +57,7 @@ export default function App() {
 
   const [selectedVilla, setSelectedVilla] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [promoOpen, setPromoOpen] = useState(false);
   const [gridCols, setGridCols] = useState(3); // 1 | 2 | 3 kolom katalog
 
@@ -144,16 +146,16 @@ export default function App() {
     setLoadingVillas(false);
   };
 
-  // Popup promo muncul otomatis jika diaktifkan di settings
+  // Popup memilih lokasi muncul jika melewati landing page atau belum memilih lokasi
   useEffect(() => {
-    const s = storage.getSettings();
-    if (s.promoEnabled !== false) {
+    // Jika tidak menampilkan landing gateway dan lokasi belum ditentukan, munculkan popup pilih lokasi
+    if (!showLandingGateway && filters.location === 'all') {
       const timer = setTimeout(() => {
-        setPromoOpen(true);
-      }, 1500);
+        setLocationModalOpen(true);
+      }, 800);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [showLandingGateway, filters.location]);
 
   const handleResetFilters = () => {
     setFilters({
@@ -360,10 +362,11 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onSkip={() => {
-          // Ketika melewati landing page, pastikan semua filter tetap default bersih (lokasi: 'all')
+          // Ketika melewati landing page, wajib munculkan popup memilih lokasi
           handleResetFilters();
           sessionStorage.setItem('SEKALA_ENTERED_GATEWAY', 'true');
           setShowLandingGateway(false);
+          setLocationModalOpen(true);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
@@ -683,11 +686,27 @@ export default function App() {
         />
       )}
 
-      {/* Promo Pop-up Modal */}
-      <PromoModal 
-        isOpen={promoOpen} 
-        onClose={() => setPromoOpen(false)} 
-        settings={settings} 
+      {/* Popup Memilih Lokasi (Menggantikan Promo Modal, Wajib saat Melewati Landing Page) */}
+      <LocationSelectModal 
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        onSelectLocation={(locName) => {
+          handleResetFilters();
+          setFilters(prev => ({
+            ...prev,
+            location: locName,
+            subLocation: '',
+            subLocations: []
+          }));
+          setLocationModalOpen(false);
+          // Scroll halus ke katalog
+          setTimeout(() => {
+            document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' });
+          }, 150);
+        }}
+        villas={villas}
+        settings={settings}
+        isMandatory={true}
       />
     </div>
   );
