@@ -57,7 +57,23 @@ export const storage = {
   getArticles: () => {
     try {
       const raw = localStorage.getItem(KEY_ARTICLES);
-      return raw ? JSON.parse(raw) : DEFAULT_ARTICLES;
+      if (!raw) return DEFAULT_ARTICLES;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_ARTICLES;
+      // Sinkronkan field location dari DEFAULT_ARTICLES jika artikel belum punya location
+      return parsed.map(a => {
+        if (!a.location) {
+          const def = DEFAULT_ARTICLES.find(d => d.id === a.id || d.slug === a.slug);
+          if (def && def.location) return { ...a, location: def.location };
+          // Tebak dari judul/tags/konten
+          const text = `${a.title || ''} ${(a.tags || []).join(' ')} ${a.content || ''}`.toLowerCase();
+          if (text.includes('jogja') || text.includes('yogyakarta') || text.includes('kaliurang') || text.includes('merapi')) {
+            return { ...a, location: 'Yogyakarta' };
+          }
+          return { ...a, location: 'Tawangmangu' };
+        }
+        return a;
+      });
     } catch {
       return DEFAULT_ARTICLES;
     }

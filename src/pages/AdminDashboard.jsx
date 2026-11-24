@@ -65,9 +65,11 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   // Article Modal States
   const [articleModalOpen, setArticleModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
+  const [articleLocFilter, setArticleLocFilter] = useState('all');
   const [articleForm, setArticleForm] = useState({
     title: '',
     category: 'Panduan Wisata',
+    location: isSuperAdmin ? 'Tawangmangu' : (currentUser?.location || 'Tawangmangu'),
     image: '',
     summary: '',
     content: '',
@@ -477,14 +479,15 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     setArticleForm({
       title: '',
       category: 'Panduan Wisata',
+      location: currentUser?.location || 'Tawangmangu',
       image: '',
       summary: '',
       content: '',
-      author: 'Admin Sekala',
+      author: currentUser?.name || 'Admin Sekala',
       metaTitle: '',
       metaDesc: '',
       focusKeyword: '',
-      tagsText: 'Tawangmangu, Villa, Wisata',
+      tagsText: (currentUser?.location || 'Tawangmangu') + ', Villa, Wisata',
       readingTime: '3 Menit'
     });
     setArticleModalOpen(true);
@@ -495,6 +498,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     setArticleForm({
       title: art.title || '',
       category: art.category || 'Panduan Wisata',
+      location: art.location || currentUser?.location || 'Tawangmangu',
       image: art.image || '',
       summary: art.summary || '',
       content: art.content || '',
@@ -532,6 +536,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
     const articleData = {
       title: articleForm.title.trim(),
       category: articleForm.category,
+      location: articleForm.location || currentUser?.location || 'Tawangmangu',
       image: articleForm.image.trim(),
       summary: articleForm.summary.trim(),
       content: articleForm.content.trim(),
@@ -1249,7 +1254,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                   Manajemen Artikel & Wisata
                 </h2>
                 <p className="text-xs text-sand-800 mt-1">
-                  Tambah dan kelola artikel, tips wisata, rekomendasi villa, beserta foto cover dan isi halaman.
+                  Artikel dibagi berdasarkan lokasi (Tawangmangu / Yogyakarta). Setiap admin hanya dapat mengelola artikel lokasinya sendiri.
                 </p>
               </div>
               <button
@@ -1257,48 +1262,101 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                 className="bg-brand-900 hover:bg-brand-800 text-amber-300 font-bold text-xs px-5 py-3 rounded-2xl shadow transition flex items-center justify-center gap-2 shrink-0"
               >
                 <i className="fa-solid fa-plus"></i>
-                <span>Tulis Artikel Baru</span>
+                <span>{isSuperAdmin ? 'Tulis Artikel Baru' : `+ Artikel ${currentUser?.location}`}</span>
               </button>
             </div>
 
+            {/* Filter artikel per lokasi */}
+            {isSuperAdmin && (
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 'all', label: '🗺️ Semua Lokasi' },
+                  { id: 'Tawangmangu', label: '🏔️ Tawangmangu' },
+                  { id: 'Yogyakarta', label: '🏛️ Yogyakarta' }
+                ].map(opt => {
+                  const count = opt.id === 'all'
+                    ? articles.length
+                    : articles.filter(a => (a.location || '').toLowerCase().includes(opt.id.toLowerCase())).length;
+                  const isActive = (articleLocFilter || 'all') === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setArticleLocFilter(opt.id)}
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition border ${
+                        isActive ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-sm' : 'bg-white text-sand-700 border-sand-200 hover:bg-sand-100'
+                      }`}
+                    >
+                      {opt.label}
+                      <span className={`text-[10px] px-1.5 rounded-full font-black leading-5 ${isActive ? 'bg-brand-950 text-amber-300' : 'bg-sand-200 text-sand-700'}`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* List Artikel */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {articles.map((art) => (
-                <div key={art.id} className="bg-white rounded-3xl border border-sand-200 p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-sand-100">
-                      <img src={art.image} alt={art.title} className="w-full h-full object-cover" />
-                      <span className="absolute top-2.5 left-2.5 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur">
-                        {art.category}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-sand-500 font-semibold block">{art.date} • {art.author}</span>
-                      <h3 className="font-serif font-bold text-base text-brand-900 line-clamp-2 mt-1">
-                        {art.title}
-                      </h3>
-                      <p className="text-xs text-sand-700 line-clamp-2 mt-1">
-                        {art.summary}
-                      </p>
-                    </div>
-                  </div>
+              {articles
+                .filter(art => {
+                  // Sub-admin: hanya artikel lokasinya
+                  if (!isSuperAdmin) {
+                    const loc = (art.location || '').toLowerCase();
+                    return loc.includes((currentUser?.location || '').toLowerCase());
+                  }
+                  // Super admin: filter per tab
+                  if (!articleLocFilter || articleLocFilter === 'all') return true;
+                  const loc = (art.location || '').toLowerCase();
+                  return loc.includes(articleLocFilter.toLowerCase());
+                })
+                .map((art) => {
+                  const artLocRaw = art.location || 'Tawangmangu';
+                  const isJogja = artLocRaw.toLowerCase().includes('yogyakarta') || artLocRaw.toLowerCase().includes('jogja');
+                  return (
+                    <div key={art.id} className="bg-white rounded-3xl border border-sand-200 p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-sand-100">
+                          <img src={art.image} alt={art.title} className="w-full h-full object-cover" />
+                          <span className="absolute top-2.5 left-2.5 bg-brand-900/90 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur">
+                            {art.category}
+                          </span>
+                          {/* Badge Lokasi di gambar */}
+                          <span className={`absolute top-2.5 right-2.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                            isJogja ? 'bg-sky-50/90 text-sky-800 border-sky-300' : 'bg-amber-50/90 text-amber-900 border-amber-300'
+                          }`}>
+                            {isJogja ? '🏛️ Yogyakarta' : '🏔️ Tawangmangu'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-sand-500 font-semibold block">{art.date} • {art.author}</span>
+                          <h3 className="font-serif font-bold text-base text-brand-900 line-clamp-2 mt-1">
+                            {art.title}
+                          </h3>
+                          <p className="text-xs text-sand-700 line-clamp-2 mt-1">
+                            {art.summary}
+                          </p>
+                        </div>
+                      </div>
 
-                  <div className="pt-3 border-t border-sand-100 flex items-center justify-end gap-2 mt-4">
-                    <button
-                      onClick={() => handleOpenEditArticle(art)}
-                      className="bg-sand-100 hover:bg-sand-200 text-brand-900 font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
-                    >
-                      <i className="fa-solid fa-pen-to-square text-[11px]"></i> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteArticle(art.id)}
-                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
-                    >
-                      <i className="fa-solid fa-trash text-[11px]"></i> Hapus
-                    </button>
-                  </div>
-                </div>
-              ))}
+                      <div className="pt-3 border-t border-sand-100 flex items-center justify-end gap-2 mt-4">
+                        <button
+                          onClick={() => handleOpenEditArticle(art)}
+                          className="bg-sand-100 hover:bg-sand-200 text-brand-900 font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
+                        >
+                          <i className="fa-solid fa-pen-to-square text-[11px]"></i> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteArticle(art.id)}
+                          className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
+                        >
+                          <i className="fa-solid fa-trash text-[11px]"></i> Hapus
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         )}
@@ -1928,6 +1986,25 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                     <option value="Tips & Trik Staycation">Tips & Trik Staycation</option>
                     <option value="Promo & Berita">Promo & Berita</option>
                   </select>
+                </div>
+                {/* Lokasi Artikel */}
+                <div>
+                  <label className="block text-xs font-bold uppercase text-sand-800 mb-1">📍 Lokasi / Destinasi *</label>
+                  <select
+                    value={articleForm.location || 'Tawangmangu'}
+                    onChange={e => setArticleForm({ ...articleForm, location: e.target.value })}
+                    disabled={!isSuperAdmin}
+                    className={`w-full bg-sand-50 border border-sand-200 rounded-xl px-3 py-2 text-xs font-semibold text-brand-900 ${!isSuperAdmin ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  >
+                    <option value="Tawangmangu">🏔️ Tawangmangu & Kemuning</option>
+                    <option value="Yogyakarta">🏛️ Yogyakarta & Sleman</option>
+                    <option value="Semua Lokasi">🗺️ Semua Lokasi (Umum)</option>
+                  </select>
+                  {!isSuperAdmin && (
+                    <p className="text-[10px] text-sand-500 mt-1 font-semibold">
+                      Lokasi otomatis sesuai akun Anda ({currentUser?.location})
+                    </p>
+                  )}
                 </div>
 
                 <div>
