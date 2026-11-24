@@ -56,8 +56,8 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
   const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
   const [showFacilityReminder, setShowFacilityReminder] = useState(false);
 
-  // Fasilitas Utama yang selalu tampil di baris depan + fasilitas terpilih
-  const TOP_FACILITIES = useMemo(() => POPULAR_FACILITIES.slice(0, 8), []);
+  // Fasilitas Utama yang selalu tampil di baris depan + fasilitas terpilih (6 Teratas persis Halaman Utama)
+  const TOP_FACILITIES = useMemo(() => POPULAR_FACILITIES.slice(0, 6), []);
   const visibleFacilities = useMemo(() => {
     const topIds = TOP_FACILITIES.map(f => f.id);
     const extraSelected = POPULAR_FACILITIES.filter(f => selectedFacilities.includes(f.id) && !topIds.includes(f.id));
@@ -812,33 +812,32 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
             </div>
           </div>
 
-          {/* STEP 5: PILIHAN FASILITAS DI LANDING PAGE */}
-          <div className="space-y-2 pt-2 border-t border-sand-100">
+          {/* STEP 5: PILIHAN FASILITAS DI LANDING PAGE (DISAMAKAN PERSIS HALAMAN UTAMA) */}
+          <div className="pt-3 border-t border-sand-100 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <label className="text-xs sm:text-sm font-black uppercase tracking-wider text-sand-900 block">
-                  <i className="fa-solid fa-check-double text-emerald-600 mr-1.5"></i> 5. Fasilitas yang Diinginkan
-                </label>
+                <span className="text-xs sm:text-sm font-black text-sand-900 uppercase tracking-wider">
+                  <i className="fa-solid fa-check-double text-emerald-600 mr-1"></i> 
+                  Fasilitas Favorit (Bisa Multi-Pilih):
+                </span>
                 {selectedFacilities.length > 0 && (
-                  <span className="bg-amber-400 text-brand-950 font-black text-xs px-2 py-0.5 rounded-full shadow-2xs">
+                  <span className="text-xs bg-amber-400 text-brand-950 font-black px-2.5 py-0.5 rounded-full border border-amber-500 shadow-xs">
                     {selectedFacilities.length} dipilih
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                {selectedFacilities.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedFacilities([])}
-                    className="text-xs text-terracotta-600 font-bold hover:underline"
-                  >
-                    Hapus Centang
-                  </button>
-                )}
-              </div>
+              {selectedFacilities.length > 0 && (
+                <button 
+                  type="button"
+                  onClick={() => setSelectedFacilities([])}
+                  className="text-xs text-terracotta-600 hover:text-terracotta-700 font-bold hover:underline"
+                >
+                  Hapus Centang Fasilitas
+                </button>
+              )}
             </div>
-            
-            {/* DAFTAR NAMA MENU PILIHAN FASILITAS (CHIPS AKTIF KUNING CERAH + HITUNGAN UNIT) */}
+
+            {/* FASILITAS FAVORIT + SEMUA YANG SEDANG TERPILIH (CHIPS AKTIF KUNING CERAH) */}
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               {visibleFacilities.map(fac => {
                 const isSelected = selectedFacilities.includes(fac.id);
@@ -851,7 +850,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                       toggleFacility(fac.id);
                       setShowFacilityReminder(false);
                     }}
-                    className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 border-2 active:scale-95 ${
+                    className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 border-2 ${
                       isSelected 
                         ? 'bg-amber-400 text-brand-950 border-amber-500 font-black shadow-sm scale-105' 
                         : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
@@ -867,8 +866,22 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   </button>
                 );
               })}
+            </div>
 
-              {/* TOMBOL SEMUA FASILITAS */}
+            {/* BARIS TERPISAH KHUSUS BUTTON AKSI: WA (KIRI) & SEMUA FILTER (KANAN) - PERSIS HALAMAN UTAMA */}
+            <div className="pt-3 border-t border-sand-100 grid grid-cols-2 gap-2.5 sm:flex sm:justify-between sm:items-center">
+              {/* KIRI: Kirim Hasil ke WA */}
+              <button
+                type="button"
+                onClick={handleSendToWA}
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs sm:text-sm border border-emerald-700"
+                title="Kirim kriteria filter langsung ke WhatsApp CS Sekala Villa"
+              >
+                <i className="fa-brands fa-whatsapp text-base text-white"></i>
+                <span className="truncate">Kirim Hasil ke WA</span>
+              </button>
+
+              {/* KANAN: Buka Popup Semua Filter Berdasarkan Kategori */}
               <button
                 type="button"
                 onClick={() => {
@@ -877,41 +890,28 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   setShowFacilityModal(true);
                   setShowFacilityReminder(false);
                 }}
-                className="px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-100 hover:bg-amber-200 text-brand-950 border-2 border-amber-300 shadow-2xs transition flex items-center gap-1.5 active:scale-95"
+                className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 active:scale-95 text-brand-950 font-black py-2.5 px-3.5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-xs sm:text-sm border-2 border-amber-500"
+                title="Buka popup semua filter fasilitas lengkap berdasarkan kategori"
               >
-                <i className="fa-solid fa-list-check text-amber-700"></i>
-                <span>Semua Fasilitas ({POPULAR_FACILITIES.length})</span>
-                {selectedFacilities.length > 0 && (
-                  <span className="bg-amber-400 text-brand-950 font-black text-xs px-2 py-0.5 rounded-full border border-amber-500">
-                    {selectedFacilities.length}
-                  </span>
-                )}
+                <i className="fa-solid fa-sliders text-xs"></i>
+                <span className="truncate">Semua Filter</span>
+                <span className="bg-white text-brand-950 text-[10px] font-black px-2 py-0.5 rounded-full">
+                  {liveCount} Villa
+                </span>
               </button>
             </div>
-          </div>
 
-          {/* TOMBOL AKSI: CARI & TERUSKAN KE WA (KIRI & KANAN RAPI DI MOBILE) */}
-          <div className="pt-3 grid grid-cols-2 gap-2.5 sm:flex sm:justify-between sm:items-center border-t border-sand-200">
-            {/* Tombol Teruskan ke WhatsApp */}
-            <button
-              type="button"
-              onClick={handleSendToWA}
-              className="w-full sm:w-auto text-emerald-700 hover:text-white bg-emerald-50 hover:bg-emerald-600 border border-emerald-300 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 active:scale-95 shadow-sm"
-              title="Kirim kriteria filter langsung ke WhatsApp CS Sekala Villa"
-            >
-              <i className="fa-brands fa-whatsapp text-sm sm:text-base text-emerald-600 group-hover:text-white"></i>
-              <span className="truncate">Teruskan ke WA</span>
-            </button>
-
-            {/* Tombol Cari & Buka Katalog */}
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-brand-950 font-black text-xs sm:text-sm px-4 sm:px-7 py-2.5 sm:py-3 rounded-2xl border-2 border-amber-500 shadow-md transition-all flex items-center justify-center gap-2"
-            >
-              <i className="fa-solid fa-magnifying-glass text-xs"></i>
-              <span className="truncate">Buka Katalog</span>
-              <i className="fa-solid fa-arrow-right text-xs"></i>
-            </button>
+            {/* TOMBOL UTAMA BUKA KATALOG (BESAR & JELAS) */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-300 active:scale-[0.99] text-brand-950 font-black text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-2xl border-2 border-amber-500 shadow-lg transition-all flex items-center justify-center gap-2.5"
+              >
+                <i className="fa-solid fa-compass text-sm"></i>
+                <span>Buka Katalog Unit ({liveCount} Villa Siap Booking)</span>
+                <i className="fa-solid fa-arrow-right text-xs"></i>
+              </button>
+            </div>
           </div>
 
           {/* NOTE & LIVE COUNT — di bawah tombol aksi, mencolok */}
@@ -1135,30 +1135,31 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
         </div>
       )}
 
-      {/* POPUP MODAL PILIH SEMUA FASILITAS */}
+      {/* POPUP MODAL PILIH SEMUA FASILITAS (DISAMAKAN PERSIS HALAMAN UTAMA) */}
       {showFacilityModal && (
         <div 
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setShowFacilityModal(false)}
         >
           <div 
-            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-sand-200 space-y-4 max-h-[85vh] flex flex-col justify-between"
+            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-sand-200 max-h-[85vh] flex flex-col justify-between"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Header Modal */}
             <div className="flex items-center justify-between pb-3 border-b border-sand-200">
               <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl bg-amber-400 text-brand-950 border border-amber-500 flex items-center justify-center text-xs shadow-xs font-black">
+                <span className="w-8 h-8 rounded-xl bg-brand-900 text-amber-300 flex items-center justify-center text-xs shadow-xs">
                   <i className="fa-solid fa-list-check"></i>
                 </span>
                 <div>
-                  <h3 className="font-serif font-bold text-base text-brand-900 leading-tight flex items-center gap-2">
-                    <span>Semua Kategori Fasilitas</span>
+                  <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight flex items-center gap-2">
+                    <span>Pilih Fasilitas Unit</span>
                     <span className="text-xs bg-amber-400 text-brand-950 font-black px-2 py-0.5 rounded-full border border-amber-500 shadow-2xs">
                       {liveCount} Villa Cocok
                     </span>
                   </h3>
-                  <span className="text-xs text-sand-500 font-medium">
-                    Pilih fasilitas yang diinginkan (angka menunjukkan unit tersedia)
+                  <span className="text-[11px] text-sand-500">
+                    Filter fasilitas berdasarkan kategori atau nama (angka menunjukkan unit tersedia)
                   </span>
                 </div>
               </div>
@@ -1171,102 +1172,164 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
               </button>
             </div>
 
-            {/* Input Search Fasilitas */}
-            <div className="relative">
-              <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs"></i>
-              <input
-                type="text"
-                placeholder="Cari fasilitas (misal: kolam renang, karaoke, biliar)..."
-                value={facilitySearchQuery}
-                onChange={(e) => setFacilitySearchQuery(e.target.value)}
-                className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm font-semibold text-sand-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-              />
+            {/* Pencarian Fasilitas Cepat */}
+            <div className="py-2.5">
+              <div className="relative">
+                <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sand-400 text-xs"></i>
+                <input
+                  type="text"
+                  placeholder="Ketik cari fasilitas (misal: AC, Dapur, Billiard)..."
+                  value={facilitySearchQuery}
+                  onChange={(e) => setFacilitySearchQuery(e.target.value)}
+                  className="w-full bg-sand-50 border border-sand-200 rounded-xl pl-9 pr-8 py-2 text-xs font-semibold text-sand-900 focus:outline-none focus:ring-1 focus:ring-brand-700 placeholder-sand-400"
+                />
+                {facilitySearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setFacilitySearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sand-400 hover:text-sand-700 text-xs"
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Kategori Tabs */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
+            {/* TAB VIEW SEMUA KATEGORI FASILITAS */}
+            <div className="pb-3 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
               {FACILITY_CATEGORIES.map(cat => {
                 const isActive = selectedFacilityCategory === cat.id;
+                const countSelected = cat.id === 'all'
+                  ? selectedFacilities.length
+                  : selectedFacilities.filter(id => {
+                      const f = POPULAR_FACILITIES.find(item => item.id === id);
+                      return f && f.category === cat.id;
+                    }).length;
+
                 return (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedFacilityCategory(cat.id)}
-                    className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
-                      isActive 
-                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-2xs font-black' 
-                        : 'bg-sand-100 hover:bg-sand-200 text-sand-700 border-sand-200'
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition flex items-center gap-1.5 border-2 shrink-0 ${
+                      isActive
+                        ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-xs'
+                        : 'bg-sand-50 hover:bg-sand-100 text-sand-800 border-sand-200'
                     }`}
                   >
-                    {cat.label}
+                    <span>{cat.label}</span>
+                    {countSelected > 0 && (
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${
+                        isActive ? 'bg-brand-950 text-amber-300' : 'bg-sand-200 text-sand-800'
+                      }`}>
+                        {countSelected}
+                      </span>
+                    )}
                   </button>
                 );
               })}
             </div>
 
-            {/* Grid Fasilitas */}
-            <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-56 pr-1">
-              {POPULAR_FACILITIES
-                .filter(f => {
-                  if (selectedFacilityCategory !== 'all' && f.category !== selectedFacilityCategory) return false;
-                  if (facilitySearchQuery.trim()) {
-                    const q = facilitySearchQuery.toLowerCase().trim();
-                    return f.label.toLowerCase().includes(q) || (f.category && f.category.toLowerCase().includes(q));
-                  }
-                  return true;
-                })
-                .map(fac => {
-                  const isSelected = selectedFacilities.includes(fac.id);
-                  return (
-                    <button
-                      key={fac.id}
-                      type="button"
-                      onClick={() => toggleFacility(fac.id)}
-                      className={`p-2.5 rounded-xl border-2 text-left transition flex items-center justify-between text-xs font-bold ${
-                        isSelected 
-                          ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-2xs font-black' 
-                          : 'bg-sand-50 hover:bg-sand-100 text-sand-800 border-sand-200'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <i className={`fa-solid ${fac.icon || 'fa-tag'} ${isSelected ? 'text-brand-950' : 'text-emerald-700'}`}></i>
-                        <span className="truncate">{fac.label}</span>
-                        <span className={`text-[10px] font-bold shrink-0 ${isSelected ? 'text-brand-950' : 'text-sand-500'}`}>
-                          ({getFacilityCount(fac.id)})
-                        </span>
-                      </div>
-                      <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : 'fa-square text-sand-300'} text-base shrink-0 ml-1`}></i>
-                    </button>
-                  );
-                })}
+            {/* List Fasilitas (Scrollable Grid) */}
+            <div className="flex-1 overflow-y-auto pr-1 py-1 space-y-2 max-h-60">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {POPULAR_FACILITIES
+                  .filter(f => {
+                    if (selectedFacilityCategory !== 'all' && f.category !== selectedFacilityCategory) return false;
+                    if (facilitySearchQuery.trim()) {
+                      const q = facilitySearchQuery.toLowerCase().trim();
+                      return f.label.toLowerCase().includes(q) || (f.category && f.category.toLowerCase().includes(q));
+                    }
+                    return true;
+                  })
+                  .map(fac => {
+                    const isSelected = selectedFacilities.includes(fac.id);
+                    return (
+                      <button
+                        key={fac.id}
+                        type="button"
+                        onClick={() => toggleFacility(fac.id)}
+                        className={`p-3 rounded-2xl text-xs font-bold text-left transition flex items-center justify-between border-2 ${
+                          isSelected 
+                            ? 'bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black' 
+                            : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <i className={`fa-solid ${fac.icon || 'fa-tag'} text-sm ${isSelected ? 'text-brand-950' : 'text-emerald-700'}`}></i>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="block leading-tight">{fac.label}</span>
+                              <span className={`text-[10px] font-bold ${isSelected ? 'text-brand-950' : 'text-sand-500'}`}>
+                                ({getFacilityCount(fac.id)} unit)
+                              </span>
+                            </div>
+                            {fac.category && (
+                              <span className={`text-[9px] uppercase tracking-wider block font-semibold ${isSelected ? 'text-brand-900' : 'text-sand-400'}`}>
+                                {fac.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <i className={`fa-solid ${isSelected ? 'fa-square-check text-brand-950' : 'fa-square text-sand-300'} text-base`}></i>
+                      </button>
+                    );
+                  })}
+              </div>
+
+              {POPULAR_FACILITIES.filter(f => {
+                if (selectedFacilityCategory !== 'all' && f.category !== selectedFacilityCategory) return false;
+                if (facilitySearchQuery.trim()) {
+                  const q = facilitySearchQuery.toLowerCase().trim();
+                  return f.label.toLowerCase().includes(q) || (f.category && f.category.toLowerCase().includes(q));
+                }
+                return true;
+              }).length === 0 && (
+                <div className="text-center py-8 text-sand-400 text-xs">
+                  <i className="fa-solid fa-triangle-exclamation text-xl mb-1 block"></i>
+                  Fasilitas "{facilitySearchQuery}" tidak ditemukan.
+                </div>
+              )}
             </div>
 
-            {/* Footer Modal Fasilitas */}
-            <div className="pt-3 border-t border-sand-200 flex items-center justify-between gap-2">
+            {/* Footer Modal: Ringkasan & Tombol Terapkan */}
+            <div className="pt-3 mt-3 border-t border-sand-200 flex items-center justify-between">
+              <div className="text-xs">
+                {selectedFacilities.length > 0 ? (
+                  <span className="font-black text-brand-900">
+                    <strong className="text-brand-950">{selectedFacilities.length}</strong> fasilitas dipilih
+                  </span>
+                ) : (
+                  <span className="text-sand-500 font-semibold">Belum ada fasilitas</span>
+                )}
+              </div>
+
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={selectAllFacilities}
-                  className="text-xs text-brand-900 font-bold hover:underline"
+                  className="text-xs text-brand-900 font-bold hover:underline px-1.5 py-1"
                 >
                   Pilih Semua
                 </button>
                 <span className="text-sand-300">•</span>
+                {selectedFacilities.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAllFacilities}
+                    className="text-xs text-terracotta-600 font-bold hover:underline px-1.5 py-1"
+                  >
+                    Reset
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={clearAllFacilities}
-                  className="text-xs text-terracotta-600 font-bold hover:underline"
+                  onClick={() => setShowFacilityModal(false)}
+                  className="bg-amber-400 hover:bg-amber-300 text-brand-950 font-black text-xs px-5 py-2.5 rounded-xl border border-amber-500 shadow-sm transition active:scale-95"
                 >
-                  Hapus Pilihan
+                  Terapkan ({selectedFacilities.length} Fasilitas)
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowFacilityModal(false)}
-                className="bg-amber-400 hover:bg-amber-300 text-brand-950 border border-amber-500 font-black text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition active:scale-95"
-              >
-                Terapkan ({selectedFacilities.length} Fasilitas • {liveCount} Villa)
-              </button>
             </div>
 
           </div>
