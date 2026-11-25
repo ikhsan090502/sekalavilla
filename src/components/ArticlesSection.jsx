@@ -97,7 +97,7 @@ export default function ArticlesSection({ articles = [], onSelectArticle, active
                 : 'text-sand-700 hover:bg-sand-100 hover:text-brand-900'
             }`}
           >
-            <span>🏔️ Tawangmangu</span>
+            <span className="inline-flex items-center gap-1.5"><i className="fa-solid fa-mountain-sun text-[11px]"></i> Tawangmangu</span>
             <span className={`text-[10px] px-1.5 rounded-full font-extrabold leading-5 ${
               selectedLocation === 'Tawangmangu' ? 'bg-brand-950 text-amber-300' : 'bg-sand-200 text-sand-700'
             }`}>
@@ -114,7 +114,7 @@ export default function ArticlesSection({ articles = [], onSelectArticle, active
                 : 'text-sand-700 hover:bg-sand-100 hover:text-brand-900'
             }`}
           >
-            <span>🏛️ Yogyakarta</span>
+            <span className="inline-flex items-center gap-1.5"><i className="fa-solid fa-landmark text-[11px]"></i> Yogyakarta</span>
             <span className={`text-[10px] px-1.5 rounded-full font-extrabold leading-5 ${
               selectedLocation === 'Yogyakarta' ? 'bg-brand-950 text-amber-300' : 'bg-sand-200 text-sand-700'
             }`}>

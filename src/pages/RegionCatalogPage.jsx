@@ -137,7 +137,7 @@ export default function RegionCatalogPage({
                     : 'bg-sand-50 text-sand-800 border-sand-200 hover:bg-sand-100'
                 }`}
               >
-                📍 {r.name}
+                <i className="fa-solid fa-location-dot mr-1"></i>{r.name}
               </button>
             ))}
           </div>

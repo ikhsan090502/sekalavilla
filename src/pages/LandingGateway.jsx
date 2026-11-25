@@ -442,7 +442,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl sm:text-3xl">🏔️</span>
+                      <span className="w-10 h-10 rounded-xl bg-brand-900/10 text-brand-900 flex items-center justify-center text-lg shrink-0"><i className="fa-solid fa-mountain-sun"></i></span>
                       <div>
                         <strong className="text-sm sm:text-base block leading-tight text-brand-900">
                           Tawangmangu & Kemuning
@@ -471,7 +471,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl sm:text-3xl">🏛️</span>
+                      <span className="w-10 h-10 rounded-xl bg-brand-900/10 text-brand-900 flex items-center justify-center text-lg shrink-0"><i className="fa-solid fa-landmark"></i></span>
                       <div>
                         <strong className="text-sm sm:text-base block leading-tight text-brand-900">
                           Yogyakarta & Sleman
@@ -510,7 +510,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   {/* 1. KOTA TERPILIH: TAWANGMANGU */}
                   <div className="p-3.5 rounded-2xl border-2 text-left bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-2xl">🏔️</span>
+                      <span className="w-9 h-9 rounded-xl bg-brand-900/10 text-brand-900 flex items-center justify-center text-base shrink-0"><i className="fa-solid fa-mountain-sun"></i></span>
                       <div>
                         <strong className="text-sm sm:text-base block leading-tight">Tawangmangu & Kemuning</strong>
                         <span className="text-[11px] block text-brand-900 font-semibold">
@@ -579,7 +579,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                           key={areaName}
                           className="bg-amber-400 text-brand-950 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-xl border border-amber-500 flex items-center gap-2 shadow-2xs"
                         >
-                          <span>📍 {areaName}</span>
+                          <span className="inline-flex items-center gap-1"><i className="fa-solid fa-location-dot text-[10px]"></i> {areaName}</span>
                           <button
                             type="button"
                             onClick={() => toggleArea(areaName)}
@@ -603,7 +603,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                   {/* 1. KOTA TERPILIH: YOGYAKARTA */}
                   <div className="p-3.5 rounded-2xl border-2 text-left bg-amber-400 text-brand-950 border-amber-500 shadow-sm font-black flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-2xl">🏛️</span>
+                      <span className="w-9 h-9 rounded-xl bg-brand-900/10 text-brand-900 flex items-center justify-center text-base shrink-0"><i className="fa-solid fa-landmark"></i></span>
                       <div>
                         <strong className="text-sm sm:text-base block leading-tight">Yogyakarta & Sleman</strong>
                         <span className="text-[11px] block text-brand-900 font-semibold">
@@ -672,7 +672,7 @@ export default function LandingGateway({ onComplete, onSkip, settings, initialFi
                           key={areaName}
                           className="bg-amber-400 text-brand-950 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-xl border border-amber-500 flex items-center gap-2 shadow-2xs"
                         >
-                          <span>📍 {areaName}</span>
+                          <span className="inline-flex items-center gap-1"><i className="fa-solid fa-location-dot text-[10px]"></i> {areaName}</span>
                           <button
                             type="button"
                             onClick={() => toggleArea(areaName)}

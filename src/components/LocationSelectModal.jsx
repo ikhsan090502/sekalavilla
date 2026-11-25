@@ -4,14 +4,14 @@ import { DEFAULT_REGIONS } from '../data/initialData';
 const REGION_PRESETS = {
   tawangmangu: {
     locValue: 'Tawangmangu',
-    emoji: '🏔️',
+    iconClass: 'fa-mountain-sun',
     badgeLabel: 'Dingin & Sejuk',
     image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
     desc: 'Lereng Gunung Lawu, Sekipan, Pancot, Blumbang, kebun teh Kemuning. Udara dingin & sejuk.'
   },
   yogyakarta: {
     locValue: 'Yogyakarta',
-    emoji: '🏛️',
+    iconClass: 'fa-landmark',
     badgeLabel: 'Asri & Wisata',
     image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
     desc: 'Kawasan Kaliurang, lereng Merapi, Sleman, & dekat kota. Nuansa estetik, tenang, & strategis.'
@@ -108,7 +108,8 @@ export default function LocationSelectModal({
               }).length;
 
               const imgUrl = reg.image || preset.image || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80';
-              const badgeText = preset.badgeLabel ? `${preset.emoji} ${preset.badgeLabel}` : (reg.badge || 'Destinasi');
+              const badgeIcon = preset.iconClass || 'fa-location-dot';
+              const badgeText = preset.badgeLabel || reg.badge || 'Destinasi';
               const descText = reg.desc || preset.desc || `Pilihan villa & glamping terbaik di kawasan ${reg.name}.`;
               const shortName = reg.name?.split('&')[0]?.trim() || locValue;
 
@@ -126,8 +127,9 @@ export default function LocationSelectModal({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     
-                    <span className="absolute top-2.5 left-2.5 bg-amber-400 text-brand-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">
-                      {badgeText}
+                    <span className="absolute top-2.5 left-2.5 bg-amber-400 text-brand-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm inline-flex items-center gap-1">
+                      <i className={`fa-solid ${badgeIcon} text-[9px]`}></i>
+                      <span>{badgeText}</span>
                     </span>
 
                     <span className="absolute bottom-2 left-2.5 bg-brand-900/90 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md backdrop-blur-xs border border-amber-400/40">

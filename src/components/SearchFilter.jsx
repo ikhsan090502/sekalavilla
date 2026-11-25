@@ -314,17 +314,17 @@ export default function SearchFilter({
                   <div className="flex flex-wrap gap-1.5 mt-1.5">
                     {filters.location !== 'all' && (
                       <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 shadow-2xs">
-                        📍 {filters.location}
+                        <i className="fa-solid fa-location-dot mr-1"></i>{filters.location}
                       </span>
                     )}
                     {activeSubLocations.length > 0 && activeSubLocations.map(subLoc => (
                       <span key={subLoc} className="bg-amber-400 text-brand-950 text-xs font-black px-2.5 py-1 rounded-lg border border-amber-500 shadow-2xs">
-                        📌 Area: {subLoc}
+                        <i className="fa-solid fa-map-pin mr-1"></i>Area: {subLoc}
                       </span>
                     ))}
                     {filters.propertyType !== 'all' && (
                       <span className="bg-white text-brand-950 text-xs font-bold px-2.5 py-1 rounded-lg border border-amber-300 capitalize shadow-2xs">
-                        🏡 {filters.propertyType}
+                        <i className="fa-solid fa-house mr-1"></i>{filters.propertyType}
                       </span>
                     )}
                     {(filters.capacity > 0 || filters.maxCapacity > 0) && (
@@ -352,7 +352,7 @@ export default function SearchFilter({
                     )}
                     {selectedFacilities.length > 0 && (
                       <span className="bg-amber-400 text-brand-950 text-xs font-black px-2.5 py-1 rounded-lg border border-amber-500 shadow-2xs flex items-center gap-1">
-                        ✨ Fasilitas ({selectedFacilities.length}): {selectedFacilities.map(fId => {
+                        <i className="fa-solid fa-star mr-1"></i>Fasilitas ({selectedFacilities.length}): {selectedFacilities.map(fId => {
                           const f = POPULAR_FACILITIES.find(p => p.id === fId);
                           return f ? f.label : fId;
                         }).join(', ')}

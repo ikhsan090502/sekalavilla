@@ -660,7 +660,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
         <div>
           <div className="flex items-center gap-3 pb-5 border-b border-brand-800 mb-5">
             <span className="w-10 h-10 rounded-2xl bg-amber-400 text-brand-900 flex items-center justify-center font-bold text-lg shadow shrink-0">
-              {currentUser?.emoji || '🛡️'}
+              <i className="fa-solid fa-user-shield text-sm"></i>
             </span>
             <div className="min-w-0">
               <h2 className="font-serif font-bold text-sm text-amber-50 leading-tight truncate">
@@ -781,7 +781,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                 <p className="text-xs text-sand-800 mt-1">
                   {isSuperAdmin
                     ? 'Semua lokasi — Tawangmangu & Yogyakarta.'
-                    : `📍 Anda hanya bisa edit villa lokasi: ${currentUser?.location}. Villa lokasi lain bisa dilihat tapi tidak bisa diedit.`}
+                    : `Khusus lokasi ${currentUser?.location}. Villa lokasi lain bisa dilihat tapi tidak bisa diedit.`}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
@@ -791,7 +791,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
                     className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-2xl shadow transition flex items-center gap-2"
                   >
                     <i className="fa-solid fa-wand-magic-sparkles text-brand-900"></i>
-                    <span>⚡ Tarik Otomatis dari Maps</span>
+                    <span>Tarik Otomatis dari Maps</span>
                   </button>
                 )}
                 <button

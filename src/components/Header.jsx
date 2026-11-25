@@ -150,7 +150,7 @@ export default function Header({ settings, regions = [], onOpenRegionPage, onHom
                     }}
                     className="w-full text-left py-2 px-3 rounded-xl bg-sand-100 hover:bg-brand-900 hover:text-amber-300 text-brand-900 font-bold text-xs flex items-center justify-between transition"
                   >
-                    <span>📍 {r.name} ({r.badge})</span>
+                    <span className="inline-flex items-center gap-1.5"><i className="fa-solid fa-location-dot text-terracotta-600"></i> {r.name} ({r.badge})</span>
                     <i className="fa-solid fa-arrow-right text-[10px]"></i>
                   </button>
                 ))}
