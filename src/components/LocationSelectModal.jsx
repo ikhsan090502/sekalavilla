@@ -1,8 +1,26 @@
 import React from 'react';
+import { DEFAULT_REGIONS } from '../data/initialData';
+
+const REGION_PRESETS = {
+  tawangmangu: {
+    locValue: 'Tawangmangu',
+    emoji: '🏔️',
+    badgeLabel: 'Dingin & Sejuk',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+    desc: 'Lereng Gunung Lawu, Sekipan, Pancot, Blumbang, kebun teh Kemuning. Udara dingin & sejuk.'
+  },
+  yogyakarta: {
+    locValue: 'Yogyakarta',
+    emoji: '🏛️',
+    badgeLabel: 'Asri & Wisata',
+    image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+    desc: 'Kawasan Kaliurang, lereng Merapi, Sleman, & dekat kota. Nuansa estetik, tenang, & strategis.'
+  }
+};
 
 /**
  * LocationSelectModal
- * Popup memilih destinasi / tempat menginap (Tawangmangu vs Yogyakarta)
+ * Popup memilih destinasi / tempat menginap dinamis sesuai data regions (database/API).
  * Menggantikan popup promo lama, dan wajib dipilih saat melewati landing page.
  */
 export default function LocationSelectModal({
@@ -10,20 +28,13 @@ export default function LocationSelectModal({
   onClose,
   onSelectLocation,
   villas = [],
+  regions = [],
   settings = {},
   isMandatory = true
 }) {
   if (!isOpen) return null;
 
-  // Hitung villa per daerah secara live
-  const countTawangmangu = villas.filter(v => 
-    (v.location || '').toLowerCase().includes('tawangmangu')
-  ).length;
-
-  const countJogja = villas.filter(v => 
-    (v.location || '').toLowerCase().includes('yogyakarta') || 
-    (v.location || '').toLowerCase().includes('jogja')
-  ).length;
+  const activeRegions = (regions && regions.length > 0) ? regions : DEFAULT_REGIONS;
 
   const handleChoose = (locName) => {
     onSelectLocation(locName);
@@ -76,115 +87,76 @@ export default function LocationSelectModal({
           </div>
         </div>
 
-        {/* KONTEN PILIHAN TEMPAT (2 KARTU UTAMA) */}
-        <div className="p-4 sm:p-6 space-y-3.5 sm:space-y-4 bg-sand-50/60">
+        {/* KONTEN PILIHAN TEMPAT (DINAMIS SESUAI DATABASE / API REGIONS) */}
+        <div className="p-4 sm:p-6 bg-sand-50/60">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            
-            {/* OPSI 1: TAWANGMANGU & KEMUNING */}
-            <div 
-              onClick={() => handleChoose('Tawangmangu')}
-              className="group cursor-pointer bg-white rounded-2xl border-2 border-sand-200 hover:border-amber-500 shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col justify-between hover:-translate-y-1"
-            >
-              <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-brand-900">
-                <img 
-                  src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80" 
-                  alt="Tawangmangu & Kemuning"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                
-                <span className="absolute top-2.5 left-2.5 bg-amber-400 text-brand-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">
-                  🏔️ Dingin & Sejuk
-                </span>
+            {activeRegions.map((reg) => {
+              const idLow = (reg.id || '').toLowerCase();
+              const preset = REGION_PRESETS[idLow] || {};
+              const locValue = reg.locValue || preset.locValue || reg.name?.split(' ')[0] || reg.id;
+              const locKey = locValue.toLowerCase();
 
-                <span className="absolute bottom-2 left-2.5 bg-brand-950/90 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md backdrop-blur-xs border border-amber-400/40">
-                  {countTawangmangu} Unit Tersedia
-                </span>
-              </div>
+              const unitCount = villas.filter(v => {
+                const vLoc = (v.location || '').toLowerCase();
+                if (idLow === 'yogyakarta') {
+                  return vLoc.includes('yogyakarta') || vLoc.includes('jogja');
+                }
+                return vLoc.includes(locKey);
+              }).length;
 
-              <div className="p-3.5 sm:p-4 space-y-2 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight group-hover:text-terracotta-600 transition">
-                    Tawangmangu & Kemuning
-                  </h3>
-                  <p className="text-[11px] text-sand-600 mt-1 line-clamp-2 leading-relaxed">
-                    Lereng Gunung Lawu, Sekipan, Pancot, Blumbang, kebun teh Kemuning. Udara dingin & sejuk.
-                  </p>
-                </div>
+              const imgUrl = reg.image || preset.image || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80';
+              const badgeText = preset.badgeLabel ? `${preset.emoji} ${preset.badgeLabel}` : (reg.badge || 'Destinasi');
+              const descText = reg.desc || preset.desc || `Pilihan villa & glamping terbaik di kawasan ${reg.name}.`;
+              const shortName = reg.name?.split('&')[0]?.trim() || locValue;
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleChoose('Tawangmangu');
-                  }}
-                  className="mt-3 w-full bg-amber-400 group-hover:bg-amber-300 text-brand-950 font-black text-xs py-2 px-3 rounded-xl border border-amber-500 shadow-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+              return (
+                <div 
+                  key={reg.id || locValue}
+                  onClick={() => handleChoose(locValue)}
+                  className="group cursor-pointer bg-white rounded-2xl border-2 border-sand-200 hover:border-amber-500 shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col justify-between hover:-translate-y-1"
                 >
-                  <span>Pilih Tawangmangu</span>
-                  <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
-              </div>
-            </div>
+                  <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-brand-900">
+                    <img 
+                      src={imgUrl} 
+                      alt={reg.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    
+                    <span className="absolute top-2.5 left-2.5 bg-amber-400 text-brand-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">
+                      {badgeText}
+                    </span>
 
-            {/* OPSI 2: YOGYAKARTA & SLEMAN */}
-            <div 
-              onClick={() => handleChoose('Yogyakarta')}
-              className="group cursor-pointer bg-white rounded-2xl border-2 border-sand-200 hover:border-amber-500 shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col justify-between hover:-translate-y-1"
-            >
-              <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-brand-900">
-                <img 
-                  src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80" 
-                  alt="Yogyakarta & Sleman"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                
-                <span className="absolute top-2.5 left-2.5 bg-amber-400 text-brand-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm">
-                  🏛️ Asri & Wisata
-                </span>
+                    <span className="absolute bottom-2 left-2.5 bg-brand-900/90 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md backdrop-blur-xs border border-amber-400/40">
+                      {unitCount} Unit Tersedia
+                    </span>
+                  </div>
 
-                <span className="absolute bottom-2 left-2.5 bg-brand-950/90 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md backdrop-blur-xs border border-amber-400/40">
-                  {countJogja} Unit Tersedia
-                </span>
-              </div>
+                  <div className="p-3.5 sm:p-4 space-y-2 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight group-hover:text-terracotta-600 transition">
+                        {reg.name}
+                      </h3>
+                      <p className="text-[11px] text-sand-600 mt-1 line-clamp-2 leading-relaxed">
+                        {descText}
+                      </p>
+                    </div>
 
-              <div className="p-3.5 sm:p-4 space-y-2 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-serif font-bold text-base sm:text-lg text-brand-900 leading-tight group-hover:text-terracotta-600 transition">
-                    Yogyakarta & Sleman
-                  </h3>
-                  <p className="text-[11px] text-sand-600 mt-1 line-clamp-2 leading-relaxed">
-                    Kawasan Kaliurang, lereng Merapi, Sleman, & dekat kota. Nuansa estetik, tenang, & strategis.
-                  </p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChoose(locValue);
+                      }}
+                      className="mt-3 w-full bg-amber-400 group-hover:bg-amber-300 text-brand-950 font-black text-xs py-2 px-3 rounded-xl border border-amber-500 shadow-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                    >
+                      <span>Pilih {shortName}</span>
+                      <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                  </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleChoose('Yogyakarta');
-                  }}
-                  className="mt-3 w-full bg-amber-400 group-hover:bg-amber-300 text-brand-950 font-black text-xs py-2 px-3 rounded-xl border border-amber-500 shadow-xs flex items-center justify-center gap-1.5 transition active:scale-95"
-                >
-                  <span>Pilih Yogyakarta</span>
-                  <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          {/* OPSI KETIGA: LIHAT SEMUA DESTINASI */}
-          <div className="pt-1">
-            <button
-              type="button"
-              onClick={() => handleChoose('all')}
-              className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-sand-100 text-sand-700 hover:text-brand-950 font-bold text-xs border border-sand-200 transition flex items-center justify-center gap-2 shadow-2xs group"
-            >
-              <i className="fa-solid fa-layer-group text-sand-400 group-hover:text-amber-500"></i>
-              <span>Tampilkan Semua Unit (Tawangmangu & Jogja Sekaligus)</span>
-              <i className="fa-solid fa-chevron-right text-[10px] text-sand-400"></i>
-            </button>
+              );
+            })}
           </div>
         </div>
 

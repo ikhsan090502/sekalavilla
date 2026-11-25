@@ -722,6 +722,7 @@ export default function App() {
           }, 150);
         }}
         villas={villas}
+        regions={regions}
         settings={settings}
         isMandatory={true}
       />
