@@ -56,7 +56,7 @@ export default function LocationSelectModal({
         )}
 
         {/* HEADER MODAL */}
-        <div className="bg-gradient-to-br from-brand-950 via-brand-900 to-emerald-950 text-white px-5 sm:px-7 pt-6 pb-5 text-center relative overflow-hidden">
+        <div className="bg-brand-900 bg-gradient-to-br from-brand-900 via-brand-900 to-slate-900 text-white px-5 sm:px-7 pt-6 pb-5 text-center relative overflow-hidden">
           {/* Aksen hiasan latar */}
           <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-xl pointer-events-none"></div>
@@ -70,7 +70,7 @@ export default function LocationSelectModal({
               Mau Liburan ke Mana?
             </h2>
 
-            <p className="text-xs sm:text-sm text-sand-200/90 max-w-md mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-sand-100 max-w-md mx-auto leading-relaxed">
               Tentukan destinasi tujuan Anda untuk melihat katalog villa & glamping yang tersedia dan siap dibooking.
             </p>
           </div>
