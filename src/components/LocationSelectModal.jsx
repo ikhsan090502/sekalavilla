@@ -67,7 +67,10 @@ export default function LocationSelectModal({
         )}
 
         {/* HEADER MODAL */}
-        <div className="bg-brand-900 bg-gradient-to-br from-brand-900 via-brand-900 to-slate-900 text-white px-5 sm:px-7 pt-6 pb-5 text-center relative overflow-hidden">
+        <div
+          style={{ background: 'linear-gradient(135deg, #0f291e 0%, #143628 55%, #0f172a 100%)' }}
+          className="text-white px-5 sm:px-7 pt-6 pb-5 text-center relative overflow-hidden"
+        >
           {/* Aksen hiasan latar */}
           <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-xl pointer-events-none"></div>
