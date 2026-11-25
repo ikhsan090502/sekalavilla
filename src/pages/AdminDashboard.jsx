@@ -58,6 +58,7 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
   // Storage States
   const [banners, setBanners] = useState(storage.getBanners());
   const [villas, setVillas] = useState(storage.getVillas());
+  const [adminLocFilter, setAdminLocFilter] = useState('all');
   const [regions, setRegions] = useState(storage.getRegions());
   const [articles, setArticles] = useState(storage.getArticles());
   const [settings, setSettings] = useState(storage.getSettings());
@@ -822,8 +823,68 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
               </div>
             </div>
 
+            {/* Filter Lokasi Dinamis (Sesuai daftar regions di database/API) */}
+            <div className="flex flex-wrap items-center gap-2 bg-white p-3 rounded-2xl border border-sand-200 shadow-xs">
+              <span className="text-[11px] font-bold text-sand-600 uppercase tracking-wider px-2 flex items-center gap-1.5">
+                <i className="fa-solid fa-filter text-brand-800"></i> Filter Lokasi:
+              </span>
+              <button
+                type="button"
+                onClick={() => setAdminLocFilter('all')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                  adminLocFilter === 'all'
+                    ? 'bg-brand-900 text-amber-300 shadow-sm'
+                    : 'bg-sand-100 text-sand-700 hover:bg-sand-200'
+                }`}
+              >
+                <span>Semua Lokasi</span>
+                <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${adminLocFilter === 'all' ? 'bg-amber-400 text-brand-950' : 'bg-sand-200 text-sand-700'}`}>
+                  {villas.length}
+                </span>
+              </button>
+
+              {regions.map((reg) => {
+                const regKey = (reg.id === 'yogyakarta' ? 'yogyakarta' : (reg.name?.split('&')[0]?.trim() || reg.id)).toLowerCase();
+                const regLabel = reg.name?.split('&')[0]?.trim() || reg.name;
+                const count = villas.filter(v => {
+                  const vLoc = (v.location || '').toLowerCase();
+                  if (reg.id === 'yogyakarta') return vLoc.includes('yogyakarta') || vLoc.includes('jogja');
+                  return vLoc.includes(regKey);
+                }).length;
+                const isActive = adminLocFilter === reg.id;
+
+                return (
+                  <button
+                    key={reg.id}
+                    type="button"
+                    onClick={() => setAdminLocFilter(reg.id)}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                      isActive
+                        ? 'bg-brand-900 text-amber-300 shadow-sm'
+                        : 'bg-sand-100 text-sand-700 hover:bg-sand-200'
+                    }`}
+                  >
+                    <i className="fa-solid fa-location-dot text-[10px]"></i>
+                    <span>{regLabel}</span>
+                    <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${isActive ? 'bg-amber-400 text-brand-950' : 'bg-sand-200 text-sand-700'}`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {villas.map(v => {
+              {villas
+                .filter(v => {
+                  if (adminLocFilter === 'all') return true;
+                  const targetReg = regions.find(r => r.id === adminLocFilter);
+                  const regKey = (targetReg?.id === 'yogyakarta' ? 'yogyakarta' : (targetReg?.name?.split('&')[0]?.trim() || adminLocFilter)).toLowerCase();
+                  const vLoc = (v.location || '').toLowerCase();
+                  if (adminLocFilter === 'yogyakarta') return vLoc.includes('yogyakarta') || vLoc.includes('jogja');
+                  return vLoc.includes(regKey);
+                })
+                .map(v => {
                 const pType = v.propertyType || 'villa';
                 const typeLabel = pType === 'glamping' ? 'Glamping' : (pType === 'homestay' ? 'Homestay' : 'Villa');
                 const typeIcon = pType === 'glamping' ? 'fa-campground' : (pType === 'homestay' ? 'fa-people-roof' : 'fa-house-chimney-window');
