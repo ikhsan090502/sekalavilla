@@ -622,25 +622,6 @@ export default function AdminDashboard({ onBackToSite, onDataChanged }) {
             </button>
           </form>
 
-          {/* Daftar akun (hanya tampil di development atau bisa dihapus di production) */}
-          <div className="mt-5 p-3 bg-sand-100 rounded-2xl border border-sand-200 space-y-1.5">
-            <p className="text-[10px] text-sand-800 font-bold uppercase tracking-wider mb-2">👤 Daftar Akun Admin:</p>
-            {ADMIN_ACCOUNTS.map(acc => (
-              <button
-                key={acc.username}
-                type="button"
-                onClick={() => { setUsername(acc.username); setPassword(acc.password); }}
-                className="w-full text-left px-3 py-2 rounded-xl bg-white hover:bg-amber-50 border border-sand-200 hover:border-amber-300 transition"
-              >
-                <span className="text-xs font-black text-brand-900">{acc.emoji} {acc.name}</span>
-                <span className="text-[10px] text-sand-600 block font-mono">{acc.username}</span>
-                {acc.location && (
-                  <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full">📍 {acc.location} only</span>
-                )}
-              </button>
-            ))}
-          </div>
-
           <button
             onClick={onBackToSite}
             className="w-full text-center text-xs text-sand-800 hover:text-brand-900 font-bold mt-4 block"
