@@ -41,7 +41,7 @@ export default function SearchFilter({
   const [modalOpen, setModalOpen] = useState(false);
   const [searchFacility, setSearchFacility] = useState('');
   const [selectedFacilityCategory, setSelectedFacilityCategory] = useState('all');
-  const [showCriteriaForm, setShowCriteriaForm] = useState(false);
+  const [showCriteriaForm, setShowCriteriaForm] = useState(true);
 
   // Hitung jumlah unit yang memiliki fasilitas tertentu
   const getFacilityCount = (facilityId) => {
